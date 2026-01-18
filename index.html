@@ -33,8 +33,9 @@ canvas {
     background: #fdf5e6; color: #2b1d0e; padding: 20px; width: 90%; z-index: 1000; border: 5px solid #8a6d3b;
     box-shadow: 0 0 50px rgba(0,0,0,0.8); box-sizing: border-box;
 }
-.btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 5px; border: none; font-size: 16px; text-align: center; }
-.btn-pay { background: #ff0033; color: #fff !important; }
+.btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 5px; border: none; font-size: 18px; text-align: center; cursor: pointer; }
+.btn-pay { background: #ff0033 !important; color: #ffffff !important; display: block !important; }
+.btn-retry { background: #666 !important; color: #ffffff !important; }
 .qr-image { width: 180px; height: 180px; border: 1px solid #ccc; margin: 10px auto; display: block; }
 </style>
 </head>
@@ -57,10 +58,10 @@ canvas {
 
 <div id="modal" class="modal">
     <h2 style="margin:0;">クリアおめでとう！</h2>
-    <p>支援（1円〜）いただけると幸いです。<br>※PayPayアプリが開きます</p>
+    <p>支援（1円〜）いただけると幸いです。<br>※ボタンを押すとPayPayが開きます</p>
     <img src="paypay-qr.png" alt="PayPay QR" class="qr-image">
-    <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" class="btn btn-pay">PayPayアプリで1円送る</a>
-    <button onclick="location.reload()" class="btn" style="background:#ddd; color:#333;">もう一度遊ぶ</button>
+    <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayアプリで1円送る</a>
+    <button onclick="window.location.reload();" class="btn btn-retry">もう一度遊ぶ</button>
 </div>
 
 <script>
