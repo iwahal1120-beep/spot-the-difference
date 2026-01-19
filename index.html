@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>World Challenge! Spot the Difference</title>
-<style>
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>World Challenge! Spot the Difference</title><style>
 body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #050505; color: #d4af37; margin: 0; padding: 0; overflow: hidden; touch-action: none; width: 100vw; height: 100vh; }
 .header { padding: 10px 5px; background: linear-gradient(to bottom, #2c2c2c, #000); border-bottom: 3px double #d4af37; height: 130px; box-sizing: border-box; }
 .top-banner { font-size: 11px; color: #fff; font-weight: bold; letter-spacing: 1px; }
@@ -13,59 +7,49 @@ body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; back
 .status-bar { display: flex; justify-content: center; gap: 30px; font-size: 18px; margin-top: 5px; }
 #timer { color: #ff3b3b; font-weight: bold; }
 #c { color: #00ff00; font-weight: bold; }
-.game-area { display: flex; width: 100vw; height: calc(100vh - 130px); background: #000; box-sizing: border-box; justify-content: center; align-items: center; gap: 4px; }
-canvas { width: 48%; max-height: 95%; border: 2px solid #d4af37; background: #111; object-fit: contain; }
+.game-area { display: flex; width: 100vw; height: calc(100vh - 130px); background: #000; box-sizing: border-box; justify-content: center; align-items: center; gap: 4px; padding: 5px; }
+canvas { width: 48%; height: auto; aspect-ratio: 2/3; border: 2px solid #d4af37; background: #111; image-rendering: -webkit-optimize-contrast; } /* 画像をくっきりさせる設定 */
 .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fdf5e6; color: #2b1d0e; padding: 20px; width: 90%; z-index: 1000; border: 5px solid #8a6d3b; box-shadow: 0 0 50px rgba(0,0,0,0.8); box-sizing: border-box; border-radius: 10px; }
 .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 5px; border: none; font-size: 18px; text-align: center; cursor: pointer; }
 .btn-pay { background: #ff0033 !important; color: #ffffff !important; }
 .btn-retry { background: #666 !important; color: #ffffff !important; }
 .qr-image { width: 180px; height: 180px; border: 1px solid #ccc; margin: 10px auto; display: block; }
-</style>
-</head>
-<body>
-<div class="header">
+</style></head><body><div class="header">
     <div class="top-banner">WORLD CHALLENGE! SPOT THE DIFFERENCE</div>
     <div class="main-title">世界で挑戦！間違い探し３！</div>
     <div id="stg">Loading Stage...</div>
-    <div class="status-bar"><div>TIME: <span id="timer">45</span></div><div>FOUND: <span id="c">0</span>/3</div></div>
-</div>
-<div class="game-area"><canvas id="l"></canvas><canvas id="r"></canvas></div>
-<div id="modal" class="modal">
+    <div class="status-bar"><div>TIME: <span id="timer">45</span></div><div>FOUND: <span id="c">0</span>/3</div></div></div><div class="game-area"><canvas id="l"></canvas><canvas id="r"></canvas></div><div id="modal" class="modal">
     <h2 style="margin:0; color:#d44d5c;">CONGRATULATIONS!</h2>
     <h3 style="margin:5px 0;">全ステージクリアおめでとう！</h3>
     <p style="font-size:14px;">If you enjoyed, please support me.<br>楽しんでいただけたら支援をお願いします。</p>
     <img src="paypay-qr.png" alt="PayPay QR" class="qr-image">
     <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayアプリで送金する</a>
-    <button onclick="window.location.reload();" class="btn btn-retry">PLAY AGAIN / もう一度遊ぶ</button>
-</div>
-<script>
+    <button onclick="window.location.reload();" class="btn btn-retry">PLAY AGAIN / もう一度遊ぶ</button></div><script>
 const stageList = [
-    {id: 'london', name: "STAGE 1: London / ロンドン"},
-    {id: 'paris', name: "STAGE 2: Paris / パリ"},
-    {id: 'newyork', name: "STAGE 3: New York / ニューヨーク"},
-    {id: 'tokyo', name: "STAGE 4: Tokyo / 東京"},
-    {id: 'venice', name: "STAGE 5: Venice / ベニス"}
-];
-let curIdx = 0, found = 0, time = 45, active = false, spots = [];
-const lc = document.getElementById('l'), rc = document.getElementById('r');
-const lCtx = lc.getContext('2d'), rCtx = rc.getContext('2d');
+    {id: 'london,architecture', name: "STAGE 1: London"},
+    {id: 'paris,tower', name: "STAGE 2: Paris"},
+    {id: 'new-york,skyline', name: "STAGE 3: New York"},
+    {id: 'tokyo,shrine', name: "STAGE 4: Tokyo"},
+    {id: 'venice,canal', name: "STAGE 5: Venice"}
+];let curIdx = 0, found = 0, time = 45, active = false, spots = [];const lc = document.getElementById('l'), rc = document.getElementById('r');const lCtx = lc.getContext('2d'), rCtx = rc.getContext('2d');
 
 function loadStage() {
     active = false; found = 0; time = 45;
     document.getElementById('stg').innerText = stageList[curIdx].name;
     document.getElementById('c').innerText = "0";
     const img = new Image(); img.crossOrigin = "anonymous";
-    // 写真ではなく「イラスト・アート」をキーワードに読み込む設定
-    img.src = `https://loremflickr.com/800/1200/${stageList[curIdx].id},illustration,city?lock=${curIdx + 10}`;
+    // 解像度を上げて、より特徴的なキーワードを指定（g=gで描き込みの多い画像を指定）
+    img.src = `https://loremflickr.com/g/800/1200/${stageList[curIdx].id},painting?lock=${curIdx + 50}`;
+    
     img.onload = () => {
-        lc.width = rc.width = 400; lc.height = rc.height = 600;
-        lCtx.drawImage(img, 0, 0, 400, 600); rCtx.drawImage(img, 0, 0, 400, 600);
+        lc.width = rc.width = 800; lc.height = rc.height = 1200; // キャンバス自体の解像度を倍に
+        lCtx.drawImage(img, 0, 0, 800, 1200); rCtx.drawImage(img, 0, 0, 800, 1200);
         spots = [];
         for(let i=0; i<3; i++) {
-            spots.push({ x: 60 + Math.random()*280, y: 60 + Math.random()*480, f: false });
+            spots.push({ x: 100 + Math.random()*600, y: 100 + Math.random()*1000, f: false });
         }
         spots.forEach(p => {
-            rCtx.save(); rCtx.beginPath(); rCtx.arc(p.x, p.y, 40, 0, Math.PI*2); rCtx.clip();
+            rCtx.save(); rCtx.beginPath(); rCtx.arc(p.x, p.y, 80, 0, Math.PI*2); rCtx.clip();
             rCtx.translate(p.x, p.y); rCtx.scale(-1, 1); rCtx.drawImage(lc, -p.x, -p.y); rCtx.restore();
         });
         active = true;
@@ -75,14 +59,14 @@ function loadStage() {
 function check(ex, ey, canvas) {
     if(!active) return;
     const rect = canvas.getBoundingClientRect();
-    const x = (ex - rect.left) * (400 / rect.width);
-    const y = (ey - rect.top) * (600 / rect.height);
+    const x = (ex - rect.left) * (800 / rect.width);
+    const y = (ey - rect.top) * (1200 / rect.height);
     spots.forEach(p => {
-        if(!p.f && Math.sqrt((x-p.x)**2 + (y-p.y)**2) < 45) {
+        if(!p.f && Math.sqrt((x-p.x)**2 + (y-p.y)**2) < 90) {
             p.f = true; found++; document.getElementById('c').innerText = found;
             [lCtx, rCtx].forEach(ctx => {
-                ctx.strokeStyle = "#00ff00"; ctx.lineWidth = 5;
-                ctx.beginPath(); ctx.arc(p.x, p.y, 35, 0, Math.PI*2); ctx.stroke();
+                ctx.strokeStyle = "#00ff00"; ctx.lineWidth = 8;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 70, 0, Math.PI*2); ctx.stroke();
             });
             if(found === 3) {
                 active = false;
@@ -100,21 +84,6 @@ lc.addEventListener('touchstart', e => { check(e.touches[0].clientX, e.touches[0
 rc.addEventListener('touchstart', e => { check(e.touches[0].clientX, e.touches[0].clientY, rc); e.preventDefault(); }, {passive: false});
 lc.addEventListener('mousedown', e => { check(e.clientX, e.clientY, lc); });
 rc.addEventListener('mousedown', e => { check(e.clientX, e.clientY, rc); });
-
-setInterval(() => {
-    if(active && time > 0) {
-        time--;
-        document.getElementById('timer').innerText = time;
-        if(time===0) { 
-            active=false;
-            curIdx++;
-            if(curIdx < stageList.length) loadStage();
-            else document.getElementById('modal').style.display='block';
-        }
-    }
-}, 1000);
-
+setInterval(() => { if(active && time > 0) { time--; document.getElementById('timer').innerText = time; if(time===0) { active=false; curIdx++; if(curIdx < stageList.length) loadStage(); else document.getElementById('modal').style.display='block'; } } }, 1000);
 loadStage();
-</script>
-</body>
-</html>
+</script></body></html>
