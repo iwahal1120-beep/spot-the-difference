@@ -40,33 +40,38 @@ canvas { width: 48%; max-height: 95%; border: 2px solid #d4af37; background: #11
 </div>
 <script>
 const stageList = [
-    {id: 1014, name: "STAGE 1: London / ロンドン"},
-    {id: 1033, name: "STAGE 2: Paris / パリ"},
-    {id: 1029, name: "STAGE 3: New York / ニューヨーク"},
-    {id: 1044, name: "STAGE 4: Tokyo / 東京"},
-    {id: 1048, name: "STAGE 5: Venice / ベニス"}
+    {id: 'london', name: "STAGE 1: London / ロンドン"},
+    {id: 'paris', name: "STAGE 2: Paris / パリ"},
+    {id: 'newyork', name: "STAGE 3: New York / ニューヨーク"},
+    {id: 'tokyo', name: "STAGE 4: Tokyo / 東京"},
+    {id: 'venice', name: "STAGE 5: Venice / ベニス"}
 ];
 let curIdx = 0, found = 0, time = 45, active = false, spots = [];
 const lc = document.getElementById('l'), rc = document.getElementById('r');
 const lCtx = lc.getContext('2d'), rCtx = rc.getContext('2d');
+
 function loadStage() {
     active = false; found = 0; time = 45;
     document.getElementById('stg').innerText = stageList[curIdx].name;
     document.getElementById('c').innerText = "0";
     const img = new Image(); img.crossOrigin = "anonymous";
-    img.src = `https://picsum.photos/id/${stageList[curIdx].id}/800/1200`;
+    // 写真ではなく「イラスト・アート」をキーワードに読み込む設定
+    img.src = `https://loremflickr.com/800/1200/${stageList[curIdx].id},illustration,city?lock=${curIdx + 10}`;
     img.onload = () => {
         lc.width = rc.width = 400; lc.height = rc.height = 600;
         lCtx.drawImage(img, 0, 0, 400, 600); rCtx.drawImage(img, 0, 0, 400, 600);
         spots = [];
-        for(let i=0; i<3; i++) { spots.push({ x: 60 + Math.random()*280, y: 60 + Math.random()*480, f: false }); }
+        for(let i=0; i<3; i++) {
+            spots.push({ x: 60 + Math.random()*280, y: 60 + Math.random()*480, f: false });
+        }
         spots.forEach(p => {
-            rCtx.save(); rCtx.beginPath(); rCtx.arc(p.x, p.y, 38, 0, Math.PI*2); rCtx.clip();
+            rCtx.save(); rCtx.beginPath(); rCtx.arc(p.x, p.y, 40, 0, Math.PI*2); rCtx.clip();
             rCtx.translate(p.x, p.y); rCtx.scale(-1, 1); rCtx.drawImage(lc, -p.x, -p.y); rCtx.restore();
         });
         active = true;
     };
 }
+
 function check(ex, ey, canvas) {
     if(!active) return;
     const rect = canvas.getBoundingClientRect();
@@ -79,13 +84,36 @@ function check(ex, ey, canvas) {
                 ctx.strokeStyle = "#00ff00"; ctx.lineWidth = 5;
                 ctx.beginPath(); ctx.arc(p.x, p.y, 35, 0, Math.PI*2); ctx.stroke();
             });
-            if(found === 3) { active = false; setTimeout(() => { curIdx++; if(curIdx < stageList.length) loadStage(); else document.getElementById('modal').style.display='block'; }, 800); }
+            if(found === 3) {
+                active = false;
+                setTimeout(() => {
+                    curIdx++;
+                    if(curIdx < stageList.length) loadStage();
+                    else document.getElementById('modal').style.display='block';
+                }, 800);
+            }
         }
     });
 }
+
 lc.addEventListener('touchstart', e => { check(e.touches[0].clientX, e.touches[0].clientY, lc); e.preventDefault(); }, {passive: false});
 rc.addEventListener('touchstart', e => { check(e.touches[0].clientX, e.touches[0].clientY, rc); e.preventDefault(); }, {passive: false});
-setInterval(() => { if(active && time > 0) { time--; document.getElementById('timer').innerText = time; if(time===0) { active=false; curIdx++; if(curIdx < stageList.length) loadStage(); else document.getElementById('modal').style.display='block'; } } }, 1000);
+lc.addEventListener('mousedown', e => { check(e.clientX, e.clientY, lc); });
+rc.addEventListener('mousedown', e => { check(e.clientX, e.clientY, rc); });
+
+setInterval(() => {
+    if(active && time > 0) {
+        time--;
+        document.getElementById('timer').innerText = time;
+        if(time===0) { 
+            active=false;
+            curIdx++;
+            if(curIdx < stageList.length) loadStage();
+            else document.getElementById('modal').style.display='block';
+        }
+    }
+}, 1000);
+
 loadStage();
 </script>
 </body>
