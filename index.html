@@ -1,86 +1,95 @@
-<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>World Challenge!</title><style>
-body { text-align:center; font-family: sans-serif; background-color: #050505; color: #d4af37; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
-.header { padding: 10px; background: #000; border-bottom: 2px solid #d4af37; height: 110px; box-sizing: border-box; }
-.main-title { font-size: 18px; font-weight: bold; color: #d4af37; margin: 2px 0; }
-#stg { font-size: 16px; color: #00e5ff; font-weight: bold; }
-.status-bar { display: flex; justify-content: center; gap: 30px; font-size: 18px; margin-top: 5px; }
-.game-area { display: flex; width: 100vw; height: calc(100vh - 110px); justify-content: center; align-items: center; gap: 5px; background: #111; }
-canvas { width: 48%; height: 90%; border: 2px solid #d4af37; background: #fff; border-radius: 5px; }
-.modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #000; padding: 20px; width: 90%; z-index: 1000; border: 5px solid #d4af37; border-radius: 15px; }
-.btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; }
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>World Search!</title><style>
+body { text-align:center; font-family: sans-serif; background-color: #f0f0f0; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
+.header { padding: 10px; background: #d44d5c; color: white; height: 100px; box-sizing: border-box; }
+.main-title { font-size: 18px; font-weight: bold; margin: 0; }
+#stg-desc { font-size: 15px; font-weight: bold; background: white; color: #d44d5c; display: inline-block; padding: 4px 12px; border-radius: 10px; margin-top: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+.game-area { width: 100vw; height: calc(100vh - 100px); position: relative; background: #fff; overflow: hidden; }
+.item { position: absolute; font-size: 32px; cursor: pointer; user-select: none; transition: transform 0.1s; }
+.modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #000; padding: 20px; width: 90%; z-index: 1000; border: 5px solid #d44d5c; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+.btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
 .btn-pay { background: #ff0033; color: #fff; }
-.qr-image { width: 180px; height: 180px; margin: 10px auto; display: block; border: 1px solid #ccc; }
 </style></head><body>
+
 <div class="header">
-    <div class="main-title">世界で挑戦！間違い探し３</div>
-    <div id="stg">読み込み中...</div>
-    <div class="status-bar"><div>TIME: <span id="timer">45</span></div><div>FOUND: <span id="c">0</span>/3</div></div>
+    <div class="main-title">どこにいるかな？ 探しものチャレンジ！</div>
+    <div id="stg-desc">読み込み中...</div>
 </div>
-<div class="game-area"><canvas id="l"></canvas><canvas id="r"></canvas></div>
+
+<div id="game-field" class="game-area"></div>
+
 <div id="modal" class="modal">
-    <h2 style="color:#ff0033;">全ステージクリア！</h2>
-    <p>楽しんでいただけましたか？</p>
-    <img src="paypay-qr.png" alt="PayPay QR" class="qr-image">
+    <h2 style="color:#d44d5c;">お見事！全ステージクリア！</h2>
+    <p>あなたの観察力は素晴らしいですね！</p>
+    <img src="paypay-qr.png" alt="PayPay QR" style="width:150px;height:150px;display:block;margin:auto;border:1px solid #ccc;">
     <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで応援する</a>
     <button onclick="window.location.reload();" style="background:#666;color:#fff" class="btn">もう一度遊ぶ</button>
 </div>
+
 <script>
-// キーワードを「不気味なもの」が出にくい単語に変更しました
-const stageList = [
-    {id: 'bigben,london,drawing', name: "STAGE 1: London"},
-    {id: 'eiffel,paris,sketch', name: "STAGE 2: Paris"},
-    {id: 'statueofliberty,newyork,drawing', name: "STAGE 3: New York"},
-    {id: 'pagoda,kyoto,sketch', name: "STAGE 4: Tokyo (Traditional)"},
-    {id: 'gondola,venice,drawing', name: "STAGE 5: Venice"}
+const stages = [
+    { title: "1. 300匹の動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", isUniform: false },
+    { title: "2. 300人の人間から「猫」を探せ！", crowd: ["👨‍👩‍👧‍👦","🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", isUniform: false },
+    { title: "3. 大渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜"], target: "🚲", isUniform: false },
+    { title: "4. 300個のお菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", isUniform: false },
+    { title: "5. 300枚の金貨から「銀貨」を探せ！", crowd: ["🪙"], target: "🥈", isUniform: true } // 金貨は同じもの固定
 ];
-let curIdx = 0, found = 0, time = 45, active = false, spots = [];
-const lc = document.getElementById('l'), rc = document.getElementById('r');
-const lCtx = lc.getContext('2d'), rCtx = rc.getContext('2d');
-function loadStage() {
-    active = false; found = 0; time = 45;
-    document.getElementById('stg').innerText = stageList[curIdx].name;
-    document.getElementById('c').innerText = "0";
-    const img = new Image(); img.crossOrigin = "anonymous";
-    // lockの数字を変えて、別の画像が出るように調整しました
-    img.src = `https://loremflickr.com/g/800/1200/${stageList[curIdx].id}?lock=${curIdx + 150}`;
-    img.onload = () => {
-        lc.width = rc.width = 800; lc.height = rc.height = 1200;
-        lCtx.drawImage(img, 0, 0, 800, 1200); rCtx.drawImage(img, 0, 0, 800, 1200);
-        spots = [];
-        for(let i=0; i<3; i++) { spots.push({ x: 100 + Math.random()*600, y: 150 + Math.random()*900, f: false }); }
-        spots.forEach(p => {
-            rCtx.save(); rCtx.beginPath(); rCtx.arc(p.x, p.y, 85, 0, Math.PI*2); rCtx.clip();
-            rCtx.translate(p.x, p.y); rCtx.scale(-1, 1); rCtx.drawImage(lc, -p.x, -p.y); rCtx.restore();
-        });
-        active = true;
-    };
-}
-function check(ex, ey, canvas) {
-    if(!active) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (ex - rect.left) * (800 / rect.width);
-    const y = (ey - rect.top) * (1200 / rect.height);
-    spots.forEach(p => {
-        if(!p.f && Math.sqrt((x-p.x)**2 + (y-p.y)**2) < 85) {
-            p.f = true; found++; document.getElementById('c').innerText = found;
-            [lCtx, rCtx].forEach(ctx => {
-                ctx.strokeStyle = "#00ff00"; ctx.lineWidth = 10;
-                ctx.beginPath(); ctx.arc(p.x, p.y, 65, 0, Math.PI*2); ctx.stroke();
-            });
-            if(found === 3) {
-                active = false;
-                setTimeout(() => {
-                    curIdx++; if(curIdx < stageList.length) loadStage();
-                    else document.getElementById('modal').style.display='block';
-                }, 800);
-            }
+
+let currentStage = 0;
+const field = document.getElementById('game-field');
+const desc = document.getElementById('stg-desc');
+
+function initStage() {
+    field.innerHTML = "";
+    const stage = stages[currentStage];
+    desc.innerText = stage.title;
+
+    // 300個の邪魔なものを配置
+    for (let i = 0; i < 300; i++) {
+        let emoji;
+        if (stage.isUniform) {
+            emoji = stage.crowd[0]; // ステージ5は金貨固定
+        } else {
+            emoji = stage.crowd[Math.floor(Math.random() * stage.crowd.length)]; // それ以外はバラバラ
         }
-    });
+        createItem(emoji, false);
+    }
+    // 1個だけ正解を配置
+    createItem(stage.target, true);
 }
-lc.addEventListener('touchstart', e => { check(e.touches[0].clientX, e.touches[0].clientY, lc); e.preventDefault(); }, {passive: false});
-rc.addEventListener('touchstart', e => { check(e.touches[0].clientX, e.touches[0].clientY, rc); e.preventDefault(); }, {passive: false});
-lc.addEventListener('mousedown', e => { check(e.clientX, e.clientY, lc); });
-rc.addEventListener('mousedown', e => { check(e.clientX, e.clientY, rc); });
-setInterval(() => { if(active && time > 0) { time--; document.getElementById('timer').innerText = time; if(time===0) { active=false; curIdx++; if(curIdx < stageList.length) loadStage(); else document.getElementById('modal').style.display='block'; } } }, 1000);
-loadStage();
+
+function createItem(emoji, isTarget) {
+    const span = document.createElement('span');
+    span.innerText = emoji;
+    span.className = 'item';
+    const x = Math.random() * 90;
+    const y = Math.random() * 90;
+    span.style.left = x + "%";
+    span.style.top = y + "%";
+    span.style.transform = `rotate(${Math.random() * 40 - 20}deg)`; // 少しだけ傾けて自然に
+
+    if (isTarget) {
+        span.style.zIndex = "10";
+        span.onclick = (e) => {
+            e.stopPropagation();
+            span.style.fontSize = "80px";
+            span.style.transform = "scale(2) rotate(0deg)";
+            setTimeout(() => {
+                alert("当たり！");
+                currentStage++;
+                if (currentStage < stages.length) {
+                    initStage();
+                } else {
+                    document.getElementById('modal').style.display = 'block';
+                }
+            }, 100);
+        };
+    } else {
+        span.onclick = () => {
+            span.style.opacity = "0.2"; // 間違えは薄くなる
+        };
+    }
+    field.appendChild(span);
+}
+
+initStage();
 </script></body></html>
