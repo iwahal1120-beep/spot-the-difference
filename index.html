@@ -4,7 +4,7 @@ body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; co
 .main-title { font-size: 18px; font-weight: bold; margin: 0; }
 .status-bar { display: flex; justify-content: center; gap: 30px; font-size: 18px; margin-top: 5px; font-weight: bold; }
 #stg-desc { font-size: 14px; background: white; color: #d44d5c; display: inline-block; padding: 3px 12px; border-radius: 15px; margin-top: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-#timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; }
+#timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; min-width: 30px; display: inline-block; }
 .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
 .item { position: absolute; font-size: 28px; cursor: pointer; user-select: none; z-index: 1; display: inline-block; width: 40px; height: 40px; line-height: 40px; text-align: center; }
 .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #000; padding: 20px; width: 90%; z-index: 2000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
@@ -17,7 +17,7 @@ body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; co
     <div class="main-title">探しものチャレンジ！</div>
     <div id="stg-desc">読み込み中...</div>
     <div class="status-bar">
-        <div>残り: <span id="timer">45</span>秒</div>
+        <div>残り: <span id="timer">30</span>秒</div>
         <div>ステージ: <span id="stage-num">1</span>/5</div>
     </div>
 </div>
@@ -44,7 +44,7 @@ const stages = [
     { title: "500枚の金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 500 }
 ];
 
-let currentStage = 0, timeLeft = 45, timerId = null, gameActive = false;
+let currentStage = 0, timeLeft = 30, timerId = null, gameActive = false;
 const field = document.getElementById('game-field'), desc = document.getElementById('stg-desc'), timerDisp = document.getElementById('timer'), stageDisp = document.getElementById('stage-num');
 
 function initStage() {
@@ -52,11 +52,18 @@ function initStage() {
     const stage = stages[currentStage];
     desc.innerText = stage.title;
     stageDisp.innerText = currentStage + 1;
+    
+    // ステージごとにタイマーを30秒にリセット
+    timeLeft = 30;
+    timerDisp.innerText = timeLeft;
+    
     gameActive = true;
     for (let i = 0; i < stage.num; i++) {
         createItem(stage.crowd[Math.floor(Math.random() * stage.crowd.length)], false);
     }
     createItem(stage.target, true);
+    
+    // タイマーが動いていなければ開始
     if(!timerId) startTimer();
 }
 
@@ -76,8 +83,11 @@ function createItem(emoji, isTarget) {
             gameActive = false;
             setTimeout(() => {
                 currentStage++;
-                if (currentStage < stages.length) initStage();
-                else endGame(true);
+                if (currentStage < stages.length) {
+                    initStage(); // 次のステージへ（ここでタイマーがリセットされます）
+                } else {
+                    endGame(true);
+                }
             }, 500);
         };
     } else {
@@ -99,6 +109,7 @@ function startTimer() {
 function endGame(isClear) {
     gameActive = false;
     clearInterval(timerId);
+    timerId = null; // タイマーIDをクリア
     document.getElementById('modal-title').innerText = isClear ? "全ステージクリア！" : "タイムアップ！";
     document.getElementById('modal-msg').innerText = isClear ? "おめでとうございます！" : "残念！リベンジしますか？";
     document.getElementById('paypay-area').style.display = isClear ? "block" : "none";
