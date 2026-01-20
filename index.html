@@ -1,18 +1,23 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>Search Challenge!</title><style>
+body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
+.header { padding: 10px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 100; }
+.main-title { font-size: 18px; font-weight: bold; margin: 0; }
+.status-bar { display: flex; justify-content: center; gap: 30px; font-size: 18px; margin-top: 5px; font-weight: bold; }
 #stg-desc { font-size: 14px; background: white; color: #d44d5c; display: inline-block; padding: 3px 12px; border-radius: 15px; margin-top: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; }
 .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-.item { position: absolute; font-size: 28px; cursor: pointer; user-select: none; z-index: 1; }
-.modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #000; padding: 20px; width: 90%; z-index: 1000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+.item { position: absolute; font-size: 28px; cursor: pointer; user-select: none; z-index: 1; display: inline-block; width: 40px; height: 40px; line-height: 40px; text-align: center; }
+.modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #000; padding: 20px; width: 90%; z-index: 2000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
 .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
 .btn-pay { background: #ff0033 !important; color: #fff !important; }
 .btn-retry { background: #666 !important; color: #fff !important; }
 </style></head><body>
 
 <div class="header">
-    <div class="main-title">どこにいるかな？ 探しものチャレンジ！</div>
+    <div class="main-title">探しものチャレンジ！</div>
     <div id="stg-desc">読み込み中...</div>
     <div class="status-bar">
-        <div>残り時間: <span id="timer">45</span>秒</div>
+        <div>残り: <span id="timer">45</span>秒</div>
         <div>ステージ: <span id="stage-num">1</span>/5</div>
     </div>
 </div>
@@ -32,22 +37,15 @@
 
 <script>
 const stages = [
-    { title: "300匹の動物から「人間」を1人探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 300 },
-    { title: "300人の人間から「猫」を1匹探せ！", crowd: ["👨‍👩‍👧‍👦","🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 300 },
-    { title: "大渋滞の中から「自転車」を1台探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜"], target: "🚲", num: 300 },
-    { title: "500個のお菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 500 }, // 数を増やしました
-    { title: "500枚の金貨から「銀貨」を1枚探せ！", crowd: ["💰"], target: "🥈", num: 500 } // 金貨(💰)と銀貨(🥈)
+    { title: "300匹の動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 300 },
+    { title: "300人の人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 300 },
+    { title: "渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜"], target: "🚲", num: 300 },
+    { title: "500個のお菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 500 },
+    { title: "500枚の金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 500 }
 ];
 
-let currentStage = 0;
-let timeLeft = 45;
-let timerId = null;
-let gameActive = false;
-
-const field = document.getElementById('game-field');
-const desc = document.getElementById('stg-desc');
-const timerDisp = document.getElementById('timer');
-const stageDisp = document.getElementById('stage-num');
+let currentStage = 0, timeLeft = 45, timerId = null, gameActive = false;
+const field = document.getElementById('game-field'), desc = document.getElementById('stg-desc'), timerDisp = document.getElementById('timer'), stageDisp = document.getElementById('stage-num');
 
 function initStage() {
     field.innerHTML = "";
@@ -55,11 +53,8 @@ function initStage() {
     desc.innerText = stage.title;
     stageDisp.innerText = currentStage + 1;
     gameActive = true;
-
-    // 指定された数だけ配置
     for (let i = 0; i < stage.num; i++) {
-        let emoji = stage.crowd[Math.floor(Math.random() * stage.crowd.length)];
-        createItem(emoji, false);
+        createItem(stage.crowd[Math.floor(Math.random() * stage.crowd.length)], false);
     }
     createItem(stage.target, true);
     if(!timerId) startTimer();
@@ -69,16 +64,15 @@ function createItem(emoji, isTarget) {
     const span = document.createElement('span');
     span.innerText = emoji;
     span.className = 'item';
-    span.style.left = (Math.random() * 92 + 1) + "%";
-    span.style.top = (Math.random() * 92 + 1) + "%";
+    span.style.left = (Math.random() * 88 + 2) + "%";
+    span.style.top = (Math.random() * 88 + 2) + "%";
     span.style.transform = `rotate(${Math.random() * 60 - 30}deg)`;
-
     if (isTarget) {
-        span.style.zIndex = "10";
+        span.style.zIndex = "50";
         span.onclick = (e) => {
             if(!gameActive) return;
             e.stopPropagation();
-            span.style.fontSize = "80px";
+            span.style.fontSize = "60px";
             gameActive = false;
             setTimeout(() => {
                 currentStage++;
@@ -105,11 +99,10 @@ function startTimer() {
 function endGame(isClear) {
     gameActive = false;
     clearInterval(timerId);
-    const modal = document.getElementById('modal');
     document.getElementById('modal-title').innerText = isClear ? "全ステージクリア！" : "タイムアップ！";
-    document.getElementById('modal-msg').innerText = isClear ? "あなたの観察力は素晴らしいです！" : "惜しい！もう一度挑戦しますか？";
+    document.getElementById('modal-msg').innerText = isClear ? "おめでとうございます！" : "残念！リベンジしますか？";
     document.getElementById('paypay-area').style.display = isClear ? "block" : "none";
-    modal.style.display = 'block';
+    document.getElementById('modal').style.display = 'block';
 }
 
 initStage();
