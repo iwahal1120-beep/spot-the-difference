@@ -1,10 +1,10 @@
-<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>Search Challenge!</title><style>
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>1円募金 (1-Yen Donation) - Search Challenge!</title><style>
 body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
-.header { padding: 10px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 100; }
-.main-title { font-size: 18px; font-weight: bold; margin: 0; }
-.status-bar { display: flex; justify-content: center; gap: 30px; font-size: 18px; margin-top: 5px; font-weight: bold; }
-#stg-desc { font-size: 14px; background: white; color: #d44d5c; display: inline-block; padding: 3px 12px; border-radius: 15px; margin-top: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-#timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; min-width: 30px; display: inline-block; }
+.header { padding: 5px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 100; }
+.main-title { font-size: 16px; font-weight: bold; margin: 0; }
+.status-bar { display: flex; justify-content: center; gap: 20px; font-size: 16px; margin-top: 5px; font-weight: bold; }
+#stg-desc { font-size: 12px; background: white; color: #d44d5c; display: inline-block; padding: 2px 10px; border-radius: 15px; margin-top: 3px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 90%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+#timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; }
 .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
 .item { position: absolute; font-size: 28px; cursor: pointer; user-select: none; z-index: 1; display: inline-block; width: 40px; height: 40px; line-height: 40px; text-align: center; }
 .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #000; padding: 20px; width: 90%; z-index: 2000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
@@ -14,11 +14,11 @@ body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; co
 </style></head><body>
 
 <div class="header">
-    <div class="main-title">探しものチャレンジ！</div>
+    <div class="main-title">1円募金 (1-Yen Donation) 探しもの！</div>
     <div id="stg-desc">読み込み中...</div>
     <div class="status-bar">
         <div>残り: <span id="timer">30</span>秒</div>
-        <div>ステージ: <span id="stage-num">1</span>/5</div>
+        <div>ステージ: <span id="stage-num">1</span>/10</div>
     </div>
 </div>
 
@@ -32,38 +32,48 @@ body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; co
         <img src="paypay-qr.png" alt="PayPay QR" style="width:150px;height:150px;display:block;margin:auto;border:1px solid #ccc;">
         <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayアプリで送金する</a>
     </div>
-    <button onclick="window.location.reload();" class="btn btn-retry">もう一度遊ぶ</button>
+    <div id="tbc-area" style="font-size: 24px; font-weight: bold; margin: 20px 0; display: none;">To Be Continued...</div>
+    <button onclick="window.location.reload();" class="btn btn-retry">最初から遊ぶ</button>
 </div>
 
 <script>
 const stages = [
-    { title: "300匹の動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 300 },
-    { title: "300人の人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 300 },
-    { title: "渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜"], target: "🚲", num: 300 },
-    { title: "500個のお菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 500 },
-    { title: "500枚の金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 500 }
+    { title: "1. 300匹の動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 300, goals: 1 },
+    { title: "2. 300人の人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 300, goals: 1 },
+    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜"], target: "🚲", num: 300, goals: 1 },
+    { title: "4. 500個のお菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 500, goals: 1 },
+    { title: "5. 500枚の金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 500, goals: 1 },
+    { title: "6. 500人の女性の中に…力士(解答)が一人！", crowd: ["👩","👩‍🦰","👩‍","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "🤼‍♂️", num: 500, goals: 1 },
+    { title: "7. 世界の人々の中に問題の5人が！(5回タップ)", crowd: ["🌍","🌎","🌏","👫","🧑‍🤝‍🧑","👨‍👩‍👧‍👦","🧔","👵","👦"], target: "👤", num: 500, goals: 5 },
+    { title: "8. 500匹の魚の中に残念な魚(骨)が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "🦴", num: 500, goals: 1 },
+    { title: "9. 輝く惑星の中にあり得ないホシ(梅干し)が！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "🔴", num: 500, goals: 1 },
+    { title: "10. To Be Continued...", crowd: [], target: "", num: 0, goals: 0 }
 ];
 
-let currentStage = 0, timeLeft = 30, timerId = null, gameActive = false;
+let currentStage = 0, timeLeft = 30, timerId = null, gameActive = false, foundCount = 0;
 const field = document.getElementById('game-field'), desc = document.getElementById('stg-desc'), timerDisp = document.getElementById('timer'), stageDisp = document.getElementById('stage-num');
 
 function initStage() {
     field.innerHTML = "";
+    foundCount = 0;
     const stage = stages[currentStage];
     desc.innerText = stage.title;
     stageDisp.innerText = currentStage + 1;
-    
-    // ステージごとにタイマーを30秒にリセット
     timeLeft = 30;
     timerDisp.innerText = timeLeft;
-    
+
+    if (currentStage === 9) { // 最終ステージ
+        endGame(true);
+        return;
+    }
+
     gameActive = true;
     for (let i = 0; i < stage.num; i++) {
         createItem(stage.crowd[Math.floor(Math.random() * stage.crowd.length)], false);
     }
-    createItem(stage.target, true);
-    
-    // タイマーが動いていなければ開始
+    for (let j = 0; j < stage.goals; j++) {
+        createItem(stage.target, true);
+    }
     if(!timerId) startTimer();
 }
 
@@ -80,15 +90,15 @@ function createItem(emoji, isTarget) {
             if(!gameActive) return;
             e.stopPropagation();
             span.style.fontSize = "60px";
-            gameActive = false;
-            setTimeout(() => {
-                currentStage++;
-                if (currentStage < stages.length) {
-                    initStage(); // 次のステージへ（ここでタイマーがリセットされます）
-                } else {
-                    endGame(true);
-                }
-            }, 500);
+            span.style.pointerEvents = "none";
+            foundCount++;
+            if (foundCount >= stages[currentStage].goals) {
+                gameActive = false;
+                setTimeout(() => {
+                    currentStage++;
+                    initStage();
+                }, 800);
+            }
         };
     } else {
         span.onclick = () => { if(gameActive) span.style.opacity = "0.2"; };
@@ -109,11 +119,23 @@ function startTimer() {
 function endGame(isClear) {
     gameActive = false;
     clearInterval(timerId);
-    timerId = null; // タイマーIDをクリア
-    document.getElementById('modal-title').innerText = isClear ? "全ステージクリア！" : "タイムアップ！";
-    document.getElementById('modal-msg').innerText = isClear ? "おめでとうございます！" : "残念！リベンジしますか？";
-    document.getElementById('paypay-area').style.display = isClear ? "block" : "none";
-    document.getElementById('modal').style.display = 'block';
+    timerId = null;
+    const modal = document.getElementById('modal');
+    const tbc = document.getElementById('tbc-area');
+    const pay = document.getElementById('paypay-area');
+
+    if (isClear) {
+        document.getElementById('modal-title').innerText = "お疲れ様でした！";
+        document.getElementById('modal-msg').innerText = "全ての探しものを発見しました。";
+        tbc.style.display = "block";
+        pay.style.display = "block";
+    } else {
+        document.getElementById('modal-title').innerText = "タイムアップ！";
+        document.getElementById('modal-msg').innerText = "残念！もう一度挑戦しますか？";
+        tbc.style.display = "none";
+        pay.style.display = "none";
+    }
+    modal.style.display = 'block';
 }
 
 initStage();
