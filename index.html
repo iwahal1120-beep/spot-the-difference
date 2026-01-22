@@ -14,8 +14,7 @@
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; cursor: pointer; user-select: none; z-index: 1; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; }
         .target-img { width: 60px; height: 60px; object-fit: contain; }
-        .emoji-item { font-size: 32px; width: 50px; height: 50px; line-height: 50px; text-align: center; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 9999; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 9999; border: 5px solid #d4af37; border-radius: 15px; }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
         .btn-pay { background: #ff0033 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
@@ -37,7 +36,7 @@
 <div id="modal" class="modal">
     <h2 id="modal-title" style="color:#d44d5c;">クリア！</h2>
     <p id="modal-msg"></p>
-    <button onclick="window.location.reload();" class="btn btn-retry">もう一度遊ぶ</button>
+    <button onclick="window.location.reload();" class="btn btn-retry">最初から遊ぶ</button>
 </div>
 
 <script>
@@ -89,20 +88,24 @@ function initStage() {
 
 function createItem(content, isTarget) {
     const el = document.createElement('span');
-    
+    el.className = 'item';
+
     if (content.endsWith(".png")) {
-        el.className = 'item';
         const img = document.createElement('img');
         img.src = content;
         img.className = 'target-img';
+        // 画像が読み込めない場合のバックアップ（以前のミスを防ぐため）
         img.onerror = () => {
-            el.innerText = content === "sumo.png" ? "🤼" : (content === "umeboshi.png" ? "🔴" : "🦴");
-            el.className = 'item emoji-item';
+            img.style.display = "none";
+            el.innerText = content === "sumo.png" ? "力士(相撲)" : (content === "umeboshi.png" ? "梅干し(特製)" : "魚の骨");
+            el.style.fontSize = "24px";
+            el.style.fontWeight = "bold";
+            el.style.color = "#d44d5c";
         };
         el.appendChild(img);
     } else {
-        el.className = 'item emoji-item';
         el.innerText = content;
+        el.style.fontSize = "32px";
     }
     
     el.style.left = (Math.random() * 85 + 5) + "%";
@@ -116,8 +119,7 @@ function createItem(content, isTarget) {
 
             e.stopPropagation();
             el.style.transform = "scale(5) rotate(360deg)";
-            el.style.opacity = "0.7";
-            el.style.pointerEvents = "none";
+            el.style.zIndex = "2000";
             
             foundCount++;
             if (foundCount >= stages[currentStage].goals) {
@@ -163,7 +165,7 @@ function endGame(isClear) {
     timerId = null;
     const modal = document.getElementById('modal');
     document.getElementById('modal-title').innerText = "タイムアップ！";
-    document.getElementById('modal-msg').innerText = "残念！もう一度挑戦しますか？";
+    document.getElementById('modal-msg').innerText = "もう一度挑戦しますか？";
     modal.style.display = 'block';
 }
 
