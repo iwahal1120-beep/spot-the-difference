@@ -6,19 +6,20 @@
     <title>1円募金 (1-Yen Donation) - Search Challenge!</title>
     <style>
         body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
-        .header { padding: 5px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 100; }
+        .header { padding: 5px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 1000; }
         .main-title { font-size: 16px; font-weight: bold; margin: 0; }
         .status-bar { display: flex; justify-content: center; gap: 20px; font-size: 16px; margin-top: 5px; font-weight: bold; }
         #stg-desc { font-size: 12px; background: white; color: #d44d5c; display: inline-block; padding: 2px 10px; border-radius: 15px; margin-top: 3px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 90%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-        .item { position: absolute; font-size: 28px; cursor: pointer; user-select: none; z-index: 1; display: inline-block; width: 40px; height: 40px; line-height: 40px; text-align: center; }
-        .tbc-item { position: absolute; font-size: 12px; font-weight: bold; color: #d44d5c; cursor: pointer; white-space: nowrap; }
-        .target-img { width: 40px; height: 40px; object-fit: cover; border-radius: 50%; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #000; padding: 20px; width: 90%; z-index: 2000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .item { position: absolute; font-size: 32px; cursor: pointer; user-select: none; z-index: 1; display: inline-block; width: 45px; height: 45px; line-height: 45px; text-align: center; transition: transform 0.1s; }
+        .tbc-item { position: absolute; font-size: 12px; font-weight: bold; color: #ccc; cursor: pointer; white-space: nowrap; user-select: none; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #000; padding: 20px; width: 85%; z-index: 9999; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
         .btn-pay { background: #ff0033 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
+        .found-effect { animation: foundAnim 0.5s ease-out forwards; pointer-events: none; z-index: 2000 !important; }
+        @keyframes foundAnim { 0% { transform: scale(1); } 50% { transform: scale(2.5) rotate(20deg); } 100% { transform: scale(2) rotate(0deg); opacity: 0.8; } }
     </style>
 </head>
 <body>
@@ -37,34 +38,28 @@
 <div id="modal" class="modal">
     <h2 id="modal-title" style="color:#d44d5c;">クリア！</h2>
     <p id="modal-msg"></p>
-    <div id="paypay-area">
-        <p style="font-size:13px; color:#666;">楽しんでいただけたら1円募金（支援）をお願いします</p>
-        <img src="paypay-qr.png" alt="PayPay QR" style="width:150px;height:150px;display:block;margin:auto;border:1px solid #ccc;">
-        <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで送金する</a>
+    <div id="paypay-area" style="display:none;">
+        <p style="font-size:13px; color:#666;">楽しんでいただけたら1円募金をお願いします</p>
+        <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで支援する</a>
     </div>
-    <button onclick="window.location.reload();" class="btn btn-retry">最初から遊ぶ</button>
+    <button onclick="window.location.reload();" class="btn btn-retry">もう一度遊ぶ</button>
 </div>
 
 <script>
-const leaderImages = [
-    "https://placehold.jp/24/cc0000/ffffff/40x40.png?text=普", 
-    "https://placehold.jp/24/0000cc/ffffff/40x40.png?text=金", 
-    "https://placehold.jp/24/ccaa00/ffffff/40x40.png?text=習", 
-    "https://placehold.jp/24/008800/ffffff/40x40.png?text=ト", 
-    "https://placehold.jp/24/ff00ff/ffffff/40x40.png?text=高"
-];
+// 7番目の政治家ターゲット（文字で確実に表示）
+const leaders = ["🇷🇺普", "🇰🇵金", "🇨🇳習", "🇺🇸ト", "🇯🇵高"];
 
 const stages = [
-    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 300, goals: 1 },
-    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 300, goals: 1 },
-    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘","🚔","🚍"], target: "🚲", num: 300, goals: 1 },
-    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 500, goals: 1 },
-    { title: "5. 金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 500, goals: 1 },
-    { title: "6. 500人の美女の中に…裸の力士が一人！探して！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "🤼‍♂️", num: 500, goals: 1 },
-    { title: "7. 世界の人々の中に問題の5人を探せ！(5人タップ)", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "PHOTO", num: 500, goals: 5 },
-    { title: "8. 500匹の魚の中に「残念な魚(骨)」が！探して！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "🦴", num: 500, goals: 1 },
-    { title: "9. 宇宙の中に「あり得ないホシ(梅干し)」が！探して！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "UMEBOSHI", num: 500, goals: 1 },
-    { title: "最終：バラマキの中から「1円募金」を探せ！", crowd: ["To Be Continued..."], target: "1円募金", num: 300, goals: 1 }
+    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 250, goals: 1 },
+    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 250, goals: 1 },
+    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘","🚔"], target: "🚲", num: 250, goals: 1 },
+    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 300, goals: 1 },
+    { title: "5. 金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 300, goals: 1 },
+    { title: "6. 500人の美女の中に…裸の力士が一人！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "🤼‍♂️", num: 400, goals: 1 },
+    { title: "7. 世界の人々から「問題の5人」を探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "LEADERS", num: 400, goals: 5 },
+    { title: "8. 500匹の魚の中に「残念な魚(骨)」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "🦴", num: 400, goals: 1 },
+    { title: "9. 宇宙の中に「あり得ないホシ(梅干し)」が！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "梅", num: 400, goals: 1 },
+    { title: "最終：バラマキの中から「1円募金」を探せ！", crowd: ["To Be Continued..."], target: "1円募金", num: 200, goals: 1 }
 ];
 
 let currentStage = 0, timeLeft = 30, timerId = null, gameActive = false, foundCount = 0;
@@ -86,44 +81,75 @@ function initStage() {
         createItem(stage.crowd[Math.floor(Math.random() * stage.crowd.length)], false);
     }
     
-    if (stage.target === "PHOTO") {
-        for (let j = 0; j < 5; j++) {
-            createItem(leaderImages[j], true, true);
-        }
+    if (stage.target === "LEADERS") {
+        leaders.forEach(l => createItem(l, true));
     } else {
         createItem(stage.target, true);
     }
+
     if(!timerId) startTimer();
 }
 
-function createItem(content, isTarget, isPhoto = false) {
+function createItem(content, isTarget) {
     const el = document.createElement('span');
-    const isTBC = currentStage === 9; 
-    el.className = isTBC ? 'tbc-item' : 'item';
-
-    if (isPhoto) {
-        const img = document.createElement('img');
-        img.src = content;
-        img.className = 'target-img';
-        el.appendChild(img);
-    } else if (content === "UMEBOSHI") {
-        el.innerText = "🔴";
-        el.style.filter = "contrast(1.4) drop-shadow(2px 2px 1px #600)";
-    } else {
-        el.innerText = content;
-    }
+    const isFinal = currentStage === 9;
     
+    el.className = isFinal && !isTarget ? 'tbc-item' : 'item';
+    el.innerText = content;
+    
+    // 配置
     el.style.left = (Math.random() * 88 + 2) + "%";
     el.style.top = (Math.random() * 88 + 2) + "%";
     el.style.transform = `rotate(${Math.random() * 60 - 30}deg)`;
-    
+
+    // 特殊デザイン
+    if (content === "梅") {
+        el.innerText = "🔴";
+        el.style.filter = "drop-shadow(2px 2px 2px #600) contrast(1.5)";
+    }
+    if (content === "🦴") el.style.transform = "rotate(90deg)";
+
     if (isTarget) {
-        el.style.zIndex = "1000";
-        if (content === "🦴") el.style.transform = "rotate(90deg)"; 
-        
+        el.style.zIndex = "500";
         el.onclick = (e) => {
             if(!gameActive) return;
             e.stopPropagation();
-            el.style.fontSize = "60px";
-            el.style.color = "#ff0033";
-            el.style.fontWeight = "bold";
+            el.classList.add('found-effect');
+            if(isFinal) el.style.color = "#ff0033";
+            foundCount++;
+            if (foundCount >= stages[currentStage].goals) {
+                gameActive = false;
+                setTimeout(() => { currentStage++; initStage(); }, 1000);
+            }
+        };
+    } else {
+        el.onclick = () => { if(gameActive && !isFinal) el.style.opacity = "0.2"; };
+    }
+    field.appendChild(el);
+}
+
+function startTimer() {
+    timerId = setInterval(() => {
+        if(gameActive) {
+            timeLeft--;
+            timerDisp.innerText = timeLeft;
+            if(timeLeft <= 0) endGame(false);
+        }
+    }, 1000);
+}
+
+function endGame(isClear) {
+    gameActive = false;
+    clearInterval(timerId);
+    timerId = null;
+    const modal = document.getElementById('modal');
+    document.getElementById('modal-title').innerText = isClear ? "全ステージクリア！" : "タイムアップ！";
+    document.getElementById('modal-msg').innerText = isClear ? "全ての探しものを見つけ出しました！" : "残念！もう一度挑戦しますか？";
+    document.getElementById('paypay-area').style.display = isClear ? "block" : "none";
+    modal.style.display = 'block';
+}
+
+initStage();
+</script>
+</body>
+</html>
