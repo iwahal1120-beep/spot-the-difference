@@ -12,7 +12,7 @@
         #stg-desc { font-size: 12px; background: white; color: #d44d5c; display: inline-block; padding: 2px 10px; border-radius: 15px; margin-top: 3px; width: 90%; }
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-        .item { position: absolute; font-size: 32px; cursor: pointer; user-select: none; z-index: 1; width: 45px; height: 45px; line-height: 45px; text-align: center; }
+        .item { position: absolute; font-size: 32px; cursor: pointer; user-select: none; z-index: 1; width: 45px; height: 45px; line-height: 45px; text-align: center; transition: all 0.3s ease; }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 9999; border: 5px solid #d4af37; border-radius: 15px; }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
         .btn-pay { background: #ff0033 !important; color: #fff !important; }
@@ -41,12 +41,12 @@
 
 <script>
 const stages = [
-    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 150, goals: 1 },
-    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 150, goals: 1 },
-    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘","🚔"], target: "🚲", num: 150, goals: 1 },
-    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 200, goals: 1 },
-    { title: "5. 金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 200, goals: 1 },
-    { title: "6. 500人の美女の中に…裸の力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "🤼‍♂️", num: 300, goals: 1 },
+    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 180, goals: 1 },
+    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 180, goals: 1 },
+    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘","🚔"], target: "🚲", num: 180, goals: 1 },
+    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 250, goals: 1 },
+    { title: "5. 金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 250, goals: 1 },
+    { title: "6. 美女の中に…裸の力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "🤼‍♂️", num: 300, goals: 1 },
     { title: "7. 世界の人々から「5つの国旗」を探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 300, goals: 5 },
     { title: "8. 魚の中に「食べられた魚(骨)」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "BONE", num: 300, goals: 1 },
     { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "梅", num: 300, goals: 1 },
@@ -95,7 +95,7 @@ function createItem(content, isTarget) {
         el.style.transform = "rotate(90deg)";
     } else if (content === "梅") {
         el.innerText = "🔴";
-        el.style.filter = "drop-shadow(3px 3px 2px #500) contrast(1.4)"; // 梅干し用の特別な影
+        el.style.filter = "drop-shadow(4px 4px 3px #400) saturate(2)"; 
     } else {
         el.innerText = content;
     }
@@ -104,16 +104,23 @@ function createItem(content, isTarget) {
     el.style.top = (Math.random() * 88 + 2) + "%";
 
     if (isTarget) {
-        el.style.zIndex = "1500"; // ターゲットを最前面に
+        el.style.zIndex = "1500"; 
         el.onclick = (e) => {
             if(!gameActive) return;
             e.stopPropagation();
-            el.style.transform = "scale(3)";
-            el.style.transition = "0.2s";
+            
+            // 力士（🤼‍♂️）の場合は特大ズーム演出
+            if (content === "🤼‍♂️") {
+                el.style.transform = "scale(8) rotate(360deg)";
+                el.style.zIndex = "2000";
+            } else {
+                el.style.transform = "scale(3)";
+            }
+            
             foundCount++;
             if (foundCount >= stages[currentStage].goals) {
                 gameActive = false;
-                setTimeout(() => { currentStage++; initStage(); }, 500);
+                setTimeout(() => { currentStage++; initStage(); }, 1000);
             }
         };
     } else {
@@ -129,7 +136,7 @@ function showFinalScreen() {
     field.innerHTML = `
         <div class="final-screen">
             <h1 style="color:#d44d5c; font-size:24px; margin-top:30px;">To Be Continued...</h1>
-            <p>最後まで遊んでくれてありがとう！</p>
+            <p>遊んでくれてありがとう！</p>
             <div style="width:85%; border:2px dashed #d44d5c; padding:20px; border-radius:10px; background:#fff; margin:20px 0;">
                 <p style="font-weight:bold; font-size:18px;">1円募金（支援）のお願い</p>
                 <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで1円募金する</a>
