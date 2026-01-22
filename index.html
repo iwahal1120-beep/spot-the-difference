@@ -46,10 +46,10 @@ const stages = [
     { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘","🚔"], target: "🚲", num: 150, goals: 1 },
     { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 200, goals: 1 },
     { title: "5. 金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 200, goals: 1 },
-    { title: "6. 500人の美女の中に…裸の力士が一人！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "🤼‍♂️", num: 300, goals: 1 },
+    { title: "6. 500人の美女の中に…裸の力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "🤼‍♂️", num: 300, goals: 1 },
     { title: "7. 世界の人々から「5つの国旗」を探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 300, goals: 5 },
     { title: "8. 魚の中に「食べられた魚(骨)」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "BONE", num: 300, goals: 1 },
-    { title: "9. 宇宙の中に「梅干し」が！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "梅", num: 300, goals: 1 },
+    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "梅", num: 300, goals: 1 },
     { title: "最終：1円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -93,10 +93,9 @@ function createItem(content, isTarget) {
     if (content === "BONE" && isTarget) {
         el.innerText = "🦴";
         el.style.transform = "rotate(90deg)";
-        el.style.filter = "grayscale(1)";
     } else if (content === "梅") {
         el.innerText = "🔴";
-        el.style.filter = "drop-shadow(2px 2px 2px #600) contrast(1.5)";
+        el.style.filter = "drop-shadow(3px 3px 2px #500) contrast(1.4)"; // 梅干し用の特別な影
     } else {
         el.innerText = content;
     }
@@ -105,11 +104,12 @@ function createItem(content, isTarget) {
     el.style.top = (Math.random() * 88 + 2) + "%";
 
     if (isTarget) {
-        el.style.zIndex = "500";
+        el.style.zIndex = "1500"; // ターゲットを最前面に
         el.onclick = (e) => {
             if(!gameActive) return;
             e.stopPropagation();
             el.style.transform = "scale(3)";
+            el.style.transition = "0.2s";
             foundCount++;
             if (foundCount >= stages[currentStage].goals) {
                 gameActive = false;
@@ -128,10 +128,10 @@ function showFinalScreen() {
     timerId = null;
     field.innerHTML = `
         <div class="final-screen">
-            <h1 style="color:#d44d5c; font-size:24px;">To Be Continued...</h1>
-            <p>遊んでくれてありがとう！</p>
-            <div style="width:85%; border:2px dashed #d44d5c; padding:20px; border-radius:10px; background:#fff;">
-                <p style="font-weight:bold;">1円募金（支援）</p>
+            <h1 style="color:#d44d5c; font-size:24px; margin-top:30px;">To Be Continued...</h1>
+            <p>最後まで遊んでくれてありがとう！</p>
+            <div style="width:85%; border:2px dashed #d44d5c; padding:20px; border-radius:10px; background:#fff; margin:20px 0;">
+                <p style="font-weight:bold; font-size:18px;">1円募金（支援）のお願い</p>
                 <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで1円募金する</a>
             </div>
             <button onclick="window.location.reload();" class="btn btn-retry" style="width:60%;">最初から遊ぶ</button>
