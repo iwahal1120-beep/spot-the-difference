@@ -12,16 +12,16 @@
         #stg-desc { font-size: 12px; background: white; color: #d44d5c; display: inline-block; padding: 2px 10px; border-radius: 15px; margin-top: 3px; width: 90%; }
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-        .item { position: absolute; font-size: 32px; cursor: pointer; user-select: none; z-index: 1; width: 50px; height: 50px; line-height: 50px; text-align: center; transition: all 0.3s ease; }
+        
+        /* イラスト表示用スタイル */
+        .item { position: absolute; cursor: pointer; user-select: none; z-index: 1; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; }
+        .target-img { width: 60px; height: 60px; object-fit: contain; }
+        .emoji-item { font-size: 32px; width: 50px; height: 50px; line-height: 50px; text-align: center; }
+
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 9999; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
         .btn-pay { background: #ff0033 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
-        
-        /* イラスト再現用スタイル */
-        .sumo-illust { font-size: 45px !important; filter: drop-shadow(2px 2px 0 #850); }
-        .bone-illust { transform: rotate(45deg) !important; color: #999; font-weight: bold; }
-        .ume-illust { color: #d00; filter: drop-shadow(0 0 8px #f00) contrast(1.5); font-weight: bold; font-size: 40px !important; }
     </style>
 </head>
 <body>
@@ -50,10 +50,10 @@ const stages = [
     { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘"], target: "🚲", num: 150, goals: 1 },
     { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 200, goals: 1 },
     { title: "5. 金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 200, goals: 1 },
-    { title: "6. 美女の中に…相撲力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "SUMO", num: 250, goals: 1 },
+    { title: "6. 美女の中に…相撲力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "sumo.png", num: 250, goals: 1 },
     { title: "7. 世界の人々から「5つの国旗」を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 250, goals: 5 },
-    { title: "8. 魚の中に「魚の骨」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "BONE", num: 250, goals: 1 },
-    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "UME", num: 250, goals: 1 },
+    { title: "8. 魚の中に「魚の骨」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "fishbone.png", num: 250, goals: 1 },
+    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "umeboshi.png", num: 250, goals: 1 },
     { title: "最終：1円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -68,7 +68,7 @@ function initStage() {
     const stage = stages[currentStage];
     desc.innerText = stage.title;
     stageDisp.innerText = currentStage + 1;
-    timeLeft = 30; // 各ステージでリセット
+    timeLeft = 30;
     timerDisp.innerText = timeLeft;
 
     if (stage.target === "FINAL") {
@@ -92,18 +92,22 @@ function initStage() {
 
 function createItem(content, isTarget) {
     const el = document.createElement('span');
-    el.className = 'item';
     
-    if (content === "SUMO" && isTarget) {
-        el.innerText = "👨‍⚖️"; // イラストに近い、威厳のある力士代用
-        el.className = 'item sumo-illust';
-    } else if (content === "BONE" && isTarget) {
-        el.innerText = "🦴";
-        el.className = 'item bone-illust';
-    } else if (content === "UME" && isTarget) {
-        el.innerText = "🔴";
-        el.className = 'item ume-illust';
+    if (content.endsWith(".png")) {
+        // イラスト画像を表示
+        el.className = 'item';
+        const img = document.createElement('img');
+        img.src = content;
+        img.className = 'target-img';
+        img.alt = "target";
+        // 画像が読み込めない場合の予備
+        img.onerror = () => {
+            el.innerText = content === "sumo.png" ? "🤼" : (content === "umeboshi.png" ? "🔴" : "🦴");
+            el.className = 'item emoji-item';
+        };
+        el.appendChild(img);
     } else {
+        el.className = 'item emoji-item';
         el.innerText = content;
     }
     
@@ -114,16 +118,14 @@ function createItem(content, isTarget) {
         el.style.zIndex = "1500"; 
         el.onclick = (e) => {
             if(!gameActive) return;
-            // すでにタップ済みなら無視
-            if (el.style.transform.includes("scale")) return;
+            if (el.style.transform.includes("scale")) return; // 重複クリック防止
 
             e.stopPropagation();
             el.style.transform = "scale(5) rotate(360deg)";
-            el.style.opacity = "0.5";
-            el.style.pointerEvents = "none"; // 2回タップ防止
+            el.style.opacity = "0.7";
+            el.style.pointerEvents = "none";
             
             foundCount++;
-            // ステージ7なら5個見つけるまで飛ばない
             if (foundCount >= stages[currentStage].goals) {
                 gameActive = false;
                 setTimeout(() => { currentStage++; initStage(); }, 1000);
@@ -140,9 +142,9 @@ function showFinalScreen() {
     clearInterval(timerId);
     timerId = null;
     field.innerHTML = `
-        <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; gap:15px;">
+        <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;">
             <h1 style="color:#d44d5c; font-size:24px;">To Be Continued...</h1>
-            <div style="width:85%; border:2px dashed #d44d5c; padding:20px; border-radius:10px; background:#fff;">
+            <div style="width:85%; border:2px dashed #d44d5c; padding:20px; border-radius:10px; background:#fff; margin:20px 0;">
                 <p style="font-weight:bold; font-size:18px;">1円募金（支援）のお願い</p>
                 <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで支援する</a>
             </div>
@@ -167,7 +169,7 @@ function endGame(isClear) {
     timerId = null;
     const modal = document.getElementById('modal');
     document.getElementById('modal-title').innerText = "タイムアップ！";
-    document.getElementById('modal-msg').innerText = "もう一度挑戦しますか？";
+    document.getElementById('modal-msg').innerText = "残念！もう一度挑戦しますか？";
     modal.style.display = 'block';
 }
 
