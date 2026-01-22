@@ -18,6 +18,10 @@
         .btn-pay { background: #ff0033 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
         .final-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; gap: 10px; }
+        /* 梅干し強調用 */
+        .umeboshi { filter: drop-shadow(0 0 5px #f00) saturate(3) contrast(1.5) !important; font-weight: bold; }
+        /* 魚の骨用 */
+        .fishbone { font-size: 38px; transform: rotate(90deg); color: #888; }
     </style>
 </head>
 <body>
@@ -46,10 +50,10 @@ const stages = [
     { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘","🚔"], target: "🚲", num: 180, goals: 1 },
     { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 250, goals: 1 },
     { title: "5. 金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 250, goals: 1 },
-    { title: "6. 美女の中に…相撲力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "SUMO", num: 300, goals: 1 },
+    { title: "6. 美女の中に…相撲取りが一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "🤼", num: 300, goals: 1 },
     { title: "7. 世界の人々から「5つの国旗」を探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 300, goals: 5 },
-    { title: "8. 魚の中に「食べられた魚(骨)」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "FISHBONE", num: 300, goals: 1 },
-    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "梅", num: 300, goals: 1 },
+    { title: "8. 魚の中に「食べられた魚(骨)」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "BONE_ICON", num: 300, goals: 1 },
+    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "UME_SPECIAL", num: 300, goals: 1 },
     { title: "最終：1円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -90,15 +94,12 @@ function createItem(content, isTarget) {
     const el = document.createElement('span');
     el.className = 'item';
     
-    // デザインの入れ替え
-    if (content === "FISHBONE" && isTarget) {
-        el.innerText = "🦴"; // 魚の骨
-        el.style.transform = "rotate(90deg)";
-    } else if (content === "梅") {
-        el.innerText = "🔴"; // 梅干し1個
-        el.style.filter = "drop-shadow(4px 4px 3px #400) saturate(2)"; 
-    } else if (content === "SUMO" && isTarget) {
-        el.innerText = "🫃"; // レスリングではなく相撲力士風
+    if (content === "BONE_ICON" && isTarget) {
+        el.innerText = "🦴"; 
+        el.className = 'item fishbone';
+    } else if (content === "UME_SPECIAL" && isTarget) {
+        el.innerText = "🔴";
+        el.className = 'item umeboshi';
     } else {
         el.innerText = content;
     }
@@ -112,8 +113,8 @@ function createItem(content, isTarget) {
             if(!gameActive) return;
             e.stopPropagation();
             
-            // 相撲力士の場合は特大ズーム
-            if (content === "SUMO") {
+            // 相撲取りの場合は特大ズーム演出
+            if (content === "🤼") {
                 el.style.transform = "scale(8) rotate(360deg)";
                 el.style.zIndex = "2000";
             } else {
