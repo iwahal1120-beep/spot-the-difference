@@ -13,7 +13,7 @@
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; font-size: 32px; cursor: pointer; user-select: none; z-index: 1; width: 45px; height: 45px; line-height: 45px; text-align: center; transition: all 0.3s ease; }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 9999; border: 5px solid #d4af37; border-radius: 15px; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 9999; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
         .btn-pay { background: #ff0033 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
@@ -46,9 +46,9 @@ const stages = [
     { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘","🚔"], target: "🚲", num: 180, goals: 1 },
     { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 250, goals: 1 },
     { title: "5. 金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 250, goals: 1 },
-    { title: "6. 美女の中に…裸の力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "🤼‍♂️", num: 300, goals: 1 },
+    { title: "6. 美女の中に…相撲力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "SUMO", num: 300, goals: 1 },
     { title: "7. 世界の人々から「5つの国旗」を探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 300, goals: 5 },
-    { title: "8. 魚の中に「食べられた魚(骨)」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "BONE", num: 300, goals: 1 },
+    { title: "8. 魚の中に「食べられた魚(骨)」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "FISHBONE", num: 300, goals: 1 },
     { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "梅", num: 300, goals: 1 },
     { title: "最終：1円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
@@ -90,12 +90,15 @@ function createItem(content, isTarget) {
     const el = document.createElement('span');
     el.className = 'item';
     
-    if (content === "BONE" && isTarget) {
-        el.innerText = "🦴";
+    // デザインの入れ替え
+    if (content === "FISHBONE" && isTarget) {
+        el.innerText = "🦴"; // 魚の骨
         el.style.transform = "rotate(90deg)";
     } else if (content === "梅") {
-        el.innerText = "🔴";
+        el.innerText = "🔴"; // 梅干し1個
         el.style.filter = "drop-shadow(4px 4px 3px #400) saturate(2)"; 
+    } else if (content === "SUMO" && isTarget) {
+        el.innerText = "🫃"; // レスリングではなく相撲力士風
     } else {
         el.innerText = content;
     }
@@ -109,12 +112,12 @@ function createItem(content, isTarget) {
             if(!gameActive) return;
             e.stopPropagation();
             
-            // 力士（🤼‍♂️）の場合は特大ズーム演出
-            if (content === "🤼‍♂️") {
+            // 相撲力士の場合は特大ズーム
+            if (content === "SUMO") {
                 el.style.transform = "scale(8) rotate(360deg)";
                 el.style.zIndex = "2000";
             } else {
-                el.style.transform = "scale(3)";
+                el.style.transform = "scale(4)";
             }
             
             foundCount++;
