@@ -17,12 +17,11 @@
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
         .btn-pay { background: #ff0033 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
-        .final-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; gap: 10px; }
         
-        /* ターゲット別の特殊装飾 */
-        .sumo-target { font-weight: bold; color: #000; background: #f0e68c; border-radius: 50%; border: 2px solid #000; font-size: 24px !important; }
-        .umeboshi-target { filter: drop-shadow(0 0 8px #f00) saturate(5) !important; font-size: 40px !important; }
-        .fishbone-target { color: #888; transform: rotate(90deg) !important; font-size: 40px !important; }
+        /* イラスト再現用スタイル */
+        .sumo-illust { font-size: 45px !important; filter: drop-shadow(2px 2px 0 #850); }
+        .bone-illust { transform: rotate(45deg) !important; color: #999; font-weight: bold; }
+        .ume-illust { color: #d00; filter: drop-shadow(0 0 8px #f00) contrast(1.5); font-weight: bold; font-size: 40px !important; }
     </style>
 </head>
 <body>
@@ -51,10 +50,10 @@ const stages = [
     { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘"], target: "🚲", num: 150, goals: 1 },
     { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 200, goals: 1 },
     { title: "5. 金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 200, goals: 1 },
-    { title: "6. 美女の中に…相撲力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "力士", num: 250, goals: 1 },
-    { title: "7. 世界の人々から「5つの国旗」を探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 250, goals: 5 },
+    { title: "6. 美女の中に…相撲力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "SUMO", num: 250, goals: 1 },
+    { title: "7. 世界の人々から「5つの国旗」を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 250, goals: 5 },
     { title: "8. 魚の中に「魚の骨」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "BONE", num: 250, goals: 1 },
-    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "梅干", num: 250, goals: 1 },
+    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "UME", num: 250, goals: 1 },
     { title: "最終：1円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -69,7 +68,7 @@ function initStage() {
     const stage = stages[currentStage];
     desc.innerText = stage.title;
     stageDisp.innerText = currentStage + 1;
-    timeLeft = 30;
+    timeLeft = 30; // 各ステージでリセット
     timerDisp.innerText = timeLeft;
 
     if (stage.target === "FINAL") {
@@ -95,16 +94,15 @@ function createItem(content, isTarget) {
     const el = document.createElement('span');
     el.className = 'item';
     
-    // 内容に応じた見た目の切り替え
-    if (content === "力士" && isTarget) {
-        el.innerText = "力士";
-        el.className = 'item sumo-target';
+    if (content === "SUMO" && isTarget) {
+        el.innerText = "👨‍⚖️"; // イラストに近い、威厳のある力士代用
+        el.className = 'item sumo-illust';
     } else if (content === "BONE" && isTarget) {
         el.innerText = "🦴";
-        el.className = 'item fishbone-target';
-    } else if (content === "梅干" && isTarget) {
+        el.className = 'item bone-illust';
+    } else if (content === "UME" && isTarget) {
         el.innerText = "🔴";
-        el.className = 'item umeboshi-target';
+        el.className = 'item ume-illust';
     } else {
         el.innerText = content;
     }
@@ -116,13 +114,16 @@ function createItem(content, isTarget) {
         el.style.zIndex = "1500"; 
         el.onclick = (e) => {
             if(!gameActive) return;
+            // すでにタップ済みなら無視
+            if (el.style.transform.includes("scale")) return;
+
             e.stopPropagation();
-            
-            // 力士やターゲットを見つけた時のズーム演出
-            el.style.transform = "scale(6) rotate(360deg)";
-            el.style.zIndex = "2000";
+            el.style.transform = "scale(5) rotate(360deg)";
+            el.style.opacity = "0.5";
+            el.style.pointerEvents = "none"; // 2回タップ防止
             
             foundCount++;
+            // ステージ7なら5個見つけるまで飛ばない
             if (foundCount >= stages[currentStage].goals) {
                 gameActive = false;
                 setTimeout(() => { currentStage++; initStage(); }, 1000);
@@ -139,9 +140,9 @@ function showFinalScreen() {
     clearInterval(timerId);
     timerId = null;
     field.innerHTML = `
-        <div class="final-screen">
-            <h1 style="color:#d44d5c; font-size:24px; margin-top:30px;">To Be Continued...</h1>
-            <div style="width:85%; border:2px dashed #d44d5c; padding:20px; border-radius:10px; background:#fff; margin:20px 0;">
+        <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; gap:15px;">
+            <h1 style="color:#d44d5c; font-size:24px;">To Be Continued...</h1>
+            <div style="width:85%; border:2px dashed #d44d5c; padding:20px; border-radius:10px; background:#fff;">
                 <p style="font-weight:bold; font-size:18px;">1円募金（支援）のお願い</p>
                 <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで支援する</a>
             </div>
