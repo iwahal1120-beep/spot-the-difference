@@ -13,6 +13,7 @@
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; font-size: 28px; cursor: pointer; user-select: none; z-index: 1; display: inline-block; width: 40px; height: 40px; line-height: 40px; text-align: center; }
+        .tbc-item { position: absolute; font-size: 12px; font-weight: bold; color: #d44d5c; cursor: pointer; white-space: nowrap; }
         .target-img { width: 40px; height: 40px; object-fit: cover; border-radius: 50%; }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; color: #000; padding: 20px; width: 90%; z-index: 2000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
@@ -27,7 +28,7 @@
     <div id="stg-desc">読み込み中...</div>
     <div class="status-bar">
         <div>残り: <span id="timer">30</span>秒</div>
-        <div>ステージ: <span id="stage-num">1</span>/9</div>
+        <div>ステージ: <span id="stage-num">1</span>/10</div>
     </div>
 </div>
 
@@ -41,30 +42,29 @@
         <img src="paypay-qr.png" alt="PayPay QR" style="width:150px;height:150px;display:block;margin:auto;border:1px solid #ccc;">
         <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで送金する</a>
     </div>
-    <div id="tbc-area" style="font-size: 20px; font-weight: bold; margin: 20px 0; color: #d44d5c;">To Be Continued...</div>
     <button onclick="window.location.reload();" class="btn btn-retry">最初から遊ぶ</button>
 </div>
 
 <script>
-// 7番用の写真URL（必要に応じて実際の写真のURLに変更してください）
 const leaderImages = [
-    "https://placehold.jp/24/cc0000/ffffff/40x40.png?text=普", // プーチン氏
-    "https://placehold.jp/24/0000cc/ffffff/40x40.png?text=金", // 金氏
-    "https://placehold.jp/24/ccaa00/ffffff/40x40.png?text=習", // 習氏
-    "https://placehold.jp/24/008800/ffffff/40x40.png?text=ト", // トランプ氏
-    "https://placehold.jp/24/ff00ff/ffffff/40x40.png?text=高"  // 高市氏
+    "https://placehold.jp/24/cc0000/ffffff/40x40.png?text=普", 
+    "https://placehold.jp/24/0000cc/ffffff/40x40.png?text=金", 
+    "https://placehold.jp/24/ccaa00/ffffff/40x40.png?text=習", 
+    "https://placehold.jp/24/008800/ffffff/40x40.png?text=ト", 
+    "https://placehold.jp/24/ff00ff/ffffff/40x40.png?text=高"
 ];
 
 const stages = [
-    { title: "1. 300匹の動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 300, goals: 1 },
-    { title: "2. 300人の人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 300, goals: 1 },
-    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜"], target: "🚲", num: 300, goals: 1 },
-    { title: "4. 500個のお菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 500, goals: 1 },
-    { title: "5. 500枚の金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 500, goals: 1 },
-    { title: "6. 500人の美女の中に…裸の人(力士)が一人！探して！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "🤼‍♂️", num: 500, goals: 1 },
-    { title: "7. 世界の人々の中に問題の5人を探せ！(5回タップ)", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "PHOTO", num: 500, goals: 5 },
-    { title: "8. 500匹の魚の中に残念な魚(魚の形の骨)が！探して！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "🦴", num: 500, goals: 1 },
-    { title: "9. 大宇宙の惑星の中にあり得ないホシ(梅干し)が！探して！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "🔴", num: 500, goals: 1 }
+    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 300, goals: 1 },
+    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 300, goals: 1 },
+    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🚎","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘","🚔","🚍"], target: "🚲", num: 300, goals: 1 },
+    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 500, goals: 1 },
+    { title: "5. 金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 500, goals: 1 },
+    { title: "6. 500人の美女の中に…裸の力士が一人！探して！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "🤼‍♂️", num: 500, goals: 1 },
+    { title: "7. 世界の人々の中に問題の5人を探せ！(5人タップ)", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "PHOTO", num: 500, goals: 5 },
+    { title: "8. 500匹の魚の中に「残念な魚(骨)」が！探して！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "🦴", num: 500, goals: 1 },
+    { title: "9. 宇宙の中に「あり得ないホシ(梅干し)」が！探して！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "UMEBOSHI", num: 500, goals: 1 },
+    { title: "最終：バラマキの中から「1円募金」を探せ！", crowd: ["To Be Continued..."], target: "1円募金", num: 300, goals: 1 }
 ];
 
 let currentStage = 0, timeLeft = 30, timerId = null, gameActive = false, foundCount = 0;
@@ -91,75 +91,39 @@ function initStage() {
             createItem(leaderImages[j], true, true);
         }
     } else {
-        for (let j = 0; j < stage.goals; j++) {
-            createItem(stage.target, true);
-        }
+        createItem(stage.target, true);
     }
     if(!timerId) startTimer();
 }
 
 function createItem(content, isTarget, isPhoto = false) {
     const el = document.createElement('span');
-    el.className = 'item';
+    const isTBC = currentStage === 9; 
+    el.className = isTBC ? 'tbc-item' : 'item';
+
     if (isPhoto) {
         const img = document.createElement('img');
         img.src = content;
         img.className = 'target-img';
         el.appendChild(img);
+    } else if (content === "UMEBOSHI") {
+        el.innerText = "🔴";
+        el.style.filter = "contrast(1.4) drop-shadow(2px 2px 1px #600)";
     } else {
         el.innerText = content;
     }
     
-    el.style.left = (Math.random() * 90 + 2) + "%";
-    el.style.top = (Math.random() * 90 + 2) + "%";
+    el.style.left = (Math.random() * 88 + 2) + "%";
+    el.style.top = (Math.random() * 88 + 2) + "%";
     el.style.transform = `rotate(${Math.random() * 60 - 30}deg)`;
     
     if (isTarget) {
-        el.style.zIndex = "100";
-        if (currentStage === 7) el.style.transform = "rotate(90deg)"; // 魚の骨
-        if (currentStage === 8) el.style.filter = "contrast(1.4) drop-shadow(2px 2px 1px #600)"; // 梅干し
-
+        el.style.zIndex = "1000";
+        if (content === "🦴") el.style.transform = "rotate(90deg)"; 
+        
         el.onclick = (e) => {
             if(!gameActive) return;
             e.stopPropagation();
             el.style.fontSize = "60px";
-            if(isPhoto) el.style.transform = "scale(2)";
-            el.style.pointerEvents = "none";
-            foundCount++;
-            if (foundCount >= stages[currentStage].goals) {
-                gameActive = false;
-                setTimeout(() => { currentStage++; initStage(); }, 800);
-            }
-        };
-    } else {
-        el.onclick = () => { if(gameActive) el.style.opacity = "0.2"; };
-    }
-    field.appendChild(el);
-}
-
-function startTimer() {
-    timerId = setInterval(() => {
-        if(gameActive) {
-            timeLeft--;
-            timerDisp.innerText = timeLeft;
-            if(timeLeft <= 0) endGame(false);
-        }
-    }, 1000);
-}
-
-function endGame(isClear) {
-    gameActive = false;
-    clearInterval(timerId);
-    timerId = null;
-    const modal = document.getElementById('modal');
-    document.getElementById('modal-title').innerText = isClear ? "全ステージクリア！" : "タイムアップ！";
-    document.getElementById('modal-msg').innerText = isClear ? "全ての探しものを見つけ出しました！" : "残念！もう一度挑戦しますか？";
-    document.getElementById('tbc-area').style.display = isClear ? "block" : "none";
-    document.getElementById('paypay-area').style.display = isClear ? "block" : "none";
-    modal.style.display = 'block';
-}
-
-initStage();
-</script>
-</body>
-</html>
+            el.style.color = "#ff0033";
+            el.style.fontWeight = "bold";
