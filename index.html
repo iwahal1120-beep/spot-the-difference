@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>1円募金 - Search Challenge!</title>
+    <title>Search Challenge! 10 Stages</title>
     <style>
         body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
         .header { padding: 5px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 10000; }
@@ -13,18 +13,14 @@
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         
-        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; }
+        /* 共通のアイテムスタイル */
+        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; font-size: 32px; width: 45px; height: 45px; }
         
-        /* 正解ターゲット：少し大きく、最前面へ */
+        /* 正解ターゲット：さらに強調 */
         .target-item {
             z-index: 9000 !important;
-            width: 55px !important;
-            height: 55px !important;
+            font-size: 50px !important; /* 正解は少し大きくして見つけやすく */
         }
-
-        .img-content { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-        .emoji-item { font-size: 32px; text-align: center; }
-        .target-item.emoji-item { font-size: 45px; }
 
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 20000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
@@ -52,23 +48,17 @@
 </div>
 
 <script>
-// フリー素材のアイコンURL
-const ASSETS = {
-    sumo: "https://cdn-icons-png.flaticon.com/512/3132/3132714.png", // 力士
-    bone: "https://cdn-icons-png.flaticon.com/512/2822/2822365.png", // 魚の骨
-    plum: "https://cdn-icons-png.flaticon.com/512/7480/7480641.png"  // 梅（梅干しイメージ）
-};
-
+// すべての環境で確実に表示される絵文字イラストを使用
 const stages = [
-    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 450, goals: 1 },
-    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 450, goals: 1 },
-    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘"], target: "🚲", num: 450, goals: 1 },
-    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 450, goals: 1 },
-    { title: "5. すべて金貨！銀貨を1枚探せ！", crowd: ["🪙"], target: "🥈", num: 600, goals: 1 },
-    { title: "6. 美女の中に…相撲力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: ASSETS.sumo, num: 450, goals: 1 },
-    { title: "7. 5枚の国旗を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 450, goals: 5 },
-    { title: "8. 魚の中に「魚の骨」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: ASSETS.bone, num: 450, goals: 1 },
-    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: ASSETS.plum, num: 450, goals: 1 },
+    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 400, goals: 1 },
+    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️"], target: "🐱", num: 400, goals: 1 },
+    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓"], target: "🚲", num: 400, goals: 1 },
+    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰"], target: "🍪", num: 400, goals: 1 },
+    { title: "5. 金貨の山から「銀貨」を1枚探せ！", crowd: ["🪙"], target: "🥈", num: 550, goals: 1 },
+    { title: "6. 美女の中に…「力士」が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🤼‍♂️", num: 400, goals: 1 }, // 力士（レスラー/格闘家）
+    { title: "7. 5つの「国旗」を全部探せ！", crowd: ["🌍","🌎","🌏","👦","👧"], target: "FLAGS", num: 400, goals: 5 },
+    { title: "8. 魚の中に「魚の骨」が！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 400, goals: 1 }, // 骨
+    { title: "9. 宇宙の中に「梅」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌"], target: "🔴", num: 400, goals: 1 }, // 梅干しに見立てた赤い丸
     { title: "最終：1円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -93,14 +83,14 @@ function initStage() {
 
     gameActive = true;
     
-    // ダミー（下層）
+    // ダミー生成（金貨ステージなら金貨のみが出る）
     for (let i = 0; i < stage.num; i++) {
         createItem(stage.crowd[Math.floor(Math.random() * stage.crowd.length)], false);
     }
     
-    // 正解（最前面）
+    // 正解生成
     if (stage.target === "FLAGS") {
-        const flags = ["🇷🇺", "🇰🇵", "🇨🇳", "🇺🇸", "🇯🇵"];
+        const flags = ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇷", "🇬🇧"];
         flags.forEach(f => createItem(f, true));
     } else {
         createItem(stage.target, true);
@@ -113,22 +103,11 @@ function createItem(content, isTarget) {
     const el = document.createElement('span');
     el.className = isTarget ? 'item target-item' : 'item';
     
-    // 位置のランダム化（ターゲットは画面端すぎないように調整）
-    const padding = isTarget ? 15 : 5;
-    el.style.left = (Math.random() * (100 - padding * 2) + padding) + "%";
-    el.style.top = (Math.random() * (100 - padding * 2) + padding) + "%";
+    // ターゲットが重ならないようにランダム配置
+    el.style.left = (Math.random() * 85 + 5) + "%";
+    el.style.top = (Math.random() * 85 + 5) + "%";
     el.style.zIndex = isTarget ? "9000" : Math.floor(Math.random() * 5000);
-
-    // イラスト（URL）か絵文字かの判定
-    if (content.startsWith("http")) {
-        const img = document.createElement('img');
-        img.src = content;
-        img.className = 'img-content';
-        el.appendChild(img);
-    } else {
-        el.innerText = content;
-        el.classList.add('emoji-item');
-    }
+    el.innerText = content;
     
     el.onclick = function(e) {
         if(!gameActive) return;
@@ -138,11 +117,10 @@ function createItem(content, isTarget) {
             if (this.dataset.found === "true") return;
             this.dataset.found = "true";
             
-            // 正解エフェクト
-            this.style.transition = "0.3s";
-            this.style.transform = "scale(2.5) rotate(360deg)";
+            // 正解演出
+            this.style.transition = "0.4s";
+            this.style.transform = "scale(3) rotate(360deg)";
             this.style.filter = "drop-shadow(0 0 10px gold)";
-            this.style.zIndex = "10000";
             
             foundCount++;
             if (foundCount >= stages[currentStage].goals) {
@@ -153,8 +131,8 @@ function createItem(content, isTarget) {
                 }, 800);
             }
         } else {
-            // ミスタップでダミーを消してヒントにする
-            this.style.opacity = "0.2";
+            // ミスタップで消える（探索補助）
+            this.style.opacity = "0.1";
             this.style.pointerEvents = "none";
         }
     };
@@ -165,17 +143,16 @@ function showFinalScreen() {
     gameActive = false;
     clearInterval(timerId);
     timerId = null;
-    field.style.overflowY = "auto";
     field.innerHTML = `
-        <div style="padding:20px; box-sizing:border-box; height:100%; display:flex; flex-direction:column; align-items:center;">
+        <div style="padding:20px; text-align:center;">
             <h2 style="color:#d44d5c;">ALL STAGES CLEAR!</h2>
-            <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px; width:100%; max-width:350px; box-shadow:0 10px 20px rgba(0,0,0,0.1);">
-                <p style="font-weight:bold;">1円からのご支援（募金）のお願い</p>
-                <p style="font-size:13px; color:#666; line-height:1.5;">遊んでいただきありがとうございます！<br>もし楽しんでいただけたら、今後の活動のために1円でもご支援いただけると大変励みになります。</p>
-                <img src="paypay-qr.png" alt="PayPay QR" style="width:160px; height:160px; margin:10px auto; display:block; border:1px solid #ddd;">
-                <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayアプリで支援する</a>
+            <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px;">
+                <p><b>1円からのご支援のお願い</b></p>
+                <p style="font-size:12px;">楽しんでいただけたら支援をお願いします！</p>
+                <img src="paypay-qr.png" style="width:150px; border:1px solid #ddd; margin:10px;">
+                <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで支援する</a>
             </div>
-            <button onclick="window.location.reload();" class="btn btn-retry" style="width:200px; margin-top:20px;">最初から遊ぶ</button>
+            <button onclick="window.location.reload();" class="btn btn-retry">もう一度遊ぶ</button>
         </div>`;
 }
 
