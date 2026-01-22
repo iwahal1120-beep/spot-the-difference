@@ -13,29 +13,21 @@
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         
-        /* 通常アイテム */
-        .item { 
-            position: absolute; 
-            cursor: pointer; 
-            user-select: none; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            width: 40px; 
-            height: 40px; 
-            box-sizing: border-box;
-        }
+        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
         
-        /* 正解ターゲット専用スタイル：絶対最前面 */
+        /* 正解ターゲットを絶対最前面にし、少し大きくして目立たせる */
         .target-item {
-            z-index: 8000 !important; /* 他の500個より必ず上にくる */
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.8)); /* 少し光らせて埋もれ防止 */
+            z-index: 9000 !important;
+            width: 50px !important;
+            height: 50px !important;
+            filter: drop-shadow(0 0 8px gold); /* 銀貨やイラストを光らせる */
         }
 
         .target-img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
         .emoji-item { font-size: 28px; text-align: center; line-height: 40px; }
-        
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 10000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .target-item.emoji-item { font-size: 40px; } /* 正解の絵文字を大きく */
+
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 10000; border: 5px solid #d4af37; border-radius: 15px; }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
         .btn-pay { background: #ff0033 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
@@ -62,15 +54,15 @@
 
 <script>
 const stages = [
-    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 500, goals: 1 },
-    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 500, goals: 1 },
-    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘"], target: "🚲", num: 500, goals: 1 },
-    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 500, goals: 1 },
-    { title: "5. 金貨から「銀貨」を探せ！", crowd: ["🪙"], target: "🥈", num: 500, goals: 1 },
-    { title: "6. 美女の中に…相撲力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "sumo.png", num: 500, goals: 1 },
-    { title: "7. 世界の人々から「5つの国旗」を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 500, goals: 5 },
-    { title: "8. 魚の中に「魚の骨」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "fishbone.png", num: 500, goals: 1 },
-    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "umeboshi.png", num: 500, goals: 1 },
+    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 450, goals: 1 },
+    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 450, goals: 1 },
+    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘"], target: "🚲", num: 450, goals: 1 },
+    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 450, goals: 1 },
+    { title: "5. 500枚の金貨から「銀貨1枚」を探せ！", crowd: ["🪙"], target: "🥈", num: 500, goals: 1 },
+    { title: "6. 美女の中に…相撲力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "sumo.png", num: 450, goals: 1 },
+    { title: "7. 世界の人々から「5つの国旗」を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 450, goals: 5 },
+    { title: "8. 魚の中に「魚の骨」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "fishbone.png", num: 450, goals: 1 },
+    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "umeboshi.png", num: 450, goals: 1 },
     { title: "最終：1円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -94,12 +86,13 @@ function initStage() {
     }
 
     gameActive = true;
-    // 先にダミーを生成（下層）
+    
+    // ダミーを先に配置（下層）
     for (let i = 0; i < stage.num; i++) {
         createItem(stage.crowd[Math.floor(Math.random() * stage.crowd.length)], false);
     }
     
-    // 次にターゲットを生成（最前面を保証）
+    // 正解を最後に配置（絶対最前面）
     if (stage.target === "FLAGS") {
         ["🇷🇺", "🇰🇵", "🇨🇳", "🇺🇸", "🇯🇵"].forEach(f => createItem(f, true));
     } else {
@@ -113,14 +106,13 @@ function createItem(content, isTarget) {
     const el = document.createElement('span');
     el.className = isTarget ? 'item target-item' : 'item';
     
-    // 通常アイテムはz-index 1~4999、正解はCSSで8000に固定
     if (!isTarget) {
-        el.style.zIndex = Math.floor(Math.random() * 4999) + 1;
+        el.style.zIndex = Math.floor(Math.random() * 5000) + 1;
     }
 
-    // はみ出し防止の配置計算
-    el.style.left = (Math.random() * 85 + 5) + "%";
-    el.style.top = (Math.random() * 85 + 5) + "%";
+    // 画面端ギリギリにならないよう配置範囲を調整
+    el.style.left = (Math.random() * 84 + 8) + "%";
+    el.style.top = (Math.random() * 84 + 8) + "%";
 
     if (content.indexOf(".png") !== -1) {
         const img = document.createElement('img');
@@ -146,8 +138,8 @@ function createItem(content, isTarget) {
         if (isTarget) {
             if (this.dataset.found === "true") return;
             this.dataset.found = "true";
-            this.style.zIndex = "9000"; // タップ時さらに上に
-            this.style.transform = "scale(5) rotate(360deg)";
+            this.style.zIndex = "9998";
+            this.style.transform = "scale(4) rotate(360deg)";
             this.style.transition = "0.4s";
             
             foundCount++;
@@ -156,8 +148,9 @@ function createItem(content, isTarget) {
                 setTimeout(function() { currentStage++; initStage(); }, 1000);
             }
         } else {
-            // ダミーを消して下を探索可能に（邪魔な時用）
-            this.style.visibility = "hidden";
+            // ダミーを消して下を探しやすくする
+            this.style.opacity = "0";
+            this.style.pointerEvents = "none";
         }
     };
     field.appendChild(el);
