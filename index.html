@@ -6,14 +6,15 @@
     <title>1円募金 - Search Challenge!</title>
     <style>
         body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
-        .header { padding: 5px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 2000; }
+        .header { padding: 5px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 5000; }
         .main-title { font-size: 16px; font-weight: bold; margin: 0; }
         .status-bar { display: flex; justify-content: center; gap: 20px; font-size: 16px; margin-top: 5px; font-weight: bold; }
         #stg-desc { font-size: 12px; background: white; color: #d44d5c; display: inline-block; padding: 2px 10px; border-radius: 15px; margin-top: 3px; width: 90%; }
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; }
+        
+        /* ゲームエリア：はみ出しを物理的に防ぐ */
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         
-        /* イラスト・アイテムのサイズを厳格に固定 */
         .item { 
             position: absolute; 
             cursor: pointer; 
@@ -21,20 +22,13 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            width: 50px; /* サイズ固定 */
-            height: 50px; 
+            width: 40px; 
+            height: 40px; 
             box-sizing: border-box;
+            will-change: transform;
         }
-        .target-img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; /* 枠からはみ出さないように収める */
-        }
-        .emoji-item { 
-            font-size: 30px; 
-            text-align: center; 
-            line-height: 50px; 
-        }
+        .target-img { width: 100%; height: 100%; object-fit: contain; }
+        .emoji-item { font-size: 28px; text-align: center; line-height: 40px; }
         
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 9999; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
@@ -56,22 +50,22 @@
 <div id="game-field" class="game-area"></div>
 
 <div id="modal" class="modal">
-    <h2 id="modal-title" style="color:#d44d5c;">クリア！</h2>
-    <p id="modal-msg"></p>
-    <button onclick="window.location.reload();" class="btn btn-retry">もう一度遊ぶ</button>
+    <h2 id="modal-title">タイムアップ！</h2>
+    <p>もう一度挑戦しますか？</p>
+    <button onclick="window.location.reload();" class="btn btn-retry">最初から遊ぶ</button>
 </div>
 
 <script>
 const stages = [
-    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 80, goals: 1 },
-    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 80, goals: 1 },
-    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘"], target: "🚲", num: 80, goals: 1 },
-    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 100, goals: 1 },
-    { title: "5. 金貨から「銀貨」を探せ！", crowd: ["💰"], target: "🥈", num: 100, goals: 1 },
-    { title: "6. 美女の中に…相撲力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "sumo.png", num: 120, goals: 1 },
-    { title: "7. 世界の人々から「5つの国旗」を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 120, goals: 5 },
-    { title: "8. 魚の中に「魚の骨」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "fishbone.png", num: 120, goals: 1 },
-    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "umeboshi.png", num: 120, goals: 1 },
+    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵"], target: "🙋‍♂️", num: 500, goals: 1 },
+    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️","👮‍♂️","👷‍♀️","👩‍⚕️","💂‍♂️"], target: "🐱", num: 500, goals: 1 },
+    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓","🚑","🚒","🚐","🚚","🚛","🚜","🚘"], target: "🚲", num: 500, goals: 1 },
+    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰","🧁","🥧","🍦","🍨","🍡","🥨"], target: "🍪", num: 500, goals: 1 },
+    { title: "5. 金貨から「銀貨」を探せ！", crowd: ["🪙"], target: "🥈", num: 500, goals: 1 }, // ドル袋(💰)ではなく金貨(🪙)に変更
+    { title: "6. 美女の中に…相撲力士が一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃","👒"], target: "sumo.png", num: 500, goals: 1 },
+    { title: "7. 世界の人々から「5つの国旗」を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👵","👦","👧"], target: "FLAGS", num: 500, goals: 5 },
+    { title: "8. 魚の中に「魚の骨」が！", crowd: ["🐟","🐠","🐡","🦈","🐙","🦑"], target: "fishbone.png", num: 500, goals: 1 },
+    { title: "9. 宇宙の中に「梅干し」が1個！", crowd: ["🪐","🌕","⭐","☀️","🌌","☄️"], target: "umeboshi.png", num: 500, goals: 1 },
     { title: "最終：1円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -95,6 +89,7 @@ function initStage() {
     }
 
     gameActive = true;
+    // 500個を確実に生成
     for (let i = 0; i < stage.num; i++) {
         createItem(stage.crowd[Math.floor(Math.random() * stage.crowd.length)], false);
     }
@@ -111,20 +106,22 @@ function initStage() {
 function createItem(content, isTarget) {
     const el = document.createElement('span');
     el.className = 'item';
-    el.style.zIndex = Math.floor(Math.random() * 1000) + 1;
+    el.style.zIndex = Math.floor(Math.random() * 4000); // 500個の重なりを考慮
 
-    // 配置場所を画面の端から10%内側に制限して、はみ出しを防止
-    el.style.left = (Math.random() * 80 + 10) + "%";
-    el.style.top = (Math.random() * 80 + 10) + "%";
+    // はみ出しを完全に防ぐ計算（幅40pxを考慮して5%〜90%の範囲）
+    el.style.left = (Math.random() * 85 + 5) + "%";
+    el.style.top = (Math.random() * 85 + 5) + "%";
 
     if (content.indexOf(".png") !== -1) {
         const img = document.createElement('img');
         img.className = 'target-img';
-        img.src = content;
+        img.src = content + "?v=" + Date.now(); // キャッシュ回避
         img.onerror = function() {
             this.style.display = "none";
             el.innerText = content === "sumo.png" ? "力士" : (content === "umeboshi.png" ? "梅" : "骨");
             el.classList.add('emoji-item');
+            el.style.color = "#d44d5c";
+            el.style.fontWeight = "bold";
         };
         el.appendChild(img);
     } else {
@@ -139,17 +136,17 @@ function createItem(content, isTarget) {
         if (isTarget) {
             if (this.dataset.found === "true") return;
             this.dataset.found = "true";
-            this.style.zIndex = "3000";
-            this.style.transform = "scale(4) rotate(360deg)";
-            this.style.transition = "0.5s";
+            this.style.zIndex = "6000";
+            this.style.transform = "scale(5) rotate(360deg)";
+            this.style.transition = "0.4s";
             
             foundCount++;
             if (foundCount >= stages[currentStage].goals) {
                 gameActive = false;
-                setTimeout(function() { currentStage++; initStage(); }, 1200);
+                setTimeout(function() { currentStage++; initStage(); }, 1000);
             }
         } else {
-            // ダミーをタップすると消える（めくる動作）
+            // ダミーを消して下を見えるようにする（500個あるので必須）
             this.style.visibility = "hidden";
         }
     };
@@ -175,19 +172,16 @@ function startTimer() {
         if(gameActive) {
             timeLeft--;
             timerDisp.innerText = timeLeft;
-            if(timeLeft <= 0) endGame(false);
+            if(timeLeft <= 0) endGame();
         }
     }, 1000);
 }
 
-function endGame(isClear) {
+function endGame() {
     gameActive = false;
     clearInterval(timerId);
     timerId = null;
-    const modal = document.getElementById('modal');
-    document.getElementById('modal-title').innerText = "タイムアップ！";
-    document.getElementById('modal-msg').innerText = "残念！もう一度挑戦しますか？";
-    modal.style.display = 'block';
+    document.getElementById('modal').style.display = 'block';
 }
 
 window.onload = initStage;
