@@ -15,7 +15,7 @@
         
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
         
-        /* 正解ターゲット：小さく、かつ必ず最前面にくる設定 */
+        /* 正解ターゲット：小さく、かつ必ず最前面にくるようにz-indexを強化 */
         .target-item {
             z-index: 9999 !important; 
             font-size: 24px !important; 
@@ -56,8 +56,8 @@ const stages = [
     { title: "5. 背景は白！500枚の金貨から銀貨を1枚探せ！", crowd: ["🪙"], target: "🥈", num: 500, goals: 1 },
     { title: "6. 女性の中から「水泳の選手」を一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🏊‍♀️", num: 400, goals: 1 },
     { title: "7. 国旗（日・米・中・露・北）を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 400, goals: 5 },
-    { title: "8. 魚の中に「魚の骨」！見つかるかな？", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 450, goals: 1 },
-    { title: "9. 背景は黒！500個の星から「梅干し」を！", crowd: ["⭐","✨","🌟"], target: "梅干し", num: 500, goals: 1 },
+    { title: "8. 魚の中に「魚の骨」！重なっていても見つけろ！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 450, goals: 1 },
+    { title: "9. 星と干し…500個の星から「梅干し」を！", crowd: ["⭐","✨","🌟"], target: "梅干し", num: 500, goals: 1 },
     { title: "最終：1円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -85,7 +85,7 @@ function initStage() {
 
     gameActive = true;
     
-    // 1. ダミーを先に生成
+    // 1. ダミーを生成
     for (let i = 0; i < stage.num; i++) {
         createItem(stage.crowd[Math.floor(Math.random() * stage.crowd.length)], false);
     }
@@ -109,17 +109,19 @@ function createItem(content, isTarget) {
     
     el.style.left = (Math.random() * 88 + 4) + "%";
     el.style.top = (Math.random() * 88 + 4) + "%";
+    
+    // 正解は必ず最前面、ダミーは下位
     el.style.zIndex = isTarget ? "9999" : Math.floor(Math.random() * 1000);
     
     if (content === "🦴") { 
         el.style.transform = "rotate(45deg)"; 
     }
 
-    // ビジュアル出し分け
+    // 梅干しのビジュアル調整
     if (content === "梅干し" && isTarget) {
-        el.innerText = "💮"; 
-        el.style.color = "#8b0000"; 
-        el.style.fontSize = "22px";
+        el.innerText = "🫘"; // シワのある質感として「豆」の絵文字を使用
+        el.style.color = "#a00000"; // 深い梅干し色に上書き
+        el.style.filter = "contrast(1.5) saturate(2)"; 
     } else {
         el.innerText = content;
     }
@@ -132,6 +134,7 @@ function createItem(content, isTarget) {
             if (this.dataset.found === "true") return;
             this.dataset.found = "true";
             
+            // 正解演出
             this.style.transition = "0.3s";
             this.style.transform = "scale(2) rotate(360deg)";
             this.style.filter = "drop-shadow(0 0 10px gold)";
@@ -161,7 +164,7 @@ function showFinalScreen() {
         <div style="padding:20px; box-sizing:border-box;">
             <h2 style="color:#d44d5c;">ALL CLEAR!</h2>
             <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px;">
-                <p><b>1円からのご支援のお願い</b></p>
+                <p><b>1円からのご支援（募金）のお願い</b></p>
                 <img src="paypay-qr.png" style="width:150px; border:1px solid #eee; margin:10px auto; display:block;">
                 <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで支援する</a>
             </div>
