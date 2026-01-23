@@ -53,7 +53,7 @@ const stages = [
     { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️"], target: "🐱", num: 400, goals: 1 },
     { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓"], target: "🚲", num: 400, goals: 1 },
     { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰"], target: "🍪", num: 400, goals: 1 },
-    { title: "5. 背景は白！500枚の金貨から銀貨を1枚探せ！", crowd: ["🟡"], target: "⚪", num: 500, goals: 1 }, // 黄色の丸が金貨、白丸が銀貨
+    { title: "5. 背景は白！500枚の金貨から銀貨を1枚探せ！", crowd: ["🟡"], target: "🔘", num: 500, goals: 1 }, // 🟡が金貨、🔘がグレーの銀貨
     { title: "6. 女性の中から「水泳の選手」を一人！", crowd: ["👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🏊‍♀️", num: 400, goals: 1 },
     { title: "7. 国旗（日・米・中・露・北）を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 400, goals: 5 },
     { title: "8. 魚の中に「魚の骨」！重なっていても見つけろ！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 450, goals: 1 },
@@ -90,12 +90,12 @@ function initStage() {
         createItem(stage.crowd[Math.floor(Math.random() * stage.crowd.length)], false);
     }
     
-    // 2. 正解を生成（z-index 9999）
+    // 2. 正解を生成
     if (stage.target === "FLAGS") {
         const flags = ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"];
         flags.forEach(f => createItem(f, true));
     } else if (stage.target === "UMEBOSHI") {
-        createItem("梅", true); // 後で見た目を梅干しに上書き
+        createItem("🔴", true); // 文字なし、赤丸のみ
     } else {
         createItem(stage.target, true);
     }
@@ -113,9 +113,11 @@ function createItem(content, isTarget) {
     if (content === "🦴") { el.style.transform = "rotate(45deg)"; }
 
     // ビジュアル出し分け
-    if (content === "梅" && isTarget) {
-        // 黒背景で梅干しっぽく見えるよう、暗い赤の丸の中に「梅」をうっすら入れる
-        el.innerHTML = '<div style="background:#8b0000; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:10px; font-weight:bold;">梅</div>';
+    if (content === "🔴" && isTarget) {
+        // 梅干し：文字を消し、濃い赤で質感を出す
+        el.style.color = "#b30000"; 
+        el.style.filter = "drop-shadow(0 0 2px rgba(0,0,0,0.5))";
+        el.innerText = content;
     } else {
         el.innerText = content;
     }
@@ -157,7 +159,7 @@ function showFinalScreen() {
         <div style="padding:20px; box-sizing:border-box;">
             <h2 style="color:#d44d5c;">ALL CLEAR!</h2>
             <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px;">
-                <p><b>1円からのご支援のお願い</b></p>
+                <p><b>1円からのご支援（募金）のお願い</b></p>
                 <img src="paypay-qr.png" style="width:150px; border:1px solid #eee; margin:10px auto; display:block;">
                 <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで支援する</a>
             </div>
