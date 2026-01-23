@@ -13,16 +13,15 @@
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         
-        /* 共通スタイル */
-        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; }
+        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
         
-        /* 正解ターゲット：前回のデカすぎを修正、程よい大きさに */
+        /* 正解ターゲット：小さくして難易度アップ */
         .target-item {
             z-index: 9000 !important;
-            font-size: 44px !important; 
+            font-size: 28px !important; /* 前回の44pxから大幅に縮小 */
         }
 
-        .emoji-item { font-size: 34px; text-align: center; }
+        .emoji-item { font-size: 30px; text-align: center; }
 
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 20000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
@@ -55,11 +54,11 @@ const stages = [
     { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️"], target: "🐱", num: 400, goals: 1 },
     { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓"], target: "🚲", num: 400, goals: 1 },
     { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰"], target: "🍪", num: 400, goals: 1 },
-    { title: "5. すべて金貨！銀貨を1枚だけ探せ！", crowd: ["🪙"], target: "🥈", num: 600, goals: 1 },
-    { title: "6. 美女の中から「スポーツ選手」を一人！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🎾", num: 400, goals: 1 },
+    { title: "5. 500枚の金貨！銀貨を1枚探せ！", crowd: ["🪙"], target: "🥈", num: 500, goals: 1 },
+    { title: "6. 女性の中から「スポーツ選手」を一人！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🎾", num: 400, goals: 1 },
     { title: "7. 5枚の国旗を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 400, goals: 5 },
-    { title: "8. 魚の中に「魚の骨」が…！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 400, goals: 1 },
-    { title: "9. 星と干し…宇宙に「梅干し」が1個！", crowd: ["✨","⭐","🌟","🌠","🌌"], target: "🔴", num: 450, goals: 1 },
+    { title: "8. 魚の中に「魚の骨」が…！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 450, goals: 1 },
+    { title: "9. 星と干し…500個の星から「梅干し」を！", crowd: ["✨","⭐","🌟","🌠"], target: "🔴", num: 500, goals: 1 },
     { title: "最終：1円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -77,8 +76,8 @@ function initStage() {
     timeLeft = 30;
     timerDisp.innerText = timeLeft;
 
-    // 宇宙ステージなら背景を暗くする
-    field.style.background = (currentStage === 8) ? "#000022" : "#fff";
+    // 宇宙ステージ（9番目）は背景を真っ暗にして「星」を際立たせる
+    field.style.background = (currentStage === 8) ? "#000011" : "#fff";
 
     if (stage.target === "FINAL") {
         showFinalScreen();
@@ -87,12 +86,12 @@ function initStage() {
 
     gameActive = true;
     
-    // ダミー
+    // ダミー生成（500個指定に対応）
     for (let i = 0; i < stage.num; i++) {
         createItem(stage.crowd[Math.floor(Math.random() * stage.crowd.length)], false);
     }
     
-    // 正解
+    // 正解生成
     if (stage.target === "FLAGS") {
         const flags = ["🇯🇵", "🇺🇸", "🇨🇳", "🇬🇧", "🇫🇷"];
         flags.forEach(f => createItem(f, true));
@@ -107,14 +106,13 @@ function createItem(content, isTarget) {
     const el = document.createElement('span');
     el.className = isTarget ? 'item emoji-item target-item' : 'item emoji-item';
     
-    el.style.left = (Math.random() * 88 + 2) + "%";
-    el.style.top = (Math.random() * 88 + 2) + "%";
+    // 位置のランダム化（画面端すぎないように調整）
+    el.style.left = (Math.random() * 90 + 2) + "%";
+    el.style.top = (Math.random() * 90 + 2) + "%";
     el.style.zIndex = isTarget ? "9000" : Math.floor(Math.random() * 5000);
     
-    // 魚の骨ステージ用の調整
-    if (content === "🦴") {
-        el.style.transform = "rotate(45deg)"; // 骨っぽく傾ける
-    }
+    // 魚の骨を少しリアルに
+    if (content === "🦴") { el.style.transform = "rotate(45deg)"; }
 
     el.innerText = content;
     
@@ -126,10 +124,10 @@ function createItem(content, isTarget) {
             if (this.dataset.found === "true") return;
             this.dataset.found = "true";
             
-            // 正解演出（サイズ控えめ）
+            // 正解演出（サイズを元の2倍程度に抑える）
             this.style.transition = "0.3s";
-            this.style.transform = "scale(2) rotate(360deg)";
-            this.style.filter = "drop-shadow(0 0 10px gold)";
+            this.style.transform = "scale(1.8) rotate(360deg)";
+            this.style.filter = "drop-shadow(0 0 8px gold)";
             
             foundCount++;
             if (foundCount >= stages[currentStage].goals) {
@@ -140,6 +138,7 @@ function createItem(content, isTarget) {
                 }, 800);
             }
         } else {
+            // ミスタップで少し薄くなる（探索しやすくする工夫）
             this.style.opacity = "0.2";
             this.style.pointerEvents = "none";
         }
@@ -152,16 +151,17 @@ function showFinalScreen() {
     clearInterval(timerId);
     timerId = null;
     field.style.overflowY = "auto";
+    field.style.background = "#fff";
     field.innerHTML = `
         <div style="padding:20px; box-sizing:border-box;">
             <h2 style="color:#d44d5c;">MISSION COMPLETE!</h2>
             <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px;">
                 <p><b>1円からのご支援（募金）のお願い</b></p>
-                <p style="font-size:13px; color:#666;">楽しんでいただけたら、今後の開発のために1円でもご支援いただけると励みになります。</p>
+                <p style="font-size:13px; color:#666;">楽しんでいただけたら、開発支援として<br>PayPayでのご支援をお願いいたします。</p>
                 <img src="paypay-qr.png" style="width:150px; border:1px solid #eee; margin:10px auto; display:block;">
                 <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayアプリで送金する</a>
             </div>
-            <button onclick="window.location.reload();" class="btn btn-retry">最初から遊ぶ</button>
+            <button onclick="window.location.reload();" class="btn btn-retry">もう一度最初から遊ぶ</button>
         </div>`;
 }
 
