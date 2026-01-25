@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>1円募金 - Search Challenge!</title>
+    <title>15円募金 - Search Challenge!</title>
     <style>
         body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
         .header { padding: 5px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 10000; }
@@ -14,25 +14,21 @@
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
-        
-        /* 正解ターゲット：小さく、かつ必ず最前面へ */
-        .target-item {
-            z-index: 9999 !important; 
-            font-size: 22px !important; 
-        }
-
+        .target-item { z-index: 9999 !important; font-size: 22px !important; }
         .emoji-item { font-size: 28px; text-align: center; }
 
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 20000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
-        .btn-pay { background: #ff0033 !important; color: #fff !important; }
+        .btn-amazon { background: #ff9900 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
+        
+        .email-box { background: #eee; padding: 10px; border-radius: 5px; font-size: 14px; margin: 10px 0; border: 1px dashed #666; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="main-title">1円募金 - Search Challenge!</div>
+    <div class="main-title">15円募金 - Search Challenge!</div>
     <div id="stg-desc">Ready...</div>
     <div class="status-bar">
         <div>残り: <span id="timer">30</span>秒</div>
@@ -48,6 +44,9 @@
 </div>
 
 <script>
+// ★ここにあなたのメールアドレスを入れてください
+const YOUR_EMAIL = “iwasaki”@cpads.jp;
+
 const stages = [
     { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 400, goals: 1 },
     { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️"], target: "🐱", num: 400, goals: 1 },
@@ -58,7 +57,7 @@ const stages = [
     { title: "7. 国旗（日・米・中・露・北）を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 400, goals: 5 },
     { title: "8. 魚の中に「魚の骨」！重なっていても見つけろ！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 450, goals: 1 },
     { title: "9. 星と干し…500個の星から「梅干し」を！", crowd: ["⭐","✨","🌟"], target: "🔴", num: 500, goals: 1 },
-    { title: "最終：1円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
+    { title: "最終：15円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
 let currentStage = 0, timeLeft = 30, timerId = null, gameActive = false, foundCount = 0;
@@ -74,8 +73,6 @@ function initStage() {
     stageDisp.innerText = currentStage + 1;
     timeLeft = 30;
     timerDisp.innerText = timeLeft;
-
-    // 宇宙ステージのみ黒背景
     field.style.background = (currentStage === 8) ? "#000" : "#fff";
 
     if (stage.target === "FINAL") {
@@ -84,13 +81,10 @@ function initStage() {
     }
 
     gameActive = true;
-    
-    // 1. ダミーを生成
     for (let i = 0; i < stage.num; i++) {
         createItem(stage.crowd[Math.floor(Math.random() * stage.crowd.length)], false);
     }
     
-    // 2. 正解を生成（z-index 9999）
     if (stage.target === "FLAGS") {
         const flags = ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"];
         flags.forEach(f => createItem(f, true));
@@ -107,36 +101,26 @@ function createItem(content, isTarget) {
     el.style.left = (Math.random() * 88 + 4) + "%";
     el.style.top = (Math.random() * 88 + 4) + "%";
     el.style.zIndex = isTarget ? "9999" : Math.floor(Math.random() * 1000);
-    
     if (content === "🦴") { el.style.transform = "rotate(45deg)"; }
-
-    // 9番梅干しの質感
     if (content === "🔴" && isTarget) {
         el.style.color = "#b30000"; 
         el.style.filter = "drop-shadow(0 0 2px rgba(0,0,0,0.5))";
     }
-
     el.innerText = content;
 
     el.onclick = function(e) {
         if(!gameActive) return;
         e.stopPropagation();
-
         if (isTarget) {
             if (this.dataset.found === "true") return;
             this.dataset.found = "true";
-            
             this.style.transition = "0.3s";
             this.style.transform = "scale(2) rotate(360deg)";
             this.style.filter = "drop-shadow(0 0 10px gold)";
-            
             foundCount++;
             if (foundCount >= stages[currentStage].goals) {
                 gameActive = false;
-                setTimeout(() => {
-                    currentStage++;
-                    initStage();
-                }, 800);
+                setTimeout(() => { currentStage++; initStage(); }, 800);
             }
         } else {
             this.style.opacity = "0.1";
@@ -155,12 +139,18 @@ function showFinalScreen() {
         <div style="padding:20px; box-sizing:border-box;">
             <h2 style="color:#d44d5c;">ALL CLEAR!</h2>
             <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px;">
-                <p><b>1円からのご支援のお願い</b></p>
-                <img src="paypay-qr.png" style="width:150px; border:1px solid #eee; margin:10px auto; display:block;">
-                <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn btn-pay">PayPayで支援する</a>
+                <p><b>15円からのご支援（募金）のお願い</b></p>
+                <p style="font-size:12px; color:#666;">楽しんでいただけたら、Amazonギフトカードで支援をお願いします。下記アドレスを宛先にコピーしてください。</p>
+                <div class="email-box" onclick="copyEmail()">宛先：${YOUR_EMAIL}<br><small>(クリックでコピー)</small></div>
+                <a href="https://www.amazon.co.jp/dp/B004N3APGO/" target="_blank" class="btn btn-amazon">Amazonギフト券（Eメール版）</a>
             </div>
-            <button onclick="window.location.reload();" class="btn btn-retry">もう一度遊ぶ</button>
+            <button onclick="window.location.reload();" class="btn btn-retry">最初から遊ぶ</button>
         </div>`;
+}
+
+function copyEmail() {
+    navigator.clipboard.writeText(YOUR_EMAIL);
+    alert("メールアドレスをコピーしました！");
 }
 
 function startTimer() {
