@@ -14,15 +14,15 @@
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
-        .target-item { z-index: 9999 !important; font-size: 22px !important; }
-        .emoji-item { font-size: 28px; text-align: center; }
+        .target-item { z-index: 9999 !important; font-size: 24px !important; }
+        .emoji-item { font-size: 30px; text-align: center; }
 
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 20000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
         .btn-amazon { background: #ff9900 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
         
-        .email-box { background: #eee; padding: 10px; border-radius: 5px; font-size: 14px; margin: 10px 0; border: 1px dashed #666; cursor: pointer; }
+        .email-box { background: #eee; padding: 10px; border-radius: 5px; font-size: 14px; margin: 10px 0; border: 1px dashed #666; cursor: pointer; color: #333; }
     </style>
 </head>
 <body>
@@ -31,7 +31,7 @@
     <div class="main-title">15円募金 - Search Challenge!</div>
     <div id="stg-desc">Ready...</div>
     <div class="status-bar">
-        <div>残り: <span id="timer">30</span>秒</div>
+        <div>残り: <span id="timer">30</span></div>
         <div>ステージ: <span id="stage-num">1</span>/10</div>
     </div>
 </div>
@@ -45,18 +45,18 @@
 
 <script>
 // ★ここにあなたのメールアドレスを入れてください
-const YOUR_EMAIL = “iwasaki”@cpads.jp;
+const YOUR_EMAIL = "your-email@example.com";
 
 const stages = [
     { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 400, goals: 1 },
     { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️"], target: "🐱", num: 400, goals: 1 },
     { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓"], target: "🚲", num: 400, goals: 1 },
     { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰"], target: "🍪", num: 400, goals: 1 },
-    { title: "5. 背景は白！500枚の金貨から銀貨を1枚探せ！", crowd: ["🟡"], target: "🔘", num: 500, goals: 1 },
+    { title: "5. 黄色のドルコインから銀貨を探せ！", crowd: ["💰"], target: "🔘", num: 500, goals: 1 },
     { title: "6. 400人の女性から「ピエロ」を一人！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🤡", num: 400, goals: 1 },
     { title: "7. 国旗（日・米・中・露・北）を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 400, goals: 5 },
     { title: "8. 魚の中に「魚の骨」！重なっていても見つけろ！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 450, goals: 1 },
-    { title: "9. 星と干し…500個の星から「梅干し」を！", crowd: ["⭐","✨","🌟"], target: "🔴", num: 500, goals: 1 },
+    { title: "9. 星と干し…500個の星から「梅干し」を！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 500, goals: 1 },
     { title: "最終：15円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -73,6 +73,8 @@ function initStage() {
     stageDisp.innerText = currentStage + 1;
     timeLeft = 30;
     timerDisp.innerText = timeLeft;
+    
+    // 9番（宇宙）のみ背景を黒にする
     field.style.background = (currentStage === 8) ? "#000" : "#fff";
 
     if (stage.target === "FINAL") {
@@ -101,11 +103,19 @@ function createItem(content, isTarget) {
     el.style.left = (Math.random() * 88 + 4) + "%";
     el.style.top = (Math.random() * 88 + 4) + "%";
     el.style.zIndex = isTarget ? "9999" : Math.floor(Math.random() * 1000);
+    
     if (content === "🦴") { el.style.transform = "rotate(45deg)"; }
-    if (content === "🔴" && isTarget) {
-        el.style.color = "#b30000"; 
-        el.style.filter = "drop-shadow(0 0 2px rgba(0,0,0,0.5))";
+    
+    // 5番目のドルコイン（💰）を見やすい黄色のドルマーク付きコインらしく
+    if (content === "💰") {
+        el.style.color = "#FFD700"; // 鮮やかなゴールド
     }
+
+    // 9番梅干しの色
+    if (content === "🔴" && isTarget) {
+        el.style.color = "#b30000";
+    }
+
     el.innerText = content;
 
     el.onclick = function(e) {
@@ -136,24 +146,30 @@ function showFinalScreen() {
     timerId = null;
     field.style.background = "#fff";
     field.innerHTML = `
-        <div style="padding:20px; box-sizing:border-box;">
-            <h2 style="color:#d44d5c;">ALL CLEAR!</h2>
-            <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px;">
-                <p><b>15円からのご支援（募金）のお願い</b></p>
-                <p style="font-size:12px; color:#666;">楽しんでいただけたら、Amazonギフトカードで支援をお願いします。下記アドレスを宛先にコピーしてください。</p>
-                <div class="email-box" onclick="copyEmail()">宛先：${YOUR_EMAIL}<br><small>(クリックでコピー)</small></div>
-                <a href="https://www.amazon.co.jp/dp/B004N3APGO/" target="_blank" class="btn btn-amazon">Amazonギフト券（Eメール版）</a>
+        <div style="padding:20px; box-sizing:border-box; overflow-y:auto; height:100%;">
+            <h2 style="color:#d44d5c; margin-top:0;">ALL CLEAR!</h2>
+            <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px; margin-bottom:20px;">
+                <p><b>15円からのご支援のお願い</b></p>
+                <p style="font-size:12px; color:#666;">楽しんでいただけたら、Amazonギフトカードで支援をお願いします。下記アドレスをコピーして宛先に貼り付けてください。</p>
+                <div class="email-box" id="emailBox" onclick="copyEmail()">宛先をコピー：<br><b>${YOUR_EMAIL}</b></div>
+                <a href="https://www.amazon.co.jp/dp/B004N3APGO/" target="_blank" class="btn btn-amazon">Amazonで購入ページを開く</a>
             </div>
-            <button onclick="window.location.reload();" class="btn btn-retry">最初から遊ぶ</button>
+            <button onclick="window.location.reload();" class="btn btn-retry">もう一度最初から遊ぶ</button>
         </div>`;
 }
 
 function copyEmail() {
-    navigator.clipboard.writeText(YOUR_EMAIL);
-    alert("メールアドレスをコピーしました！");
+    if(YOUR_EMAIL === "your-email@example.com") {
+        alert("メールアドレスが設定されていません。コード内の YOUR_EMAIL を書き換えてください。");
+        return;
+    }
+    navigator.clipboard.writeText(YOUR_EMAIL).then(() => {
+        alert("メールアドレスをコピーしました！Amazonの宛先欄に貼り付けてください。");
+    });
 }
 
 function startTimer() {
+    if(timerId) clearInterval(timerId);
     timerId = setInterval(() => {
         if(gameActive) {
             timeLeft--;
