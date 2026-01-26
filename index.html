@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>15円募金 - Search Challenge!</title>
+    <title>20円募金 - Search Challenge!</title>
     <style>
         body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
         .header { padding: 5px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 10000; }
@@ -19,16 +19,17 @@
 
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 20000; border: 5px solid #d4af37; border-radius: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; text-decoration: none; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; }
-        .btn-amazon { background: #ff9900 !important; color: #fff !important; }
+        /* OFUSEカラーのボタン設定 */
+        .btn-ofuse { background: #ed6c00 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
         
-        .email-box { background: #eee; padding: 10px; border-radius: 5px; font-size: 14px; margin: 10px 0; border: 1px dashed #666; cursor: pointer; color: #333; }
+        .support-text { font-size: 13px; color: #555; line-height: 1.6; margin: 10px 0; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="main-title">15円募金 - Search Challenge!</div>
+    <div class="main-title">20円募金 - Search Challenge!</div>
     <div id="stg-desc">Ready...</div>
     <div class="status-bar">
         <div>残り: <span id="timer">30</span></div>
@@ -44,8 +45,8 @@
 </div>
 
 <script>
-// ★ここにあなたのメールアドレスを入れてください
-const YOUR_EMAIL = "your-email@example.com";
+// ★ここにあなたのOFUSEマイページURLを入れてください
+const OFUSE_URL = "https://ofuse.me/your_id"; 
 
 const stages = [
     { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 400, goals: 1 },
@@ -56,8 +57,8 @@ const stages = [
     { title: "6. 400人の女性から「ピエロ」を一人！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🤡", num: 400, goals: 1 },
     { title: "7. 国旗（日・米・中・露・北）を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 400, goals: 5 },
     { title: "8. 魚の中に「魚の骨」！重なっていても見つけろ！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 450, goals: 1 },
-    { title: "9. 星と干し…500個の星から「梅干し」を！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 500, goals: 1 },
-    { title: "最終：15円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
+    { title: "9. 500個の星から「梅干し」を！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 500, goals: 1 },
+    { title: "最終：20円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
 let currentStage = 0, timeLeft = 30, timerId = null, gameActive = false, foundCount = 0;
@@ -74,7 +75,6 @@ function initStage() {
     timeLeft = 30;
     timerDisp.innerText = timeLeft;
     
-    // 9番（宇宙）のみ背景を黒にする
     field.style.background = (currentStage === 8) ? "#000" : "#fff";
 
     if (stage.target === "FINAL") {
@@ -105,16 +105,8 @@ function createItem(content, isTarget) {
     el.style.zIndex = isTarget ? "9999" : Math.floor(Math.random() * 1000);
     
     if (content === "🦴") { el.style.transform = "rotate(45deg)"; }
-    
-    // 5番目のドルコイン（💰）を見やすい黄色のドルマーク付きコインらしく
-    if (content === "💰") {
-        el.style.color = "#FFD700"; // 鮮やかなゴールド
-    }
-
-    // 9番梅干しの色
-    if (content === "🔴" && isTarget) {
-        el.style.color = "#b30000";
-    }
+    if (content === "💰") { el.style.color = "#FFD700"; }
+    if (content === "🔴" && isTarget) { el.style.color = "#b30000"; }
 
     el.innerText = content;
 
@@ -149,23 +141,15 @@ function showFinalScreen() {
         <div style="padding:20px; box-sizing:border-box; overflow-y:auto; height:100%;">
             <h2 style="color:#d44d5c; margin-top:0;">ALL CLEAR!</h2>
             <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px; margin-bottom:20px;">
-                <p><b>15円からのご支援のお願い</b></p>
-                <p style="font-size:12px; color:#666;">楽しんでいただけたら、Amazonギフトカードで支援をお願いします。下記アドレスをコピーして宛先に貼り付けてください。</p>
-                <div class="email-box" id="emailBox" onclick="copyEmail()">宛先をコピー：<br><b>${YOUR_EMAIL}</b></div>
-                <a href="https://www.amazon.co.jp/dp/B004N3APGO/" target="_blank" class="btn btn-amazon">Amazonで購入ページを開く</a>
+                <p><b>クリエイター支援のお願い</b></p>
+                <p class="support-text">全ステージクリアおめでとうございます！<br>
+                もし楽しんでいただけたら、今後の制作継続のために<b>20円からのご支援</b>をお願いできると嬉しいです。<br>
+                <small>※OFUSE（外部サイト）にて安全に決済いただけます。</small></p>
+                
+                <a href="${OFUSE_URL}" target="_blank" class="btn btn-ofuse">OFUSEで応援を送る（20円〜）</a>
             </div>
             <button onclick="window.location.reload();" class="btn btn-retry">もう一度最初から遊ぶ</button>
         </div>`;
-}
-
-function copyEmail() {
-    if(YOUR_EMAIL === "your-email@example.com") {
-        alert("メールアドレスが設定されていません。コード内の YOUR_EMAIL を書き換えてください。");
-        return;
-    }
-    navigator.clipboard.writeText(YOUR_EMAIL).then(() => {
-        alert("メールアドレスをコピーしました！Amazonの宛先欄に貼り付けてください。");
-    });
 }
 
 function startTimer() {
