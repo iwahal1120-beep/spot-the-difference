@@ -10,7 +10,7 @@
         .main-title { font-size: 16px; font-weight: bold; margin: 0; }
         .status-bar { display: flex; justify-content: center; gap: 20px; font-size: 16px; margin-top: 5px; font-weight: bold; }
         #stg-desc { font-size: 12px; background: white; color: #d44d5c; display: inline-block; padding: 2px 10px; border-radius: 15px; margin-top: 3px; width: 90%; }
-        #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; }
+        #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; min-width: 60px; display: inline-block; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
         .target-item { z-index: 9999 !important; font-size: 24px !important; }
@@ -19,24 +19,30 @@
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; text-decoration: none; }
         .btn-ofuse { background: #ed6c00 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
-        #rank-display { font-size: 20px; color: #d44d5c; font-weight: bold; margin: 10px 0; }
-        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:30000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; }
+        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:30000; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; color:white; overflow-y: auto; padding-top: 20px; }
+        .ranking-box { width: 85%; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; margin-top: 20px; font-size: 14px; }
+        .ranking-item { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.2); padding: 5px 0; }
+        .gold { color: #ffd700; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="start-screen">
-    <h2 style="color:#ffd700;">Search Challenge!</h2>
-    <p>全国ランキングに挑戦！<br>ニックネームを入れてください</p>
-    <input type="text" id="player-name" placeholder="名無しさん" maxlength="10" style="padding:12px; font-size:18px; border-radius:5px; border:none; width:70%; margin-bottom:20px; text-align:center;">
+    <h2 style="color:#ffd700; margin-bottom:10px;">Search Challenge!</h2>
+    <input type="text" id="player-name" placeholder="ニックネーム" maxlength="10" style="padding:12px; font-size:18px; border-radius:5px; border:none; width:70%; margin-bottom:15px; text-align:center;">
     <button onclick="startGame()" style="padding:15px 50px; background:#d44d5c; color:white; border:none; border-radius:10px; font-size:20px; font-weight:bold; cursor:pointer;">ゲーム開始！</button>
+    
+    <div class="ranking-box">
+        <div style="font-weight:bold; color:#ffd700; margin-bottom:10px; border-bottom:2px solid #ffd700;">現在の全国TOP 10</div>
+        <div id="top10-list">読み込み中...</div>
+    </div>
 </div>
 
 <div class="header">
     <div class="main-title">20円募金 - Search Challenge!</div>
     <div id="stg-desc">Ready...</div>
     <div class="status-bar">
-        <div>残り: <span id="timer">30</span></div>
+        <div>残り: <span id="timer">30.00</span></div>
         <div>ステージ: <span id="stage-num">1</span>/20</div>
     </div>
 </div>
@@ -49,10 +55,11 @@
 </div>
 
 <script>
+// 設定済みデータ
 const OFUSE_URL = "https://ofuse.me/d33e72b9";
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzLT4GHR22JZALN-41Zsse-zd-MNi4OCGkxaUfkwbaiPepZrjtIK83OkwOxFJFk6TCj/exec"; 
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzvFsfk4Zp48AyJgQccCOQMX911-Itey8Sc8VH9ehnSF7J7PDpkPNayzijuO5BOBEQKaw/exec"; 
 
-let currentStage = 0, timeLeft = 30, timerId = null, gameActive = false, foundCount = 0;
+let currentStage = 0, timeLeft = 30.00, timerId = null, gameActive = false, foundCount = 0;
 let totalTimeScore = 0, playerName = "名無しさん";
 
 const stages = [
@@ -60,7 +67,6 @@ const stages = [
     { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️"], target: "🐱", num: 400, goals: 1 },
     { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓"], target: "🚲", num: 400, goals: 1 },
     { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰"], target: "🍪", num: 400, goals: 1 },
-    // 5番：ドル金貨（💰）に変更！
     { title: "5. 黄色のドル金貨から銀貨を1枚探せ！", crowd: ["💰"], target: "🔘", num: 500, goals: 1 },
     { title: "6. 400人の女性から「ピエロ」を一人！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🤡", num: 400, goals: 1 },
     { title: "7. 国旗（日・米・中・露・北）を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 400, goals: 5 },
@@ -79,7 +85,22 @@ const stages = [
     { title: "20. 最終：全クリ！20円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
-const field = document.getElementById('game-field'), desc = document.getElementById('stg-desc'), timerDisp = document.getElementById('timer'), stageDisp = document.getElementById('stage-num');
+const field = document.getElementById('game-field'), timerDisp = document.getElementById('timer');
+
+// 起動時にTOP10を取得
+window.onload = async () => {
+    try {
+        const response = await fetch(GAS_URL);
+        const data = await response.json();
+        const list = document.getElementById('top10-list');
+        list.innerHTML = data.length > 0 ? data.map((entry, i) => `
+            <div class="ranking-item ${i<3?'gold':''}">
+                <span>${i+1}位 ${entry.name}</span>
+                <span>${entry.score} pts</span>
+            </div>
+        `).join('') : "まだ記録がありません。1位を目指そう！";
+    } catch(e) { document.getElementById('top10-list').innerText = "ランキング取得不可"; }
+};
 
 function startGame() {
     const input = document.getElementById('player-name').value;
@@ -93,10 +114,10 @@ function initStage() {
     foundCount = 0;
     if (currentStage >= stages.length) return;
     const stage = stages[currentStage];
-    desc.innerText = stage.title;
-    stageDisp.innerText = currentStage + 1;
-    timeLeft = 30;
-    timerDisp.innerText = timeLeft;
+    document.getElementById('stg-desc').innerText = stage.title;
+    document.getElementById('stage-num').innerText = currentStage + 1;
+    timeLeft = 30.00;
+    timerDisp.innerText = timeLeft.toFixed(2);
     field.style.background = (currentStage === 8 || currentStage === 17) ? "#000" : "#fff";
     if (stage.target === "FINAL") { showFinalScreen(); return; }
     gameActive = true;
@@ -115,14 +136,7 @@ function createItem(content, isTarget) {
     el.style.left = (Math.random() * 88 + 4) + "%";
     el.style.top = (Math.random() * 88 + 4) + "%";
     el.style.zIndex = isTarget ? "9999" : Math.floor(Math.random() * 1000);
-    
-    // ドル金貨の色調整
-    if (content === "💰") {
-        el.style.color = "#FFD700"; // 黄金色
-        el.style.filter = "drop-shadow(1px 1px 1px rgba(0,0,0,0.2))";
-    }
-
-    if (content === "🦴") el.style.transform = "rotate(45deg)";
+    if (content === "💰") el.style.color = "#FFD700";
     if (content === "🔴" && isTarget) el.style.color = "#b30000";
     el.innerText = content;
     el.onclick = function(e) {
@@ -137,44 +151,42 @@ function createItem(content, isTarget) {
                 gameActive = false;
                 setTimeout(() => { currentStage++; initStage(); }, 800);
             }
-        } else {
-            this.style.opacity = "0.1";
-        }
+        } else { this.style.opacity = "0.1"; }
     };
     field.appendChild(el);
 }
 
 function startTimer() {
-    if(timerId) clearInterval(timerId);
     timerId = setInterval(() => {
         if(gameActive) {
-            timeLeft--;
-            timerDisp.innerText = timeLeft;
+            timeLeft -= 0.01;
+            timerDisp.innerText = timeLeft.toFixed(2);
             if(timeLeft <= 0) endGame();
         }
-    }, 1000);
+    }, 10);
 }
 
 async function showFinalScreen() {
     gameActive = false;
     clearInterval(timerId);
-    field.innerHTML = `<div style="padding:20px;"><h2>集計中... 全国順位を取得しています</h2></div>`;
+    const finalScore = totalTimeScore.toFixed(2);
+    field.innerHTML = `<h2>集計中...</h2>`;
     
-    let rankInfo = "順位の取得に失敗しました";
+    let rankInfo = "";
     try {
         const response = await fetch(GAS_URL, {
             method: 'POST',
-            body: JSON.stringify({name: playerName, score: totalTimeScore})
+            body: JSON.stringify({name: playerName, score: finalScore})
         });
         const res = await response.json();
         rankInfo = `あなたは全国 ${res.total} 人中 ${res.rank} 位！`;
-    } catch(e) { console.error(e); }
+    } catch(e) { rankInfo = "通信エラー"; }
 
     field.innerHTML = `
         <div style="padding:20px; overflow-y:auto; height:100%;">
             <h2 style="color:#d44d5c; margin-top:0;">CONGRATULATIONS!</h2>
-            <div id="rank-display">${rankInfo}</div>
-            <p>トータルスコア: ${totalTimeScore} pts</p>
+            <div style="font-size:20px; font-weight:bold; margin:10px 0;">${rankInfo}</div>
+            <p>トータルスコア: ${finalScore} pts</p>
             <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px; margin-bottom:20px;">
                 <p><b>クリエイター支援のお願い</b></p>
                 <p style="font-size:13px; color:#555;">全20ステージ クリアおめでとうございます！<br>
