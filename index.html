@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>20円募金 - Search Challenge! Perfect Edition</title>
+    <title>20円募金 - Search Challenge! Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
@@ -15,8 +15,8 @@
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; font-size: 30px; }
         .target-item { z-index: 9999 !important; font-size: 36px !important; }
-        /* 石ステージ用の特別な強調 */
-        .stone-target { color: #ff0000 !important; font-weight: bold !important; font-size: 40px !important; }
+        /* 石ステージの視認性アップ：赤くて太い */
+        .stone-target { color: #ff0000 !important; font-weight: bold !important; font-size: 42px !important; text-shadow: 0 0 5px white; }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 20000; border: 5px solid #d4af37; border-radius: 15px; }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; text-decoration: none; }
         .btn-ofuse { background: #ed6c00 !important; color: #fff !important; }
@@ -24,7 +24,6 @@
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:30000; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; color:white; overflow-y: auto; padding-top: 20px; }
         .ranking-box { width: 85%; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; margin-top: 20px; font-size: 14px; }
         .ranking-item { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.2); padding: 5px 0; }
-        .gold { color: #ffd700; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -32,8 +31,7 @@
 <div id="start-screen">
     <h2 style="color:#ffd700;">Search Challenge!</h2>
     <input type="text" id="player-name" placeholder="ニックネーム" maxlength="10" style="padding:12px; font-size:18px; border-radius:5px; border:none; width:70%; margin-bottom:15px; text-align:center;">
-    <button onclick="startGame()" style="padding:15px 50px; background:#d44d5c; color:white; border:none; border-radius:10px; font-size:20px; font-weight:bold; cursor:pointer;">ゲーム開始！</button>
-    
+    <button id="start-btn" onclick="startGame()" style="padding:15px 50px; background:#d44d5c; color:white; border:none; border-radius:10px; font-size:20px; font-weight:bold; cursor:pointer;">ゲーム開始！</button>
     <div class="ranking-box">
         <div style="font-weight:bold; color:#ffd700; margin-bottom:10px; border-bottom:2px solid #ffd700;">全国ランキングTOP 10</div>
         <div id="top10-list">読み込み中...</div>
@@ -62,16 +60,19 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzvFsfk4Zp48AyJgQccCOQM
 
 let currentStage = 0, msLeft = 3000, timerId = null, gameActive = false, foundCount = 0;
 let totalTimeScore = 0, playerName = "名無しさん";
-
-// オーディオ管理 (Web Audio API)
 let audioCtx, audioBuffer;
 
+// 音源読み込み（エラーが起きても無視して進むように改善）
 async function loadSound() {
     try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const response = await fetch('成功音.mp3');
+        if (!response.ok) throw new Error('File not found');
         const arrayBuffer = await response.arrayBuffer();
         audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-    } catch (e) { console.log("Audio load error:", e); }
+    } catch (e) {
+        console.log("Audio load skipped:", e.message);
+    }
 }
 
 function playSuccessSound() {
@@ -91,15 +92,15 @@ const stages = [
     { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓"], target: "🚲", num: 450, goals: 1 },
     { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰"], target: "🍪", num: 450, goals: 1 },
     { title: "5. 黄色のドル金貨から銀貨を1枚探せ！", crowd: ["💰"], target: "🔘", num: 550, goals: 1 },
-    { title: "6. 女性たちの中から「ピエロ」を一人！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🤡", num: 450, goals: 1 },
-    { title: "7. 国旗（日・米・中・露・北）を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 450, goals: 5 },
-    { title: "8. 魚の中に「魚の骨」を1本！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 500, goals: 1 },
+    { title: "6. ピエロを探せ！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🤡", num: 450, goals: 1 },
+    { title: "7. 国旗（日・米・中・露・北）を全部！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 450, goals: 5 },
+    { title: "8. 魚の中に「魚の骨」を！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 500, goals: 1 },
     { title: "9. 星空から「梅干し」を1個！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 550, goals: 1 },
-    { title: "10. 【石を救え】「右」の海から赤い「石」を救え！", crowd: ["右"], target: "石", num: 350, goals: 1 },
-    { title: "11. 都会のビル群から「鳥居」を探せ！", crowd: ["🏢","🏣","🏥","🏦","🏨"], target: "⛩", num: 450, goals: 1 },
+    { title: "10. 【石を探せ】「右」の海から赤い「石」を救え！", crowd: ["右"], target: "石", num: 350, goals: 1 },
+    { title: "11. 都会のビル群から「鳥居」を！", crowd: ["🏢","🏣","🏥","🏦","🏨"], target: "⛩", num: 450, goals: 1 },
     { title: "12. リンゴから「サクランボ」！", crowd: ["🍎"], target: "🍒", num: 450, goals: 1 },
     { title: "13. 400枚の葉から「イモムシ」を！", crowd: ["🍃","🌿","🌱"], target: "🐛", num: 450, goals: 1 },
-    { title: "14. スポーツの祭典から「優勝カップ」！", crowd: ["⚽","🏀","🏈","⚾","🎾","🏐"], target: "🏆", num: 450, goals: 1 },
+    { title: "14. 「優勝カップ」を探せ！", crowd: ["⚽","🏀","🏈","⚾","🎾","🏐"], target: "🏆", num: 450, goals: 1 },
     { title: "15. 「月」の中にひとつだけ「バナナ」！", crowd: ["🌙"], target: "🍌", num: 500, goals: 1 },
     { title: "16. 難問！「白」の中から「臼」！", crowd: ["白"], target: "臼", num: 450, goals: 1 },
     { title: "17. 海の中…「イカ」から「タコ」！", crowd: ["🦑"], target: "🐙", num: 450, goals: 1 },
@@ -113,23 +114,14 @@ window.onload = async () => {
         const response = await fetch(GAS_URL);
         const data = await response.json();
         const list = document.getElementById('top10-list');
-        list.innerHTML = data.map((entry, i) => `
-            <div class="ranking-item ${i<3?'gold':''}">
-                <span>${i+1}位 ${entry.name}</span>
-                <span>${entry.score} pts</span>
-            </div>
-        `).join('');
-    } catch(e) { document.getElementById('top10-list').innerText = "通信中..."; }
+        list.innerHTML = data.map((entry, i) => `<div class="ranking-item"><span>${i+1}位 ${entry.name}</span><span>${entry.score} pts</span></div>`).join('');
+    } catch(e) { document.getElementById('top10-list').innerText = "ランキング取得不可"; }
 };
 
-function startGame() {
-    // Web Audio APIの初期化
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    loadSound();
-
+async function startGame() {
+    await loadSound(); // 音を準備（失敗しても止まらない）
     const input = document.getElementById('player-name').value;
     if(input) playerName = input;
-    
     document.getElementById('start-screen').style.display = 'none';
     initStage();
 }
@@ -148,16 +140,12 @@ function initStage() {
 
     const usedPositions = [];
     gameActive = true;
-
-    // ターゲットを最優先で配置
     const targets = stage.target === "FLAGS" ? ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"] : [stage.target];
     targets.forEach(t => {
-        const pos = getPos(usedPositions, true); // ターゲットは常に安全圏
+        const pos = getPos(usedPositions, true);
         createItem(t, true, pos);
         usedPositions.push(pos);
     });
-
-    // モブを配置
     for (let i = 0; i < stage.num; i++) {
         const char = stage.crowd[Math.floor(Math.random() * stage.crowd.length)];
         const pos = getPos(usedPositions, false); 
@@ -172,10 +160,10 @@ function getPos(used, isTarget) {
     while (!safe && attempts < 150) {
         x = Math.random() * 90 + 2;
         y = Math.random() * 90 + 2;
-        // ターゲット配置時、またはターゲットの周囲は広めに空ける(10%)
-        safe = used.every(p => Math.abs(p.x - x) > 8 || Math.abs(p.y - y) > 8);
+        // ターゲット周囲は12%空ける（かなり見やすく調整）
+        safe = used.every(p => Math.abs(p.x - x) > 12 || Math.abs(p.y - y) > 12);
         attempts++;
-        if (!isTarget && attempts > 50) safe = true; // モブは重なりを許容
+        if (!isTarget && attempts > 40) safe = true;
     }
     return {x, y};
 }
@@ -183,23 +171,75 @@ function getPos(used, isTarget) {
 function createItem(content, isTarget, pos) {
     const el = document.createElement('span');
     el.className = isTarget ? 'item target-item' : 'item';
-    
-    // ステージ10（石）のみ特別なクラスを追加
-    if (isTarget && currentStage === 9) {
-        el.className += ' stone-target';
-    }
-
+    if (isTarget && currentStage === 9) el.className += ' stone-target';
     el.style.left = pos.x + "%";
     el.style.top = pos.y + "%";
     el.style.zIndex = isTarget ? "9999" : Math.floor(Math.random() * 1000);
     if (content === "💰") el.style.color = "#FFD700";
     if (content === "🔴" && isTarget) el.style.color = "#b30000";
     el.innerText = content;
-
     el.onclick = function() {
         if(!gameActive) return;
         if (isTarget) {
             if (this.dataset.found === "true") return;
             this.dataset.found = "true";
-            
-            // ステージクリアごとに音を鳴らす
+            playSuccessSound();
+            this.style.transform = "scale(2.5) rotate(360deg)";
+            this.style.transition = "0.3s";
+            totalTimeScore += (msLeft / 100);
+            foundCount++;
+            if (foundCount >= stages[currentStage].goals) {
+                gameActive = false;
+                confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
+                setTimeout(() => { currentStage++; initStage(); }, 800);
+            }
+        } else { this.style.opacity = "0.2"; }
+    };
+    field.appendChild(el);
+}
+
+function startTimer() {
+    timerId = setInterval(() => {
+        if(gameActive) {
+            msLeft--;
+            timerDisp.innerText = (msLeft / 100).toFixed(2);
+            if(msLeft <= 0) endGame();
+        }
+    }, 10);
+}
+
+async function showFinalScreen() {
+    gameActive = false;
+    clearInterval(timerId);
+    var duration = 3 * 1000;
+    var end = Date.now() + duration;
+    (function frame() {
+      confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff0000', '#ffd700'] });
+      confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff0000', '#ffd700'] });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    }());
+    const finalScore = totalTimeScore.toFixed(2);
+    field.innerHTML = `<h2>集計中...</h2>`;
+    let rankInfo = "";
+    try {
+        const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({name: playerName, score: finalScore}) });
+        const res = await response.json();
+        rankInfo = `全国 ${res.total} 人中 ${res.rank} 位！`;
+    } catch(e) { rankInfo = "通信環境を確認してください"; }
+    field.innerHTML = `<div style="padding:20px; overflow-y:auto; height:100%;">
+            <h2 style="color:#ffd700; text-shadow: 1px 1px 2px #000;">COMPLETE!</h2>
+            <div style="font-size:22px; font-weight:bold; color:#d44d5c; margin:10px 0;">${rankInfo}</div>
+            <p>Score: ${finalScore} pts</p>
+            <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px; margin-bottom:20px;">
+                <p>支援ありがとうございます</p><a href="${OFUSE_URL}" target="_blank" class="btn btn-ofuse">OFUSEで応援を送る</a>
+            </div><button onclick="window.location.reload();" class="btn btn-retry">再挑戦！</button></div>`;
+}
+
+function endGame() {
+    gameActive = false;
+    clearInterval(timerId);
+    document.getElementById('modal').style.display = 'block';
+}
+</script>
+</body>
+</html>
