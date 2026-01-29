@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>20円募金 - Search Challenge! EXTREME</title>
+    <title>20円募金 - Search Challenge! Perfect Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
@@ -15,9 +15,8 @@
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; font-size: 28px; }
         .target-item { z-index: 9999 !important; font-size: 34px !important; }
-        /* 石ステージ：ここだけ特別に見やすく */
+        /* 10番の石：赤くて大きく、周りを空ける */
         .stone-target { color: #ff0000 !important; font-weight: bold !important; font-size: 45px !important; filter: drop-shadow(0 0 5px white); }
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 20000; border: 5px solid #d4af37; border-radius: 15px; }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; text-decoration: none; }
         .btn-ofuse { background: #ed6c00 !important; color: #fff !important; }
         .btn-retry { background: #666 !important; color: #fff !important; }
@@ -125,7 +124,6 @@ function initStage() {
     for (let i = 0; i < stage.num; i++) {
         const char = stage.crowd[Math.floor(Math.random() * stage.crowd.length)];
         let x = Math.random() * 92 + 4, y = Math.random() * 92 + 4;
-        // 石ステージ（10番）のみ、ターゲットの周囲12%にはモブを置かない
         if (currentStage === 9) {
             let tooClose = usedPositions.some(p => Math.abs(p.x - x) < 12 && Math.abs(p.y - y) < 12);
             if (tooClose) { i--; continue; }
@@ -150,18 +148,14 @@ function createItem(content, isTarget, pos) {
         if (isTarget) {
             if (this.dataset.found === "true") return;
             this.dataset.found = "true";
-            
-            // クリア時の音
             successSound.currentTime = 0;
             successSound.play().catch(() => {});
-
             this.style.transform = "scale(2.5) rotate(360deg)";
             this.style.transition = "0.3s";
             totalTimeScore += (msLeft / 100);
             foundCount++;
             if (foundCount >= stages[currentStage].goals) {
                 gameActive = false;
-                // 紙吹雪増量（100個）
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.7 } });
                 setTimeout(() => { currentStage++; initStage(); }, 800);
             }
@@ -184,7 +178,6 @@ async function showFinalScreen() {
     gameActive = false;
     clearInterval(timerId);
     
-    // 全クリ時の超大量紙吹雪（3秒間降り続く）
     var duration = 3 * 1000;
     var end = Date.now() + duration;
     (function frame() {
@@ -194,26 +187,36 @@ async function showFinalScreen() {
     }());
 
     const finalScore = totalTimeScore.toFixed(2);
-    field.innerHTML = `<div style="padding:20px;"><h2>集計中...</h2></div>`;
+    // 通信中文字の表示エリア
+    field.innerHTML = `<div id="loading-area" style="padding:20px;"><h2>集計中...</h2></div>`;
     let rankInfo = "";
     try {
         const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({name: playerName, score: finalScore}) });
         const res = await response.json();
         rankInfo = `全国 ${res.total} 人中 ${res.rank} 位！`;
     } catch(e) { rankInfo = "記録完了"; }
+    
+    // 集計完了後、画面を上書き（集計中...を消す）
     field.innerHTML = `<div style="padding:20px; overflow-y:auto; height:100%;">
             <h2 style="color:#ffd700; text-shadow: 2px 2px 4px #000; font-size:30px;">EX-COMPLETE!</h2>
             <div style="font-size:24px; font-weight:bold; color:#d44d5c; margin:15px 0;">${rankInfo}</div>
             <p>Score: ${finalScore} pts</p>
             <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px; margin-bottom:20px;">
                 <p>支援ありがとうございます</p><a href="${OFUSE_URL}" target="_blank" class="btn btn-ofuse">OFUSEで応援を送る</a>
-            </div><button onclick="window.location.reload();" class="btn btn-retry">再挑戦！</button></div>`;
+            </div>
+            <button onclick="resetGame();" class="btn btn-retry">最初に戻る</button></div>`;
+}
+
+function resetGame() {
+    // 全ての表示エリアをクリーンアップしてからリロード
+    field.innerHTML = "";
+    window.location.reload();
 }
 
 function endGame() {
     gameActive = false;
     clearInterval(timerId);
-    field.innerHTML = `<div style="padding:20px;"><h2>TIME UP!</h2><button onclick="window.location.reload();" class="btn btn-retry">リトライ</button></div>`;
+    field.innerHTML = `<div style="padding:20px;"><h2>TIME UP!</h2><button onclick="resetGame();" class="btn btn-retry">リトライ</button></div>`;
 }
 </script>
 </body>
