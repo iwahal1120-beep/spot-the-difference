@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>20円募金 - Search Challenge! Special</title>
+    <title>20円募金 - Search Challenge! Hard Mode</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
@@ -14,7 +14,7 @@
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; min-width: 65px; display: inline-block; font-variant-numeric: tabular-nums; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; font-size: 30px; }
-        .target-item { z-index: 9999 !important; font-size: 34px !important; filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.8)); }
+        .target-item { z-index: 9999 !important; font-size: 32px !important; }
         .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 20px; width: 85%; z-index: 20000; border: 5px solid #d4af37; border-radius: 15px; }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; text-decoration: none; }
         .btn-ofuse { background: #ed6c00 !important; color: #fff !important; }
@@ -30,12 +30,12 @@
 <audio id="sound-success" src="成功音.mp3" preload="auto"></audio>
 
 <div id="start-screen">
-    <h2 style="color:#ffd700; margin-bottom:10px;">Search Challenge!</h2>
+    <h2 style="color:#ffd700;">Search Challenge!</h2>
     <input type="text" id="player-name" placeholder="ニックネーム" maxlength="10" style="padding:12px; font-size:18px; border-radius:5px; border:none; width:70%; margin-bottom:15px; text-align:center;">
     <button onclick="startGame()" style="padding:15px 50px; background:#d44d5c; color:white; border:none; border-radius:10px; font-size:20px; font-weight:bold; cursor:pointer;">ゲーム開始！</button>
     
     <div class="ranking-box">
-        <div style="font-weight:bold; color:#ffd700; margin-bottom:10px; border-bottom:2px solid #ffd700;">現在の全国TOP 10</div>
+        <div style="font-weight:bold; color:#ffd700; margin-bottom:10px; border-bottom:2px solid #ffd700;">全国ランキングTOP 10</div>
         <div id="top10-list">読み込み中...</div>
     </div>
 </div>
@@ -68,25 +68,25 @@ const timerDisp = document.getElementById('timer');
 const successSound = document.getElementById('sound-success');
 
 const stages = [
-    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 400, goals: 1 },
-    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️"], target: "🐱", num: 400, goals: 1 },
-    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓"], target: "🚲", num: 400, goals: 1 },
-    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰"], target: "🍪", num: 400, goals: 1 },
-    { title: "5. 黄色のドル金貨から銀貨を1枚探せ！", crowd: ["💰"], target: "🔘", num: 500, goals: 1 },
-    { title: "6. 400人の女性から「ピエロ」を一人！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🤡", num: 400, goals: 1 },
-    { title: "7. 国旗（日・米・中・露・北）を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 400, goals: 5 },
-    { title: "8. 魚の中に「魚の骨」！重なっていても見つけろ！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 450, goals: 1 },
-    { title: "9. 500個の星から「梅干し」を！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 500, goals: 1 },
-    { title: "10. 【石を探せ】「右」の海から「石」を救出せよ！", crowd: ["右"], target: "石", num: 350, goals: 1 },
-    { title: "11. 都会のビル群から「鳥居」を探せ！", crowd: ["🏢","🏣","🏥","🏦","🏨"], target: "⛩", num: 400, goals: 1 },
-    { title: "12. リンゴから「サクランボ」！", crowd: ["🍎"], target: "🍒", num: 400, goals: 1 },
-    { title: "13. 400枚の葉から「イモムシ」を！", crowd: ["🍃","🌿","🌱"], target: "🐛", num: 400, goals: 1 },
-    { title: "14. スポーツの祭典から「優勝カップ」！", crowd: ["⚽","🏀","🏈","⚾","🎾","🏐"], target: "🏆", num: 400, goals: 1 },
-    { title: "15. 「月」の中にひとつだけ「バナナ」！", crowd: ["🌙"], target: "🍌", num: 450, goals: 1 },
-    { title: "16. 難問！「白」の中にひとつだけ「臼」！", crowd: ["白"], target: "臼", num: 400, goals: 1 },
-    { title: "17. 海の中…「イカ」から「タコ」！", crowd: ["🦑"], target: "🐙", num: 400, goals: 1 },
-    { title: "18. 星空のどこかに「UFO」が…！", crowd: ["✨","⭐","🌟"], target: "🛸", num: 500, goals: 1 },
-    { title: "19. 大変！「💩」の中に「ソフトクリーム」！", crowd: ["💩"], target: "🍦", num: 400, goals: 1 },
+    { title: "1. 動物から「人間」を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 450, goals: 1 },
+    { title: "2. 人間から「猫」を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️"], target: "🐱", num: 450, goals: 1 },
+    { title: "3. 渋滞の中から「自転車」を探せ！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓"], target: "🚲", num: 450, goals: 1 },
+    { title: "4. お菓子から「クッキー」を探せ！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰"], target: "🍪", num: 450, goals: 1 },
+    { title: "5. 黄色のドル金貨から銀貨を1枚探せ！", crowd: ["💰"], target: "🔘", num: 550, goals: 1 },
+    { title: "6. 400人の女性から「ピエロ」を一人！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🤡", num: 450, goals: 1 },
+    { title: "7. 国旗（日・米・中・露・北）を全部探せ！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 450, goals: 5 },
+    { title: "8. 魚の中に「魚の骨」！重なっていても見つけろ！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 500, goals: 1 },
+    { title: "9. 500個の星から「梅干し」を！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 550, goals: 1 },
+    { title: "10. 【石を探せ】「右」の海から「石」を救出せよ！", crowd: ["右"], target: "石", num: 400, goals: 1 },
+    { title: "11. 都会のビル群から「鳥居」を探せ！", crowd: ["🏢","🏣","🏥","🏦","🏨"], target: "⛩", num: 450, goals: 1 },
+    { title: "12. リンゴから「サクランボ」！", crowd: ["🍎"], target: "🍒", num: 450, goals: 1 },
+    { title: "13. 400枚の葉から「イモムシ」を！", crowd: ["🍃","🌿","🌱"], target: "🐛", num: 450, goals: 1 },
+    { title: "14. スポーツの祭典から「優勝カップ」！", crowd: ["⚽","🏀","🏈","⚾","🎾","🏐"], target: "🏆", num: 450, goals: 1 },
+    { title: "15. 「月」の中にひとつだけ「バナナ」！", crowd: ["🌙"], target: "🍌", num: 500, goals: 1 },
+    { title: "16. 難問！「白」の中にひとつだけ「臼」！", crowd: ["白"], target: "臼", num: 450, goals: 1 },
+    { title: "17. 海の中…「イカ」から「タコ」！", crowd: ["🦑"], target: "🐙", num: 450, goals: 1 },
+    { title: "18. 星空のどこかに「UFO」が…！", crowd: ["✨","⭐","🌟"], target: "🛸", num: 550, goals: 1 },
+    { title: "19. 大変！「💩」の中に「ソフトクリーム」！", crowd: ["💩"], target: "🍦", num: 450, goals: 1 },
     { title: "20. 最終：全クリ！20円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -101,14 +101,20 @@ window.onload = async () => {
                 <span>${entry.score} pts</span>
             </div>
         `).join('');
-    } catch(e) { document.getElementById('top10-list').innerText = "ランキング取得不可"; }
+    } catch(e) { document.getElementById('top10-list').innerText = "ランキング取得中..."; }
 };
 
 function startGame() {
     const input = document.getElementById('player-name').value;
     if(input) playerName = input;
-    // ブラウザの音再生許可を得るために一度空再生
-    successSound.play().then(() => { successSound.pause(); successSound.currentTime = 0; });
+    
+    // スマホでの音再生制限を解除するための重要な初期化
+    successSound.load(); 
+    successSound.play().then(() => {
+        successSound.pause();
+        successSound.currentTime = 0;
+    }).catch(e => console.log("Audio prep failed"));
+
     document.getElementById('start-screen').style.display = 'none';
     initStage();
 }
@@ -128,32 +134,32 @@ function initStage() {
     const usedPositions = [];
     gameActive = true;
 
-    // 1. ターゲットを先に配置
+    // ターゲットを配置
     const targets = stage.target === "FLAGS" ? ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"] : [stage.target];
     targets.forEach(t => {
-        const pos = getSafePos(usedPositions, true); // ターゲット周囲は広めに空ける
+        // ステージ10（石）の場合のみ、周囲に空白を作る
+        const pos = getPos(usedPositions, currentStage === 9); 
         createItem(t, true, pos);
         usedPositions.push(pos);
     });
 
-    // 2. モブを配置
+    // モブを配置（難易度アップのため密集度を上げる）
     for (let i = 0; i < stage.num; i++) {
         const char = stage.crowd[Math.floor(Math.random() * stage.crowd.length)];
-        const pos = getSafePos(usedPositions, false); 
+        const pos = getPos(usedPositions, false); 
         createItem(char, false, pos);
-        // パフォーマンスのため、モブ同士は重なりを許容するがターゲットには被せない
     }
     if(!timerId) startTimer();
 }
 
-function getSafePos(used, isTarget) {
+function getPos(used, isStrict) {
     let x, y, safe = false;
     let attempts = 0;
     while (!safe && attempts < 100) {
         x = Math.random() * 90 + 2;
         y = Math.random() * 90 + 2;
-        // 既存の（特にターゲットの）位置から一定距離離れているかチェック
-        safe = used.every(p => Math.abs(p.x - x) > 6 || Math.abs(p.y - y) > 6);
+        // 石のステージのみターゲット周囲6%を空ける、他は重なりOK
+        safe = isStrict ? used.every(p => Math.abs(p.x - x) > 6 || Math.abs(p.y - y) > 6) : true;
         attempts++;
     }
     return {x, y};
@@ -169,13 +175,13 @@ function createItem(content, isTarget, pos) {
     if (content === "🔴" && isTarget) el.style.color = "#b30000";
     el.innerText = content;
 
-    el.onclick = function(e) {
+    el.onclick = function() {
         if(!gameActive) return;
         if (isTarget) {
             if (this.dataset.found === "true") return;
             this.dataset.found = "true";
             
-            // ★音を鳴らす
+            // ステージクリアごとに音を鳴らす
             successSound.currentTime = 0;
             successSound.play();
 
@@ -186,7 +192,6 @@ function createItem(content, isTarget, pos) {
 
             if (foundCount >= stages[currentStage].goals) {
                 gameActive = false;
-                // ステージクリアのプチ紙吹雪
                 confetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
                 setTimeout(() => { currentStage++; initStage(); }, 800);
             }
@@ -210,8 +215,6 @@ function startTimer() {
 async function showFinalScreen() {
     gameActive = false;
     clearInterval(timerId);
-    
-    // 全クリアの大紙吹雪
     var duration = 3 * 1000;
     var end = Date.now() + duration;
     (function frame() {
@@ -219,28 +222,21 @@ async function showFinalScreen() {
       confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff0000', '#ffd700'] });
       if (Date.now() < end) requestAnimationFrame(frame);
     }());
-
     const finalScore = totalTimeScore.toFixed(2);
-    field.innerHTML = `<h2>集計中...</h2>`;
-    
+    field.innerHTML = `<h2>順位集計中...</h2>`;
     let rankInfo = "";
     try {
-        const response = await fetch(GAS_URL, {
-            method: 'POST',
-            body: JSON.stringify({name: playerName, score: finalScore})
-        });
+        const response = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({name: playerName, score: finalScore}) });
         const res = await response.json();
         rankInfo = `全国 ${res.total} 人中 ${res.rank} 位！`;
-    } catch(e) { rankInfo = "記録完了！"; }
-
+    } catch(e) { rankInfo = "通信エラー"; }
     field.innerHTML = `
         <div style="padding:20px; overflow-y:auto; height:100%;">
-            <h2 style="color:#ffd700; text-shadow: 1px 1px 2px #000;">GRAND CLEAR!</h2>
+            <h2 style="color:#ffd700; text-shadow: 1px 1px 2px #000;">COMPLETE!</h2>
             <div style="font-size:22px; font-weight:bold; color:#d44d5c; margin:10px 0;">${rankInfo}</div>
             <p>Score: ${finalScore} pts</p>
             <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px; margin-bottom:20px;">
-                <p><b>クリエイター支援のお願い</b></p>
-                <p style="font-size:12px;">楽しんでいただけたら、20円からの応援をいただけると非常に励みになります！</p>
+                <p>募金のお願い</p>
                 <a href="${OFUSE_URL}" target="_blank" class="btn btn-ofuse">OFUSEで応援を送る</a>
             </div>
             <button onclick="window.location.reload();" class="btn btn-retry">再挑戦！</button>
