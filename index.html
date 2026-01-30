@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>年間タイトル争奪：20円募金 Search Challenge</title>
+    <title>年間王座決定戦：Search Challenge EXTREME</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { text-align:center; font-family: sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
@@ -13,34 +13,32 @@
         #stg-desc { font-size: 12px; background: white; color: #d44d5c; display: inline-block; padding: 2px 10px; border-radius: 15px; margin-top: 3px; width: 90%; }
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; min-width: 65px; display: inline-block; font-variant-numeric: tabular-nums; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .inner-field { width: 92%; height: 92%; position: relative; }
-        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; font-size: 28px; }
-        .target-item { z-index: 9999 !important; font-size: 30px !important; }
+        .inner-field { width: 95%; height: 95%; position: relative; }
+        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 26px; }
+        .target-item { z-index: 9999 !important; font-size: 28px !important; }
         .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-weight: bold; border-radius: 8px; font-size: 18px; text-align: center; border: none; cursor: pointer; text-decoration: none; }
-        .btn-ofuse { background: #ed6c00 !important; color: #fff !important; }
-        .btn-retry { background: #666 !important; color: #fff !important; }
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:30000; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; color:white; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        .ranking-box { width: 100%; max-width: 400px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; margin-top: 20px; font-size: 14px; }
-        .limit-text { color: #ff4d4d; font-weight: bold; font-size: 14px; margin-top: 10px; background: white; padding: 5px 10px; border-radius: 5px; }
+        .ranking-box { width: 100%; max-width: 400px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; margin-top: 15px; font-size: 14px; }
+        .limit-text { color: #fff; font-weight: bold; font-size: 14px; margin-top: 8px; background: #d44d5c; padding: 5px 10px; border-radius: 5px; border: 2px solid #ffd700; }
     </style>
 </head>
 <body>
 
 <audio id="sound-pig" src="https://assets.mixkit.co/active_storage/sfx/2312/2312-preview.mp3" preload="auto"></audio>
-<audio id="bgm" src="https://assets.mixkit.co/active_storage/sfx/123/123-preview.mp3" loop preload="auto"></audio>
+<audio id="bgm" src="https://assets.mixkit.co/active_storage/sfx/131/131-preview.mp3" loop preload="auto"></audio>
 
 <div id="start-screen">
-    <h2 style="color:#ffd700; margin-bottom:5px;">Search Challenge!</h2>
-    <p style="font-size:16px; font-weight:bold; color:#00d9ff; margin-bottom:5px;">年間チャンピオンに挑戦だ〜！</p>
-    <div class="limit-text">2026年12月31日 午前0時 終了！</div>
+    <h2 style="color:#ffd700; margin-bottom:5px; font-size: 24px;">Search Challenge!</h2>
+    <p style="font-size:18px; font-weight:bold; color:#00d9ff; margin: 10px 0;">年間チャンピオンに挑戦だ〜！✨</p>
+    <div class="limit-text">2026年12月31日 午前0時 終了！🏆</div>
     
-    <div style="margin-top: 20px; width: 100%; max-width: 300px;">
-        <input type="text" id="player-name" placeholder="ニックネーム" maxlength="10" style="padding:12px; font-size:18px; border-radius:5px; border:none; width:100%; text-align:center; box-sizing: border-box;">
-        <button onclick="startGame()" style="width:100%; margin-top:15px; padding:15px; background:#d44d5c; color:white; border:none; border-radius:10px; font-size:22px; font-weight:bold; cursor:pointer; box-shadow: 0 4px 0 #b33a47;">ゲーム開始！</button>
+    <div style="margin-top: 15px; width: 100%; max-width: 320px;">
+        <input type="text" id="player-name" placeholder="ニックネーム" maxlength="10" style="padding:12px; font-size:18px; border-radius:8px; border:none; width:100%; text-align:center; box-sizing: border-box; background: #eee;">
+        <button onclick="startGame()" style="width:100%; margin-top:15px; padding:18px; background:#d44d5c; color:white; border:none; border-radius:12px; font-size:24px; font-weight:bold; cursor:pointer; box-shadow: 0 6px 0 #8a2a35; transition: 0.1s;">ゲーム開始！🚀</button>
     </div>
 
     <div class="ranking-box">
-        <div style="font-weight:bold; color:#ffd700; margin-bottom:10px; border-bottom:2px solid #ffd700;">全国ランキングTOP 10</div>
+        <div style="font-weight:bold; color:#ffd700; margin-bottom:8px; border-bottom:2px solid #ffd700;">現在の全国TOP 10</div>
         <div id="top10-list">読み込み中...</div>
     </div>
 </div>
@@ -69,17 +67,18 @@ const timerDisp = document.getElementById('timer');
 const pigSound = document.getElementById('sound-pig');
 const bgm = document.getElementById('bgm');
 
-// AIボイスの再生
+// AIボイスをさらに可愛く設定
 function playAIVoice() {
     const msg = new SpeechSynthesisUtterance();
-    msg.text = "どんどん増える見つけてゲーム！年間チャンピオンに挑戦だ〜！";
+    msg.text = "どんどん増える、見つけてゲーム！年間チャンピオンに挑戦だ〜！";
     msg.lang = 'ja-JP';
-    msg.rate = 1.1; // 少し元気な速さ
+    msg.pitch = 1.6; // 声を高く（可愛く）
+    msg.rate = 1.2;  // 少し早口に
+    msg.volume = 1.0;
     window.speechSynthesis.speak(msg);
 }
 
 window.onload = async () => {
-    // 画面表示時にボイスとBGMの準備（ユーザー操作が必要なため、クリックを待つ）
     try {
         const response = await fetch(GAS_URL);
         const data = await response.json();
@@ -89,13 +88,9 @@ window.onload = async () => {
 };
 
 function startGame() {
-    // BGM再生
-    bgm.volume = 0.3;
+    bgm.volume = 0.2;
     bgm.play().catch(() => {});
-    
-    // AI音声再生
     playAIVoice();
-
     const input = document.getElementById('player-name').value;
     if(input) playerName = input;
     document.getElementById('start-screen').style.display = 'none';
@@ -119,16 +114,16 @@ function initStage() {
     const targets = stage.target === "FLAGS" ? ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"] : [stage.target];
     
     targets.forEach(t => {
-        const pos = { x: Math.random() * 85 + 7, y: Math.random() * 85 + 7 };
+        const pos = { x: Math.random() * 80 + 10, y: Math.random() * 80 + 10 };
         createItem(t, true, pos);
         usedPositions.push(pos);
     });
 
     for (let i = 0; i < stage.num; i++) {
         const char = stage.crowd[Math.floor(Math.random() * stage.crowd.length)];
-        let x = Math.random() * 95, y = Math.random() * 95;
+        let x = Math.random() * 96, y = Math.random() * 96;
         if (currentStage === 9 || currentStage === 15) {
-            let tooClose = usedPositions.some(p => Math.abs(p.x - x) < 8 && Math.abs(p.y - y) < 8);
+            let tooClose = usedPositions.some(p => Math.abs(p.x - x) < 7 && Math.abs(p.y - y) < 7);
             if (tooClose) { i--; continue; }
         }
         createItem(char, false, {x, y});
@@ -136,26 +131,27 @@ function initStage() {
     if(!timerId) startTimer();
 }
 
+// 難易度を大幅に上方修正（全体的にアイテム数を激増）
 const stages = [
-    { title: "1. 動物から人間を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 550, goals: 1 },
+    { title: "1. 動物から人間を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 750, goals: 1 },
     { title: "2. 人間から猫を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️","👳‍♀️"], target: "🐱", num: 600, goals: 1 },
     { title: "3. 激しい渋滞から自転車！", crowd: ["🚗","🚕","🚙","🚌","🏎","🚓"], target: "🚲", num: 650, goals: 1 },
-    { title: "4. お菓子からクッキー！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰"], target: "🍪", num: 700, goals: 1 },
-    { title: "5. ドル金貨から銀貨を！", crowd: ["💰"], target: "🔘", num: 800, goals: 1 },
-    { title: "6. 大勢の女性からピエロを！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🤡", num: 750, goals: 1 },
-    { title: "7. 国旗（日米中露北）全部！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 550, goals: 5 },
-    { title: "8. 魚の群れから骨を探せ！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 750, goals: 1 },
-    { title: "9. 無数の星から梅干し！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 850, goals: 1 },
-    { title: "10. 【石を探せ】赤い石を救え！", crowd: ["右"], target: "石", num: 450, goals: 1 },
-    { title: "11. ビル群から鳥居を！", crowd: ["🏢","🏣","🏥","🏦","🏨"], target: "⛩", num: 750, goals: 1 },
-    { title: "12. リンゴからサクランボ！", crowd: ["🍎"], target: "🍒", num: 750, goals: 1 },
-    { title: "13. 葉っぱからイモムシ！", crowd: ["🍃","🌿","🌱"], target: "🐛", num: 800, goals: 1 },
-    { title: "14. 優勝カップを探せ！", crowd: ["⚽","🏀","🏈","⚾","🎾","🏐"], target: "🏆", num: 750, goals: 1 },
-    { title: "15. 月の中からバナナ！", crowd: ["🌙"], target: "🍌", num: 800, goals: 1 },
-    { title: "16. 難問！「白」の中から「日」！", crowd: ["白"], target: "日", num: 700, goals: 1 },
-    { title: "17. イカからタコを探せ！", crowd: ["🦑"], target: "🐙", num: 800, goals: 1 },
-    { title: "18. 星空に潜むUFOを！", crowd: ["✨","⭐","🌟"], target: "🛸", num: 850, goals: 1 },
-    { title: "19. 💩の中からアイス！", crowd: ["💩"], target: "🍦", num: 800, goals: 1 },
+    { title: "4. お菓子からクッキー！", crowd: ["🍬","🍭","🍫","🍩","🍮","🍰"], target: "🍪", num: 800, goals: 1 },
+    { title: "5. ドル金貨から銀貨を！", crowd: ["💰"], target: "🔘", num: 1000, goals: 1 },
+    { title: "6. 大勢の女性からピエロを！", crowd: ["👩","👩‍🦰","👱‍♀️","👩‍🦳","👩‍🦱","💃"], target: "🤡", num: 900, goals: 1 },
+    { title: "7. 国旗（日米中露北）全部！", crowd: ["🌍","🌎","🌏","🧔","👧"], target: "FLAGS", num: 800, goals: 5 },
+    { title: "8. 魚の群れから骨を探せ！", crowd: ["🐟","🐠","🐡","🦈"], target: "🦴", num: 950, goals: 1 },
+    { title: "9. 無数の星から梅干し！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 1100, goals: 1 },
+    { title: "10. 【石を探せ】赤い石を救え！", crowd: ["右"], target: "石", num: 400, goals: 1 },
+    { title: "11. ビル群から鳥居を！", crowd: ["🏢","🏣","🏥","🏦","🏨"], target: "⛩", num: 900, goals: 1 },
+    { title: "12. リンゴからサクランボ！", crowd: ["🍎"], target: "🍒", num: 900, goals: 1 },
+    { title: "13. 400枚の葉からイモムシ！", crowd: ["🍃","🌿","🌱"], target: "🐛", num: 950, goals: 1 },
+    { title: "14. 優勝カップを探せ！", crowd: ["⚽","🏀","🏈","⚾","🎾","🏐"], target: "🏆", num: 950, goals: 1 },
+    { title: "15. 月の中からバナナ！", crowd: ["🌙"], target: "🍌", num: 1000, goals: 1 },
+    { title: "16. 難問！「白」の中から「日」！", crowd: ["白"], target: "日", num: 850, goals: 1 },
+    { title: "17. イカからタコを探せ！", crowd: ["🦑"], target: "🐙", num: 950, goals: 1 },
+    { title: "18. 星空に潜むUFOを！", crowd: ["✨","⭐","🌟"], target: "🛸", num: 1100, goals: 1 },
+    { title: "19. 💩の中からアイス！", crowd: ["💩"], target: "🍦", num: 900, goals: 1 },
     { title: "20. 最終：全クリ！20円募金のお願い", crowd: [], target: "FINAL", num: 0, goals: 1 }
 ];
 
@@ -181,7 +177,7 @@ function createItem(content, isTarget, pos) {
             foundCount++;
             if (foundCount >= stages[currentStage].goals) {
                 gameActive = false;
-                confetti({ particleCount: 150, spread: 80, origin: { y: 0.7 } });
+                confetti({ particleCount: 200, spread: 100, origin: { y: 0.7 } });
                 setTimeout(() => { currentStage++; initStage(); }, 800);
             }
         } else { this.style.opacity = "0.2"; }
@@ -202,17 +198,16 @@ function startTimer() {
 async function showFinalScreen() {
     gameActive = false;
     clearInterval(timerId);
-    bgm.pause(); // BGMを止める
-    
-    var end = Date.now() + 5 * 1000;
+    bgm.pause();
+    var end = Date.now() + 6 * 1000;
     (function frame() {
-      confetti({ particleCount: 15, angle: 60, spread: 70, origin: { x: 0 }, colors: ['#ff0000', '#ffd700'] });
-      confetti({ particleCount: 15, angle: 120, spread: 70, origin: { x: 1 }, colors: ['#ff0000', '#ffd700'] });
+      confetti({ particleCount: 20, angle: 60, spread: 80, origin: { x: 0 }, colors: ['#ff0000', '#ffd700'] });
+      confetti({ particleCount: 20, angle: 120, spread: 80, origin: { x: 1 }, colors: ['#ff0000', '#ffd700'] });
       if (Date.now() < end) requestAnimationFrame(frame);
     }());
 
     const finalScore = totalTimeScore.toFixed(2);
-    field.innerHTML = `<h2>順位集計中...</h2>`;
+    field.innerHTML = `<h2>集計中...</h2>`;
     let rankInfo = "";
     try {
         const now = new Date();
@@ -231,10 +226,10 @@ async function showFinalScreen() {
             <div style="font-size:24px; font-weight:bold; color:#d44d5c; margin:15px 0;">${rankInfo}</div>
             <p>Score: ${finalScore} pts</p>
             <div style="background:#fff; border:3px solid #d44d5c; border-radius:15px; padding:20px; margin-bottom:20px;">
-                <p>2026年12月31日の最終決戦まで<br>王座を守り抜こう！</p>
-                <a href="${OFUSE_URL}" target="_blank" class="btn btn-ofuse">OFUSEで20円募金</a>
+                <p>2026年12月31日の最終決戦まで<br>王座を守り抜こう！🏆</p>
+                <a href="${OFUSE_URL}" target="_blank" class="btn btn-ofuse" style="background:#ed6c00; color:#fff;">OFUSEで応援を送る（20円〜）</a>
             </div>
-            <button onclick="resetGame();" class="btn btn-retry">トップに戻る</button></div>`;
+            <button onclick="resetGame();" class="btn btn-retry">最初から遊ぶ</button></div>`;
 }
 
 function resetGame() {
