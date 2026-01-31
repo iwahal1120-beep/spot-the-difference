@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <title>年間王座決定戦：Search Challenge GIGA-HARD</title>
+    <title>年間王座決定戦：Search Challenge EXTREME</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { text-align:center; font-family: sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 0; overflow: hidden; touch-action: none; }
@@ -12,10 +12,10 @@
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .inner-field { width: 98%; height: 98%; position: relative; }
         
-        /* 基本アイテム：非常に小さく */
+        /* モブアイテム：極小サイズ */
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; font-size: 14px; }
         
-        /* 猫と自転車：サイズを維持 */
+        /* 猫と自転車：サイズ維持 */
         .big-item { width: 44px !important; height: 44px !important; font-size: 32px !important; }
         
         .target-item { z-index: 9999 !important; }
@@ -26,7 +26,7 @@
 </head>
 <body>
 
-<audio id="sound-clear" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
+<audio id="sound-pingpong" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 <audio id="sound-warn" src="https://assets.mixkit.co/active_storage/sfx/495/495-preview.mp3" preload="auto"></audio>
 
 <div id="start-screen">
@@ -60,13 +60,13 @@ let currentStage = 0, msLeft = 3000, timerId = null, gameActive = false, foundCo
 let totalTimeScore = 0, playerName = "名無しさん";
 const field = document.getElementById('inner-field');
 const timerDisp = document.getElementById('timer');
-const clearSound = document.getElementById('sound-clear');
+const pingSound = document.getElementById('sound-pingpong');
 const warnSound = document.getElementById('sound-warn');
 
 const stages = [
     { title: "1. 動物から人間を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 1200, isBig: false },
-    { title: "2. 【維持】人間から猫を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️"], target: "🐱", num: 600, isBig: true },
-    { title: "3. 【維持】激しい渋滞から自転車！", crowd: ["🚗","🚕","🚙","🚌","🏎"], target: "🚲", num: 600, isBig: true },
+    { title: "2. 【20%増】人間から猫を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️"], target: "🐱", num: 720, isBig: true },
+    { title: "3. 【20%増】激しい渋滞から自転車！", crowd: ["🚗","🚕","🚙","🚌","🏎"], target: "🚲", num: 720, isBig: true },
     { title: "4. お菓子からクッキー！", crowd: ["🍬","🍭","🍫","🍩","🍮"], target: "🍪", num: 1300, isBig: false },
     { title: "5. 金貨の山から銀貨を！", crowd: ["💰"], target: "🔘", num: 1600, isBig: false },
     { title: "6. 大勢の女性からピエロを！", crowd: ["👩","👱‍♀️","💃"], target: "🤡", num: 1400, isBig: false },
@@ -87,7 +87,9 @@ const stages = [
 ];
 
 function startGame() {
-    clearSound.play().then(()=>clearSound.pause());
+    // ユーザー操作でオーディオコンテキストをアクティブにする
+    pingSound.play().then(()=>pingSound.pause());
+    warnSound.play().then(()=>warnSound.pause());
     const input = document.getElementById('player-name').value;
     if(input) playerName = input;
     document.getElementById('start-screen').style.display = 'none';
@@ -102,6 +104,7 @@ function initStage() {
     document.getElementById('stg-desc').innerText = stage.title;
     document.getElementById('stage-num').innerText = currentStage + 1;
     msLeft = 3000;
+    timerDisp.style.color = "#fff";
     timerDisp.innerText = "30.00";
     
     gameActive = true;
@@ -117,7 +120,6 @@ function initStage() {
     for (let i = 0; i < stage.num; i++) {
         const char = stage.crowd[Math.floor(Math.random() * stage.crowd.length)];
         let x = Math.random() * 98, y = Math.random() * 98;
-        // 重なり防止ロジック
         if (usedPos.some(p => Math.abs(p.x - x) < 2 && Math.abs(p.y - y) < 2)) { i--; continue; }
         createItem(char, false, {x, y}, false);
     }
@@ -131,17 +133,22 @@ function createItem(content, isTarget, pos, isBig) {
     el.style.left = pos.x + "%";
     el.style.top = pos.y + "%";
     el.innerText = content;
+    
+    // 正解タップ時の処理
     el.onclick = function() {
-        if(!gameActive || !isTarget) return;
-        clearSound.currentTime = 0;
-        clearSound.play();
-        totalTimeScore += (msLeft / 100);
-        foundCount++;
-        if (foundCount >= (stages[currentStage].goals || 1)) {
-            gameActive = false;
-            confetti({ particleCount: 200, spread: 100, origin: { y: 0.7 } });
-            setTimeout(() => { currentStage++; initStage(); }, 600);
+        if(!gameActive) return;
+        if (isTarget) {
+            pingSound.currentTime = 0;
+            pingSound.play();
+            totalTimeScore += (msLeft / 100);
+            foundCount++;
+            if (foundCount >= (stages[currentStage].goals || 1)) {
+                gameActive = false;
+                confetti({ particleCount: 200, spread: 100, origin: { y: 0.7 } });
+                setTimeout(() => { currentStage++; initStage(); }, 600);
+            }
         }
+        // 間違った場所をタップしても何もしない（タイマーは止めない）
     };
     field.appendChild(el);
 }
@@ -151,7 +158,11 @@ function startTimer() {
         if(gameActive) {
             msLeft--;
             timerDisp.innerText = (msLeft / 100).toFixed(2);
-            if (msLeft === 1000) { warnSound.play(); timerDisp.style.color = "red"; }
+            // 10秒前カウントダウン音（表示が20.00以下の時）
+            if (msLeft === 2000) { 
+                warnSound.play(); 
+                timerDisp.style.color = "red"; 
+            }
             if(msLeft <= 0) endGame();
         }
     }, 10);
