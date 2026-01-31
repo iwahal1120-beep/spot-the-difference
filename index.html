@@ -11,13 +11,8 @@
         #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; min-width: 65px; display: inline-block; font-variant-numeric: tabular-nums; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .inner-field { width: 98%; height: 98%; position: relative; }
-        
-        /* 基本アイテム：極小サイズ */
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; font-size: 13px; }
-        
-        /* 猫と自転車：サイズ維持 */
         .big-item { width: 44px !important; height: 44px !important; font-size: 32px !important; }
-        
         .target-item { z-index: 9999 !important; font-weight: bold; }
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.96); z-index:30000; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; color:white; padding: 20px; box-sizing: border-box; }
         .limit-text { color: #ffd700; font-weight: bold; font-size: 15px; margin-top: 10px; border: 2px solid #ffd700; padding: 8px 15px; border-radius: 50px; }
@@ -65,14 +60,14 @@ const warnSound = document.getElementById('sound-warn');
 
 const stages = [
     { title: "1. 動物から人間を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 1200, isBig: false },
-    { title: "2. 【背景20%増】人間から猫を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️"], target: "🐱", num: 720, isBig: true },
-    { title: "3. 【背景20%増】渋滞から自転車！", crowd: ["🚗","🚕","🚙","🚌","🏎"], target: "🚲", num: 720, isBig: true },
+    { title: "2. 【超過密】人間から猫を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️"], target: "🐱", num: 720, isBig: true },
+    { title: "3. 【超過密】激しい渋滞から自転車！", crowd: ["🚗","🚕","🚙","🚌","🏎"], target: "🚲", num: 720, isBig: true },
     { title: "4. お菓子からクッキー！", crowd: ["🍬","🍭","🍫","🍩","🍮"], target: "🍪", num: 1300, isBig: false },
     { title: "5. 金貨の山から銀貨を！", crowd: ["💰"], target: "🔘", num: 1600, isBig: false },
     { title: "6. ピエロを探し出せ！", crowd: ["👩","👱‍♀️","💃"], target: "🤡", num: 1400, isBig: false },
     { title: "7. 国旗（日米中露北）全部！", crowd: ["🌍","🌎","🌏"], target: "FLAGS", num: 1200, goals: 5 },
     { title: "8. 魚の群れから骨を探せ！", crowd: ["🐟","🐠","🐡"], target: "🦴", num: 1500, isBig: false },
-    { title: "9. 無数の星から梅干し！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 1700, isBig: false },
+    { title: "9. 星空から梅干し！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 1700, isBig: false },
     { title: "10. 【石を探せ】超極小の石！", crowd: ["右"], target: "石", num: 1400, isBig: false },
     { title: "11. ビル群から鳥居を！", crowd: ["🏢","🏣","🏥"], target: "⛩", num: 1300, isBig: false },
     { title: "12. リンゴからサクランボ！", crowd: ["🍎"], target: "🍒", num: 1300, isBig: false },
@@ -131,16 +126,29 @@ function createItem(content, isTarget, pos, isBig) {
     if (isBig) el.classList.add('big-item');
     el.style.left = pos.x + "%";
     el.style.top = pos.y + "%";
+    
+    // 梅干し(🔴)のサイズ調整
+    if (content === "🔴" && isTarget) el.style.fontSize = "10px";
+    
     el.innerText = content;
     
     el.onclick = function() {
         if(!gameActive) return;
         if (isTarget) {
+            if (this.dataset.clicked === "true") return;
+            this.dataset.clicked = "true";
+            
             pingSound.currentTime = 0;
             pingSound.play().catch(e=>console.log(e));
+            
+            this.style.transform = "scale(2.5) rotate(360deg)";
+            this.style.opacity = "0.5";
+            
             totalTimeScore += (msLeft / 100);
             foundCount++;
-            if (foundCount >= (stages[currentStage].goals || 1)) {
+            
+            const goals = (stages[currentStage].target === "FLAGS") ? 5 : 1;
+            if (foundCount >= goals) {
                 gameActive = false;
                 confetti({ particleCount: 200, spread: 100, origin: { y: 0.7 } });
                 setTimeout(() => { currentStage++; initStage(); }, 600);
@@ -151,6 +159,7 @@ function createItem(content, isTarget, pos, isBig) {
 }
 
 function startTimer() {
+    if (timerId) clearInterval(timerId);
     timerId = setInterval(() => {
         if(gameActive) {
             msLeft--;
@@ -159,7 +168,10 @@ function startTimer() {
                 warnSound.play().catch(e=>console.log(e)); 
                 timerDisp.style.color = "red"; 
             }
-            if(msLeft <= 0) endGame();
+            if(msLeft <= 0) {
+                clearInterval(timerId);
+                endGame();
+            }
         }
     }, 10);
 }
@@ -187,7 +199,6 @@ async function showFinalScreen() {
 
 function endGame() {
     gameActive = false;
-    clearInterval(timerId);
     field.innerHTML = `<h2>TIME UP!</h2><button onclick="location.reload();" class="btn">リトライ</button>`;
 }
 </script>
