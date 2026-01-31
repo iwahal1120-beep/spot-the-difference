@@ -60,24 +60,24 @@ const warnSound = document.getElementById('sound-warn');
 
 const stages = [
     { title: "1. 動物から人間を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 1200, isBig: false },
-    { title: "2. 【超過密】人間から猫を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️"], target: "🐱", num: 720, isBig: true },
-    { title: "3. 【超過密】激しい渋滞から自転車！", crowd: ["🚗","🚕","🚙","🚌","🏎"], target: "🚲", num: 720, isBig: true },
+    { title: "2. 【背景増量】人間から猫を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️"], target: "🐱", num: 800, isBig: true },
+    { title: "3. 【背景増量】激しい渋滞から自転車！", crowd: ["🚗","🚕","🚙","🚌","🏎"], target: "🚲", num: 800, isBig: true },
     { title: "4. お菓子からクッキー！", crowd: ["🍬","🍭","🍫","🍩","🍮"], target: "🍪", num: 1300, isBig: false },
     { title: "5. 金貨の山から銀貨を！", crowd: ["💰"], target: "🔘", num: 1600, isBig: false },
     { title: "6. ピエロを探し出せ！", crowd: ["👩","👱‍♀️","💃"], target: "🤡", num: 1400, isBig: false },
     { title: "7. 国旗（日米中露北）全部！", crowd: ["🌍","🌎","🌏"], target: "FLAGS", num: 1200, goals: 5 },
     { title: "8. 魚の群れから骨を探せ！", crowd: ["🐟","🐠","🐡"], target: "🦴", num: 1500, isBig: false },
-    { title: "9. 星空から梅干し！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 1700, isBig: false },
-    { title: "10. 【石を探せ】超極小の石！", crowd: ["右"], target: "石", num: 1400, isBig: false },
-    { title: "11. ビル群から鳥居を！", crowd: ["🏢","🏣","🏥"], target: "⛩", num: 1300, isBig: false },
-    { title: "12. リンゴからサクランボ！", crowd: ["🍎"], target: "🍒", num: 1300, isBig: false },
-    { title: "13. 葉っぱからイモムシ！", crowd: ["🍃","🌿","🌱"], target: "🐛", num: 1400, isBig: false },
-    { title: "14. 優勝カップを探せ！", crowd: ["⚽","🏀","⚾"], target: "🏆", num: 1300, isBig: false },
-    { title: "15. 月の中からバナナ！", crowd: ["🌙"], target: "🍌", num: 1500, isBig: false },
-    { title: "16. 【難問】白の中から日を探せ！", crowd: ["白"], target: "日", num: 1200, isBig: false },
-    { title: "17. イカからタコを探せ！", crowd: ["🦑"], target: "🐙", num: 1400, isBig: false },
-    { title: "18. 星空に潜むUFOを！", crowd: ["✨","⭐","🌟"], target: "🛸", num: 1700, isBig: false },
-    { title: "19. 💩の中からアイス！", crowd: ["💩"], target: "🍦", num: 1300, isBig: false },
+    { title: "9. 無数の星から梅干し！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 1700, isBig: false },
+    { title: "10. 【石を探せ】極小の石！", crowd: ["右"], target: "石", num: 1450, isBig: false },
+    { title: "11. ビル群から鳥居を！", crowd: ["🏢","🏣","🏥"], target: "⛩", num: 1350, isBig: false },
+    { title: "12. リンゴからサクランボ！", crowd: ["🍎"], target: "🍒", num: 1350, isBig: false },
+    { title: "13. 葉っぱからイモムシ！", crowd: ["🍃","🌿","🌱"], target: "🐛", num: 1450, isBig: false },
+    { title: "14. 優勝カップを探せ！", crowd: ["⚽","🏀","⚾"], target: "🏆", num: 1350, isBig: false },
+    { title: "15. 月の中からバナナ！", crowd: ["🌙"], target: "🍌", num: 1550, isBig: false },
+    { title: "16. 【難問】白の中から日を探せ！", crowd: ["白"], target: "日", num: 1300, isBig: false },
+    { title: "17. イカからタコを探せ！", crowd: ["🦑"], target: "🐙", num: 1450, isBig: false },
+    { title: "18. 星空に潜むUFOを！", crowd: ["✨","⭐","🌟"], target: "🛸", num: 1750, isBig: false },
+    { title: "19. 💩の中からアイス！", crowd: ["💩"], target: "🍦", num: 1400, isBig: false },
     { title: "20. 最終：20円募金のお願い", crowd: [], target: "FINAL", num: 0 }
 ];
 
@@ -127,7 +127,6 @@ function createItem(content, isTarget, pos, isBig) {
     el.style.left = pos.x + "%";
     el.style.top = pos.y + "%";
     
-    // 梅干し(🔴)のサイズ調整
     if (content === "🔴" && isTarget) el.style.fontSize = "10px";
     
     el.innerText = content;
