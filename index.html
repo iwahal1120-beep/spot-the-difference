@@ -7,17 +7,16 @@
     <title>10万円争奪：Search Challenge GIGA-HARD</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        /* 拡大・連打フリーズ防止 */
+        /* ズーム・フリーズ徹底防止 */
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
         body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 0; overflow: hidden; }
         
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         
-        /* 10万円特典エリア */
         .premium-box { border: 4px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255, 215, 0, 0.15); margin: 10px 0; width: 100%; max-width: 340px; box-shadow: 0 0 25px rgba(255, 215, 0, 0.4); }
         .gift-title { color: #ffd700; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px #000; margin: 5px 0; }
         
-        /* ※赤文字：募金必須の条件を最大級に強調 */
+        /* ※赤文字：募金条件を最大サイズで2行表示 */
         .target-rule { 
             color: #ff4d4d; 
             font-size: 19px; 
@@ -40,12 +39,17 @@
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .inner-field { width: 98%; height: 98%; position: relative; }
         
+        /* 線画・アイテムスタイル */
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; font-size: 15px; }
         .target-item { z-index: 9999 !important; font-weight: bold; }
         
+        .line-box { width: 10px; height: 35px; position: absolute; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .full-line { width: 2px; height: 100%; background: #333; }
+        .broken-line-css { width: 2px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .broken-part { width: 100%; height: 35%; background: #333; }
+
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:22px; font-weight:bold; cursor:pointer; box-shadow: 0 6px 0 #8a2a35; }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold; margin-bottom: 15px; display: inline-block; }
-        .error-msg { color: #ff4d4d; font-size: 14px; font-weight: bold; margin-bottom: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -70,12 +74,11 @@
     </div>
 
     <div style="width: 100%; max-width: 320px;">
-        <div id="name-error" class="error-msg">⚠️ その名前は既に使用されています</div>
         <input type="text" id="player-name" placeholder="募金時のニックネームを入力" maxlength="10" style="padding:15px; font-size:18px; border-radius:10px; width:100%; text-align:center; margin-bottom:15px; border:none; box-sizing:border-box; background: white;">
         <button onclick="startGame()" class="btn">ランキングに挑む！🏆</button>
     </div>
 
-    <div id="top10-list" style="width:100%; max-width:320px; margin-top:20px; font-size:13px; background:rgba(255,255,255,0.1); padding:12px; border-radius:10px; border: 1px solid rgba(255,255,255,0.2);">
+    <div id="top10-list" style="width:100%; max-width:320px; margin-top:20px; font-size:13px; background:rgba(255,255,255,0.1); padding:12px; border-radius:10px;">
         ランキング読み込み中...
     </div>
 </div>
@@ -137,7 +140,7 @@ window.onload = async () => {
         const list = document.getElementById('top10-list');
         list.innerHTML = `<div style="font-weight:bold; border-bottom:1px solid #fff; margin-bottom:8px; color:#ffd700;">👑 全国タイム TOP 10</div>` + 
             data.slice(0, 10).map((entry, i) => `<div style="display:flex; justify-content:space-between; padding:3px 0;"><span>${i+1}. ${entry.name}</span><span>${entry.score}s</span></div>`).join('');
-    } catch(e) { document.getElementById('top10-list').innerText = "データ取得待ち..."; }
+    } catch(e) { console.log("Rank fetch failed"); }
 };
 
 function getPlayableStages() {
@@ -152,7 +155,6 @@ function getPlayableStages() {
 function startGame() {
     const input = document.getElementById('player-name').value.trim();
     if (!input) { alert("ニックネームを入力してください"); return; }
-    if (existingNames.includes(input)) { document.getElementById('name-error').style.display = "block"; return; }
     playerName = input;
     playableStages = getPlayableStages();
     document.getElementById('total-stg-num').innerText = playableStages.length;
@@ -173,10 +175,16 @@ function initStage() {
     timerDisp.style.color = "#fff";
     timerDisp.innerText = "30.00";
     gameActive = true;
-    if (stage.target === "LINES") { createLineStage(stage); }
-    else if (stage.target === "DIFFERENT") { createPandaStage(stage); }
-    else if (stage.target === "FINAL") { showFinalScreen(); }
-    else { createNormalStage(stage); }
+
+    if (stage.target === "LINES") {
+        createLineStage(stage);
+    } else if (stage.target === "DIFFERENT") {
+        createPandaStage(stage);
+    } else if (stage.target === "FINAL") {
+        showFinalScreen();
+    } else {
+        createNormalStage(stage);
+    }
     if(!timerId) startTimer();
 }
 
@@ -197,18 +205,26 @@ function createNormalStage(stage) {
 }
 
 function createLineStage(stage) {
-    let brokenCount = 0;
+    let targetIndices = [];
+    while(targetIndices.length < 5) {
+        let r = Math.floor(Math.random() * stage.num);
+        if(!targetIndices.includes(r)) targetIndices.push(r);
+    }
+
     for (let i = 0; i < stage.num; i++) {
-        const el = document.createElement('div');
-        el.className = 'line-item';
-        el.style.left = Math.random() * 98 + "%";
-        el.style.top = Math.random() * 92 + "%";
-        if (brokenCount < 5 && Math.random() < 0.05) {
-            el.classList.add('broken-line', 'target-item');
-            el.onclick = (e) => { e.stopPropagation(); handleFound(el); };
-            brokenCount++;
+        const box = document.createElement('div');
+        box.className = 'line-box';
+        box.style.left = Math.random() * 95 + "%";
+        box.style.top = Math.random() * 92 + "%";
+        
+        if (targetIndices.includes(i)) {
+            box.classList.add('target-item');
+            box.innerHTML = `<div class="broken-line-css"><div class="broken-part"></div><div class="broken-part"></div></div>`;
+            box.onclick = (e) => { e.stopPropagation(); handleFound(box); };
+        } else {
+            box.innerHTML = `<div class="full-line"></div>`;
         }
-        field.appendChild(el);
+        field.appendChild(box);
     }
 }
 
@@ -273,11 +289,11 @@ async function showFinalScreen() {
     try {
         await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({name: playerName, score: finalScore}) });
         location.reload(); 
-    } catch(e) { field.innerHTML = `<h2>送信エラー</h2><button onclick="location.reload();" class="btn">トップへ</button>`; }
+    } catch(e) { location.reload(); }
 }
 
 function endGame() { 
-    field.innerHTML = `<h2>TIME UP!</h2><p>トップ画面から再挑戦！</p><button onclick="location.reload();" class="btn">トップへ</button>`; 
+    field.innerHTML = `<h2>TIME UP!</h2><button onclick="location.reload();" class="btn">トップへ</button>`; 
 }
 </script>
 </body>
