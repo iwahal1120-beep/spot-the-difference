@@ -12,10 +12,11 @@
         
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         
-        /* 懸賞エリア */
         .premium-box { border: 4px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255, 215, 0, 0.15); margin: 10px 0; width: 100%; max-width: 340px; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
         .gift-title { color: #ffd700; font-size: 26px; font-weight: bold; text-shadow: 2px 2px 4px #000; margin: 5px 0; }
-        .target-rule { color: #ff4d4d; font-size: 14px; font-weight: bold; background: white; padding: 5px; border-radius: 5px; margin: 8px 0; display: inline-block; }
+        
+        /* ※印の赤文字：大きくして2行バランス調整 */
+        .target-rule { color: #ff4d4d; font-size: 18px; font-weight: bold; background: white; padding: 10px; border-radius: 8px; margin: 10px 0; display: block; line-height: 1.4; width: 90%; }
 
         .rules-list { text-align: left; font-size: 12px; line-height: 1.5; margin: 10px 0; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; width: 100%; max-width: 320px; border: 1px solid rgba(255,255,255,0.1); }
         
@@ -43,14 +44,14 @@
     <div class="premium-box">
         <div style="font-size:12px;">2026年12月31日 0:00時点 タイム1位</div>
         <div class="gift-title">10万円分ギフト券</div>
-        <div class="target-rule">※順位対象は募金をしてくれた方の中から決定します</div>
+        <span class="target-rule">※順位対象は募金を<br>してくれた方の中から決定します</span>
     </div>
 
     <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">まずはこちらから募金して参加！</a>
 
     <div class="rules-list">
-        ⚫︎ 毎週1ステージ追加される全20〜ステージ構成。<br>
-        ⚫︎ バグ発生時はトップに戻ります。<br>
+        ⚫︎ スタートは20ゲームから始まり、毎週1ゲームが追加されます。<br>
+        ⚫︎ バグ発生時はトップに戻ります。ご了承ください。<br>
         ⚫︎ 募金時のニックネームと同じ名前で参加してください。
     </div>
 
@@ -70,7 +71,7 @@
     <div id="stg-desc">Ready...</div>
     <div class="status-bar">
         <div>残り: <span id="timer">30.00</span></div>
-        <div>ステージ: <span id="stage-num">1</span>/20</div>
+        <div>ステージ: <span id="stage-num">1</span>/<span id="total-stg-num">20</span></div>
     </div>
 </div>
 
@@ -84,38 +85,15 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzvFsfk4Zp48AyJgQccCOQM
 
 let currentStage = 0, msLeft = 3000, timerId = null, gameActive = false, foundCount = 0;
 let totalTimeScore = 0, playerName = "名無しさん", existingNames = [];
+let playableStages = [];
+
 const field = document.getElementById('inner-field');
 const timerDisp = document.getElementById('timer');
 const pingSound = document.getElementById('sound-pingpong');
 const warnSound = document.getElementById('sound-warn');
 
-window.onload = async () => {
-    try {
-        const response = await fetch(GAS_URL);
-        const data = await response.json();
-        existingNames = data.map(d => d.name.trim());
-        const list = document.getElementById('top10-list');
-        list.innerHTML = `<div style="font-weight:bold; border-bottom:1px solid #fff; margin-bottom:8px; color:#ffd700;">👑 全国タイム TOP 10</div>` + 
-            data.slice(0, 10).map((entry, i) => `<div style="display:flex; justify-content:space-between; padding:2px 0;"><span>${i+1}. ${entry.name}</span><span>${entry.score}s</span></div>`).join('');
-    } catch(e) { document.getElementById('top10-list').innerText = "データ取得待ち..."; }
-};
-
-function startGame() {
-    const input = document.getElementById('player-name').value.trim();
-    const errorDisp = document.getElementById('name-error');
-    if (!input) { alert("ニックネームを入力してください"); return; }
-    if (existingNames.includes(input)) {
-        errorDisp.style.display = "block";
-        return;
-    }
-    playerName = input;
-    pingSound.play().then(()=>pingSound.pause()).catch(()=>{});
-    warnSound.play().then(()=>warnSound.pause()).catch(()=>{});
-    document.getElementById('start-screen').style.display = 'none';
-    initStage();
-}
-
-const stages = [
+// 全ステージデータ（将来の追加分もここに足せます）
+const allStages = [
     { title: "1. 動物から人間を探せ！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 1200 },
     { title: "2. 人間から猫を探せ！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️"], target: "🐱", num: 1400 },
     { title: "3. 渋滞から自転車！", crowd: ["🚗","🚕","🚙","🚌","🏎"], target: "🚲", num: 1400 },
@@ -135,14 +113,51 @@ const stages = [
     { title: "17. イカからタコを探せ！", crowd: ["🦑"], target: "🐙", num: 1500 },
     { title: "18. 星空に潜むUFOを！", crowd: ["✨","⭐","🌟"], target: "🛸", num: 1800 },
     { title: "19. 💩の中からアイス！", crowd: ["💩"], target: "🍦", num: 1400 },
-    { title: "20. 最終：年間王者への募金", crowd: [], target: "FINAL", num: 0 }
+    { title: "20. 最後に...20円募金のお願い", crowd: [], target: "FINAL", num: 0 }
+    // ここに { title: "21...", ... } を追加していけば毎週解放されます
 ];
+
+window.onload = async () => {
+    try {
+        const response = await fetch(GAS_URL);
+        const data = await response.json();
+        existingNames = data.map(d => d.name.trim());
+        const list = document.getElementById('top10-list');
+        list.innerHTML = `<div style="font-weight:bold; border-bottom:1px solid #fff; margin-bottom:8px; color:#ffd700;">👑 全国タイム TOP 10</div>` + 
+            data.slice(0, 10).map((entry, i) => `<div style="display:flex; justify-content:space-between; padding:2px 0;"><span>${i+1}. ${entry.name}</span><span>${entry.score}s</span></div>`).join('');
+    } catch(e) { document.getElementById('top10-list').innerText = "データ取得待ち..."; }
+};
+
+// 毎週追加ロジック
+function getPlayableStages() {
+    const START_DATE = new Date("2026-02-01");
+    const diffWeeks = Math.floor((new Date() - START_DATE) / (1000 * 60 * 60 * 24 * 7));
+    const count = Math.min(allStages.length - 1, 19 + Math.max(0, diffWeeks)); // 初期19+1ステージ
+    const pool = allStages.slice(0, count);
+    pool.push(allStages[allStages.length - 1]); // FINALを常に最後にする
+    return pool;
+}
+
+function startGame() {
+    const input = document.getElementById('player-name').value.trim();
+    if (!input) { alert("ニックネームを入力してください"); return; }
+    if (existingNames.includes(input)) { document.getElementById('name-error').style.display = "block"; return; }
+    
+    playerName = input;
+    playableStages = getPlayableStages();
+    document.getElementById('total-stg-num').innerText = playableStages.length;
+    
+    pingSound.play().then(()=>pingSound.pause()).catch(()=>{});
+    warnSound.play().then(()=>warnSound.pause()).catch(()=>{});
+    document.getElementById('start-screen').style.display = 'none';
+    initStage();
+}
 
 function initStage() {
     field.innerHTML = "";
     foundCount = 0;
-    if (currentStage >= stages.length) return;
-    const stage = stages[currentStage];
+    if (currentStage >= playableStages.length) return;
+    const stage = playableStages[currentStage];
     document.getElementById('stg-desc').innerText = stage.title;
     document.getElementById('stage-num').innerText = currentStage + 1;
     msLeft = 3000;
@@ -150,15 +165,10 @@ function initStage() {
     timerDisp.innerText = "30.00";
     gameActive = true;
 
-    if (stage.target === "LINES") {
-        createLineStage(stage);
-    } else if (stage.target === "DIFFERENT") {
-        createPandaStage(stage);
-    } else if (stage.target === "FINAL") {
-        showFinalScreen();
-    } else {
-        createNormalStage(stage);
-    }
+    if (stage.target === "LINES") { createLineStage(stage); }
+    else if (stage.target === "DIFFERENT") { createPandaStage(stage); }
+    else if (stage.target === "FINAL") { showFinalScreen(); }
+    else { createNormalStage(stage); }
     if(!timerId) startTimer();
 }
 
@@ -180,7 +190,7 @@ function createNormalStage(stage) {
 
 function createLineStage(stage) {
     let brokenCount = 0;
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < stage.num; i++) {
         const el = document.createElement('div');
         el.className = 'line-item';
         el.style.left = Math.random() * 98 + "%";
@@ -191,21 +201,19 @@ function createLineStage(stage) {
             brokenCount++;
         }
         field.appendChild(el);
-        if (field.children.length >= stage.num) break;
     }
 }
 
 function createPandaStage(stage) {
     const fakes = ["🐨", "🐻‍❄️", "🐰", "🐹"];
     let count = 0;
-    for (let i = 0; i < 600; i++) {
+    for (let i = 0; i < stage.num; i++) {
         let char = "🐼", isT = false;
         if (count < 5 && Math.random() < 0.04) {
             char = fakes[Math.floor(Math.random()*fakes.length)];
             isT = true; count++;
         }
         createItem(char, isT, {x: Math.random()*96, y: Math.random()*96});
-        if (field.children.length >= stage.num) break;
     }
 }
 
@@ -229,7 +237,7 @@ function handleFound(el) {
     el.style.opacity = "0.5";
     totalTimeScore += (msLeft / 100);
     foundCount++;
-    const goals = (stages[currentStage].goals || 1);
+    const goals = (playableStages[currentStage].goals || 1);
     if (foundCount >= goals) {
         gameActive = false;
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 } });
@@ -243,7 +251,7 @@ function startTimer() {
         if(gameActive) {
             msLeft--;
             timerDisp.innerText = (msLeft / 100).toFixed(2);
-            if (msLeft === 2000) { warnSound.play().catch(()=>{}); timerDisp.style.color = "red"; }
+            if (msLeft === 1000) { warnSound.play().catch(()=>{}); timerDisp.style.color = "red"; }
             if(msLeft <= 0) { gameActive = false; clearInterval(timerId); endGame(); }
         }
     }, 10);
@@ -257,13 +265,11 @@ async function showFinalScreen() {
     try {
         await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({name: playerName, score: finalScore}) });
         location.reload(); 
-    } catch(e) { 
-        field.innerHTML = `<h2>送信エラー</h2><button onclick="location.reload();" class="btn">トップに戻る</button>`; 
-    }
+    } catch(e) { field.innerHTML = `<h2>送信エラー</h2><button onclick="location.reload();" class="btn">トップへ</button>`; }
 }
 
 function endGame() { 
-    field.innerHTML = `<h2>TIME UP!</h2><p>募金して再挑戦！</p><button onclick="location.reload();" class="btn">トップに戻る</button>`; 
+    field.innerHTML = `<h2>TIME UP!</h2><p>募金して再挑戦！</p><button onclick="location.reload();" class="btn">トップへ</button>`; 
 }
 </script>
 </body>
