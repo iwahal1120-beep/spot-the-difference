@@ -7,7 +7,6 @@
     <title>10万円争奪：Search Challenge GIGA-HARD</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        /* 拡大・フリーズ徹底防止 */
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
         body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 0; overflow: hidden; }
         
@@ -16,7 +15,6 @@
         .premium-box { border: 4px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255, 215, 0, 0.15); margin: 10px 0; width: 100%; max-width: 340px; box-shadow: 0 0 25px rgba(255, 215, 0, 0.4); }
         .gift-title { color: #ffd700; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px #000; margin: 5px 0; }
         
-        /* ※赤文字：ご指定の文言へ変更（サイズとバランス調整） */
         .target-rule { 
             color: #ff4d4d; 
             font-size: 16px; 
@@ -45,10 +43,11 @@
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; font-size: 15px; }
         .target-item { z-index: 9999 !important; font-weight: bold; }
         
-        .line-box { width: 12px; height: 35px; position: absolute; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        .full-line { width: 2px; height: 100%; background: #333; pointer-events: none; }
-        .broken-line-css { width: 2px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-        .broken-part { width: 100%; height: 35%; background: #333; }
+        /* ステージ10専用：少し太く分かりやすく改良 */
+        .line-box { width: 15px; height: 40px; position: absolute; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .full-line { width: 3px; height: 100%; background: #222; border-radius: 2px; pointer-events: none; }
+        .broken-line-css { width: 3px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+        .broken-part { width: 100%; height: 38%; background: #222; border-radius: 2px; }
 
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:22px; font-weight:bold; cursor:pointer; box-shadow: 0 6px 0 #8a2a35; }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold; margin-bottom: 15px; display: inline-block; }
@@ -148,7 +147,7 @@ window.onload = async () => {
         existingNames = data.map(d => d.name.trim());
         const list = document.getElementById('top10-list');
         list.innerHTML = `<div style="font-weight:bold; border-bottom:1px solid #fff; margin-bottom:8px; color:#ffd700;">👑 全国タイム TOP 10</div>` + 
-            data.slice(0, 10).map((entry, i) => `<div style="display:flex; justify-content:space-between; padding:2px 0;"><span>${i+1}. ${entry.name}</span><span>${entry.score}s</span></div>`).join('');
+            data.slice(0, 10).map((entry, i) => `<div style="display:flex; justify-content:space-between; padding:3px 0;"><span>${i+1}. ${entry.name}</span><span>${entry.score}s</span></div>`).join('');
     } catch(e) { console.log("Rank fetch failed"); }
 };
 
@@ -260,7 +259,11 @@ function createItem(content, isTarget, pos) {
     el.className = isTarget ? 'item target-item' : 'item';
     el.style.left = pos.x + "%";
     el.style.top = pos.y + "%";
-    if (content === "🔴" && isTarget) el.style.color = "#ffb3b3";
+    
+    // 梅干しとサクランボの色を極薄に設定
+    if ((content === "🔴" || content === "🍒") && isTarget) {
+        el.style.color = "#ffb3b3";
+    }
     el.innerText = content;
     if (isTarget) el.onclick = (e) => { e.stopPropagation(); handleFound(el); };
     field.appendChild(el);
