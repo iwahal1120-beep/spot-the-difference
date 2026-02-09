@@ -15,6 +15,7 @@
         .premium-box { border: 4px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255, 215, 0, 0.15); margin: 10px 0; width: 100%; max-width: 340px; box-shadow: 0 0 25px rgba(255, 215, 0, 0.4); }
         .gift-title { color: #ffd700; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px #000; margin: 5px 0; }
         
+        /* ※赤文字：法的クリーンなオープン懸賞の文言 */
         .target-rule { 
             color: #ff4d4d; 
             font-size: 16px; 
@@ -22,7 +23,7 @@
             background: white; 
             padding: 15px; 
             border-radius: 10px; 
-            margin: 15px 0; 
+            margin: 10px 0; 
             display: block; 
             line-height: 1.6; 
             width: 95%; 
@@ -32,7 +33,6 @@
         }
 
         .rules-list { text-align: left; font-size: 13px; line-height: 1.6; margin: 10px 0; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; width: 100%; max-width: 320px; border: 1px solid rgba(255,255,255,0.1); }
-        
         .tos-box { text-align: left; font-size: 10px; color: #aaa; margin-top: 20px; padding: 10px; border-top: 1px solid #333; width: 100%; max-width: 320px; }
 
         .header { padding: 5px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 10000; }
@@ -42,8 +42,6 @@
         
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; font-size: 17px; }
         .target-item { z-index: 9999 !important; font-weight: bold; }
-        
-        /* 鏡文字（裏返し）用のスタイル */
         .mirror { transform: scaleX(-1); }
 
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:22px; font-weight:bold; cursor:pointer; box-shadow: 0 6px 0 #8a2a35; }
@@ -61,14 +59,14 @@
     <div class="premium-box">
         <div style="font-size:12px;">2026年12月31日 0:00時点 タイム1位</div>
         <div class="gift-title">10万円分ギフト券</div>
-        <span class="target-rule">※順位対象者OFUSEに登録、募金は100円から可能です。順位は募金者より決定しますが、ニックネームを入れれば募金なしで遊ぶことも可能です。</span>
+        <span class="target-rule">※ランキング1位の方にギフト券を贈呈します。募金の有無に関わらず、どなたでも無料で10万円への挑戦が可能です。</span>
     </div>
 
-    <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">10万円を狙うなら！まず募金して参加🚀</a>
+    <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">プロジェクトを応援（任意・100円〜）🚀</a>
 
     <div class="rules-list">
         ⚫︎ スタートは20ゲームから始まり、毎週1ゲームが追加されます。<br>
-        ⚫︎ 募金時のニックネームと同じ名前で参加してください。
+        ⚫︎ どなたでも無料で参加可能。重複した名前は使用できません。
     </div>
 
     <div style="width: 100%; max-width: 320px;">
@@ -83,8 +81,9 @@
     <div class="tos-box">
         【利用規約・権利】<br>
         ・本ゲームの著作権、運営権は主催者に帰属します。<br>
-        ・10万円の贈呈はOFUSEでの募金履歴が確認できたタイム1位の方が対象です。<br>
-        ・不正が発覚した場合、順位は無効となります。
+        ・10万円の贈呈は、期間終了時にランキング1位の方（全参加者対象）が選出されます。<br>
+        ・募金は本活動への応援として任意で受け付けております。<br>
+        ・不正行為が確認された場合、記録は無効となります。
     </div>
 </div>
 
@@ -160,6 +159,7 @@ function getPlayableStages() {
 function startGame() {
     const input = document.getElementById('player-name').value.trim();
     if (!input) { alert("ニックネームを入力してください"); return; }
+    if (existingNames.includes(input)) { alert("その名前は既に使用されています"); return; }
     playerName = input;
     playableStages = getPlayableStages();
     document.getElementById('total-stg-num').innerText = playableStages.length;
@@ -219,7 +219,6 @@ function createMirrorStage(stage) {
         }
         createItem("あ", isT, {x: Math.random()*95, y: Math.random()*95}, isT);
     }
-    if(count < 5) initStage(); // 万が一5個出なかったら再生成
 }
 
 function createPandaStage(stage) {
@@ -240,15 +239,9 @@ function createItem(content, isTarget, pos, isMirror = false) {
     el.className = 'item';
     if (isTarget) el.classList.add('target-item');
     if (isMirror) el.classList.add('mirror');
-    
     el.style.left = pos.x + "%";
     el.style.top = pos.y + "%";
-    
-    // 特定のターゲットの色を極薄に設定
-    if ((content === "🔴" || content === "🍒") && isTarget) {
-        el.style.color = "#ffb3b3";
-    }
-    
+    if ((content === "🔴" || content === "🍒") && isTarget) el.style.color = "#ffb3b3";
     el.innerText = content;
     if (isTarget) el.onclick = (e) => { e.stopPropagation(); handleFound(el); };
     field.appendChild(el);
@@ -260,7 +253,7 @@ function handleFound(el) {
     pingSound.currentTime = 0;
     pingSound.play().catch(()=>{});
     el.style.transform = "scale(2.5) rotate(360deg)";
-    if(el.classList.contains('mirror')) el.style.transform += " scaleX(-1)"; // 鏡文字維持
+    if(el.classList.contains('mirror')) el.style.transform += " scaleX(-1)";
     el.style.opacity = "0.5";
     totalTimeScore += (msLeft / 100);
     foundCount++;
