@@ -40,14 +40,11 @@
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .inner-field { width: 98%; height: 98%; position: relative; }
         
-        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; font-size: 15px; }
+        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; font-size: 17px; }
         .target-item { z-index: 9999 !important; font-weight: bold; }
         
-        /* ステージ10専用：少し太く分かりやすく改良 */
-        .line-box { width: 15px; height: 40px; position: absolute; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        .full-line { width: 3px; height: 100%; background: #222; border-radius: 2px; pointer-events: none; }
-        .broken-line-css { width: 3px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-        .broken-part { width: 100%; height: 38%; background: #222; border-radius: 2px; }
+        /* 鏡文字（裏返し）用のスタイル */
+        .mirror { transform: scaleX(-1); }
 
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:22px; font-weight:bold; cursor:pointer; box-shadow: 0 6px 0 #8a2a35; }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold; margin-bottom: 15px; display: inline-block; }
@@ -127,7 +124,7 @@ const allStages = [
     { title: "7. 国旗（日米中露北）全部！", crowd: ["🌍","🌎","🌏"], target: "FLAGS", num: 1200, goals: 5 },
     { title: "8. 魚の群れから骨を探せ！", crowd: ["🐟","🐠","🐡"], target: "🦴", num: 1600 },
     { title: "9. 無数の星から梅干し！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 1800 },
-    { title: "10. 【断線】切れた縦線を5箇所！", target: "LINES", num: 350, goals: 5 },
+    { title: "10. 【難問】「あ」の中から裏返しを探せ！", crowd: ["あ"], target: "MIRROR_A", num: 500, goals: 5 },
     { title: "11. ビル群から鳥居を！", crowd: ["🏢","🏣","🏥"], target: "⛩", num: 1400 },
     { title: "12. リンゴからサクランボ！", crowd: ["🍎"], target: "🍒", num: 1400 },
     { title: "13. 葉っぱからイモムシ！", crowd: ["🍃","🌿","🌱"], target: "🐛", num: 1500 },
@@ -147,7 +144,7 @@ window.onload = async () => {
         existingNames = data.map(d => d.name.trim());
         const list = document.getElementById('top10-list');
         list.innerHTML = `<div style="font-weight:bold; border-bottom:1px solid #fff; margin-bottom:8px; color:#ffd700;">👑 全国タイム TOP 10</div>` + 
-            data.slice(0, 10).map((entry, i) => `<div style="display:flex; justify-content:space-between; padding:3px 0;"><span>${i+1}. ${entry.name}</span><span>${entry.score}s</span></div>`).join('');
+            data.slice(0, 10).map((entry, i) => `<div style="display:flex; justify-content:space-between; padding:2px 0;"><span>${i+1}. ${entry.name}</span><span>${entry.score}s</span></div>`).join('');
     } catch(e) { console.log("Rank fetch failed"); }
 };
 
@@ -184,8 +181,8 @@ function initStage() {
     timerDisp.innerText = "30.00";
     gameActive = true;
 
-    if (stage.target === "LINES") {
-        createLineStage(stage);
+    if (stage.target === "MIRROR_A") {
+        createMirrorStage(stage);
     } else if (stage.target === "DIFFERENT") {
         createPandaStage(stage);
     } else if (stage.target === "FINAL") {
@@ -212,33 +209,17 @@ function createNormalStage(stage) {
     }
 }
 
-function createLineStage(stage) {
-    let targetIndices = [];
-    while(targetIndices.length < 5) {
-        let r = Math.floor(Math.random() * stage.num);
-        if(!targetIndices.includes(r)) targetIndices.push(r);
-    }
-
+function createMirrorStage(stage) {
+    let count = 0;
     for (let i = 0; i < stage.num; i++) {
-        const box = document.createElement('div');
-        box.className = 'line-box';
-        box.style.left = Math.random() * 94 + "%";
-        box.style.top = Math.random() * 92 + "%";
-        
-        if (targetIndices.includes(i)) {
-            box.classList.add('target-item');
-            const inner = document.createElement('div');
-            inner.className = 'broken-line-css';
-            inner.innerHTML = `<div class="broken-part"></div><div class="broken-part"></div>`;
-            box.appendChild(inner);
-            box.onclick = (e) => { e.stopPropagation(); handleFound(box); };
-        } else {
-            const inner = document.createElement('div');
-            inner.className = 'full-line';
-            box.appendChild(inner);
+        let isT = false;
+        if (count < 5 && Math.random() < 0.04) {
+            isT = true;
+            count++;
         }
-        field.appendChild(box);
+        createItem("あ", isT, {x: Math.random()*95, y: Math.random()*95}, isT);
     }
+    if(count < 5) initStage(); // 万が一5個出なかったら再生成
 }
 
 function createPandaStage(stage) {
@@ -254,16 +235,20 @@ function createPandaStage(stage) {
     }
 }
 
-function createItem(content, isTarget, pos) {
+function createItem(content, isTarget, pos, isMirror = false) {
     const el = document.createElement('span');
-    el.className = isTarget ? 'item target-item' : 'item';
+    el.className = 'item';
+    if (isTarget) el.classList.add('target-item');
+    if (isMirror) el.classList.add('mirror');
+    
     el.style.left = pos.x + "%";
     el.style.top = pos.y + "%";
     
-    // 梅干しとサクランボの色を極薄に設定
+    // 特定のターゲットの色を極薄に設定
     if ((content === "🔴" || content === "🍒") && isTarget) {
         el.style.color = "#ffb3b3";
     }
+    
     el.innerText = content;
     if (isTarget) el.onclick = (e) => { e.stopPropagation(); handleFound(el); };
     field.appendChild(el);
@@ -275,6 +260,7 @@ function handleFound(el) {
     pingSound.currentTime = 0;
     pingSound.play().catch(()=>{});
     el.style.transform = "scale(2.5) rotate(360deg)";
+    if(el.classList.contains('mirror')) el.style.transform += " scaleX(-1)"; // 鏡文字維持
     el.style.opacity = "0.5";
     totalTimeScore += (msLeft / 100);
     foundCount++;
