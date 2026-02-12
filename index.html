@@ -17,10 +17,9 @@
         
         .target-rule { color: #ff4d4d; font-size: 15px; font-weight: bold; background: white; padding: 12px; border-radius: 10px; margin: 10px 0; display: block; line-height: 1.5; width: 95%; box-sizing: border-box; text-align: left; }
 
-        /* 応援プランのデザイン */
         .donation-area { width: 100%; max-width: 340px; margin-bottom: 15px; }
-        .support-plans { background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 10px; margin-top: 5px; font-size: 11px; color: #ffcc00; text-align: left; border: 1px dashed #ed6c00; }
-        .support-plans b { color: #fff; border-bottom: 1px solid #ffcc00; margin-bottom: 2px; display: inline-block; }
+        .btn-ofuse-top { background: #ed6c00; color: white; padding: 10px; border-radius: 8px; text-decoration: none; font-size: 15px; font-weight: bold; display: block; margin-bottom: 5px;}
+        .support-plans { background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 10px; font-size: 11px; color: #ffcc00; text-align: left; border: 1px dashed #ed6c00; }
 
         .input-group { width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-bottom: 15px; box-sizing: border-box; }
         input { padding:12px; font-size:16px; border-radius:8px; width:100%; text-align:center; margin-bottom:10px; border:none; box-sizing:border-box; }
@@ -32,16 +31,16 @@
         
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; font-size: 18px; }
         .target-item { z-index: 9999 !important; }
+        .mirror { transform: scaleX(-1); }
         
         @keyframes rotate-spiral { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .spiral-mode { animation: rotate-spiral 20s linear infinite; font-size: 400px !important; width: 400px !important; height: 400px !important; left: calc(50% - 200px) !important; top: calc(50% - 200px) !important; color: #333; opacity: 0.8; pointer-events: none; }
-        .break-line { width: 15px; height: 15px; background: #fff; border-radius: 50%; z-index: 10000 !important; cursor: pointer; }
+        .break-line { width: 18px; height: 18px; background: #fff; border-radius: 50%; z-index: 10000 !important; cursor: pointer; border: 1px solid #ccc;}
 
         @keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
         .shaking { animation: glitch 0.2s infinite; }
 
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; cursor:pointer; box-shadow: 0 6px 0 #8a2a35; }
-        .btn-ofuse-top { background: #ed6c00; color: white; padding: 10px; border-radius: 8px; text-decoration: none; font-size: 15px; font-weight: bold; display: block; }
     </style>
 </head>
 <body>
@@ -61,23 +60,18 @@
         <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">活動を応援して10万円に挑戦！🚀</a>
         <div class="support-plans">
             <b>応援プランの例 (任意):</b><br>
-            ☕️ コーヒー1杯分 (100円〜) ：まずはお試し！<br>
-            🍱 ランチ1回分 (1,000円〜) ：開発の強い支えに！<br>
-            🔥 情熱の応援 (3,000円〜) ：特大の感謝を込めて！
+            ☕️ コーヒー1杯分 (100円〜) ／ 🍱 ランチ1回分 (1,000円〜) ／ 🔥 情熱の応援 (3,000円〜)
         </div>
     </div>
 
     <div class="input-group">
-        <input type="text" id="player-name" placeholder="ニックネーム (最大10文字)" maxlength="10">
-        <input type="password" id="player-pass" placeholder="確認用パスワード (数字4桁)" maxlength="4" inputmode="numeric">
+        <input type="text" id="player-name" placeholder="ニックネーム" maxlength="10">
+        <input type="password" id="player-pass" placeholder="パスワード (数字4桁)" maxlength="4" inputmode="numeric">
         <button onclick="startGame()" class="btn">挑戦を開始する！🏆</button>
     </div>
 
     <div id="top10-list" style="width:100%; max-width:320px; margin-top:10px; font-size:13px; background:rgba(255,255,255,0.1); padding:10px; border-radius:10px;">読み込み中...</div>
-    
-    <div style="font-size:10px; color:#aaa; margin-top:10px; text-align:left; width:100%; max-width:320px;">
-        【重要】1位確定時、OFUSEのファンレター機能から「ニックネーム・パスワード」を添えて申告いただくことで本人確認を行います。
-    </div>
+    <div style="font-size:10px; color:#aaa; margin-top:10px; text-align:left; width:100%; max-width:320px;">1位確定時、OFUSEのファンレター機能から申告いただくことで本人確認を行います。</div>
 </div>
 
 <div class="header">
@@ -131,7 +125,7 @@ const allStages = [
     { title: "23. 【進化】ヒヨコを5匹！", crowd: ["🥚"], target: "CHICK", num: 300, goals: 5, special: "evolve" },
     { title: "24. 【定番】💩の中にアイス5個", crowd: ["💩"], target: "🍦", num: 1500, goals: 5 },
     { title: "25. 【激難】目が回る！断線5箇所", crowd: ["🌀"], target: "SPIRAL_BREAK", num: 1, goals: 5, special: "spiral" },
-    { title: "FINAL STAGE", crowd: [], target: "FINAL", num: 0 }
+    { title: "FINAL", crowd: [], target: "FINAL", num: 0 }
 ];
 
 window.onload = async () => {
@@ -149,7 +143,7 @@ function startGame() {
     playerName = document.getElementById('player-name').value.trim();
     playerPass = document.getElementById('player-pass').value.trim();
     if (!playerName || playerPass.length < 4) { alert("名前と4桁のパスワードを入力してください"); return; }
-    if (existingNames.includes(playerName)) { alert("その名前は使用されています"); return; }
+    if (existingNames.includes(playerName)) { alert("その名前は既に使用されています"); return; }
     playableStages = getPlayableStages();
     document.getElementById('total-stg-num').innerText = playableStages.length;
     document.getElementById('start-screen').style.display = 'none';
@@ -176,6 +170,7 @@ function initStage() {
     msLeft = 3000;
     timerDisp.style.color = "#fff";
     gameActive = true;
+
     if (stage.special === "scary") { document.getElementById('game-bg').style.background = "#000"; }
     if (stage.target === "FINAL") { showFinalScreen(); }
     else if (stage.special === "spiral") { createSpiralStage(); }
@@ -189,47 +184,66 @@ function createSpiralStage() {
     spiral.innerText = "🌀";
     field.appendChild(spiral);
     for (let i = 0; i < 5; i++) {
-        const breakLine = document.createElement('span');
-        breakLine.className = 'item break-line';
-        const angle = Math.random() * Math.PI * 2;
-        const radius = 30 + Math.random() * 120;
-        breakLine.style.left = `calc(50% + ${Math.cos(angle) * radius}px)`;
-        breakLine.style.top = `calc(50% + ${Math.sin(angle) * radius}px)`;
-        breakLine.onclick = () => handleFound(breakLine);
-        field.appendChild(breakLine);
+        const bl = document.createElement('span');
+        bl.className = 'item break-line';
+        const a = Math.random() * Math.PI * 2;
+        const r = 40 + Math.random() * 110;
+        bl.style.left = `calc(50% + ${Math.cos(a) * r}px)`;
+        bl.style.top = `calc(50% + ${Math.sin(a) * r}px)`;
+        bl.onclick = () => handleFound(bl);
+        field.appendChild(bl);
     }
 }
 
 function createStageItems(stage) {
     let tCount = 0;
     const maxT = stage.goals || 1;
-    const targets = stage.target === "FLAGS" ? ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"] : [];
-    for (let i = 0; i < stage.num; i++) {
-        let content = stage.crowd[Math.floor(Math.random() * stage.crowd.length)];
-        let isT = false;
-        if (stage.target === "FLAGS" && targets.length > 0 && Math.random() < 0.05) {
-            content = targets.pop(); isT = true;
-        } else if (tCount < maxT && Math.random() < 0.03) {
-            isT = true; tCount++;
-            content = (stage.target === "MIRROR_A") ? "あ" : (stage.target === "SHAKE") ? "🟦" : (stage.target === "DIFFERENT") ? ["🐨", "🐻‍❄️"][Math.floor(Math.random()*2)] : stage.target;
+    let targets = [];
+    
+    // ステージ7のターゲット（国旗）を個別に定義してバグ回避
+    if(stage.target === "FLAGS") {
+        targets = ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"];
+    } else {
+        for(let j=0; j<maxT; j++) {
+            if(stage.target === "MIRROR_A") targets.push("あ");
+            else if(stage.target === "SHAKE") targets.push("🟦");
+            else if(stage.target === "DIFFERENT") targets.push(["🐨", "🐻‍❄️"][Math.floor(Math.random()*2)]);
+            else targets.push(stage.target);
         }
-        const el = document.createElement('span');
-        el.className = 'item';
-        if (isT) el.classList.add('target-item');
-        if (stage.target === "MIRROR_A" && isT) el.classList.add('mirror');
-        if (stage.target === "SHAKE" && isT) el.classList.add('shaking');
-        el.style.left = Math.random() * 95 + "%";
-        el.style.top = Math.random() * 95 + "%";
-        if ((content === "🔴" || content === "🍒") && isT) el.style.color = "#ffb3b3";
-        if (stage.special === "scary" && !isT) el.style.opacity = "0.2";
-        el.innerText = content;
-        if (isT) el.onclick = (e) => handleFound(el);
-        if (stage.special === "evolve" && isT) {
-            el.innerText = "🥚";
-            setInterval(() => { if(!el.dataset.clicked) el.innerText = (el.innerText === "🥚") ? "🐥" : "🥚"; }, 800 + Math.random() * 1000);
-        }
-        field.appendChild(el);
     }
+
+    // ターゲットの配置
+    targets.forEach(tChar => {
+        createItem(tChar, true, {x: 5 + Math.random() * 90, y: 5 + Math.random() * 90}, stage);
+    });
+
+    // モブの配置
+    for (let i = 0; i < stage.num; i++) {
+        const char = stage.crowd[Math.floor(Math.random() * stage.crowd.length)];
+        createItem(char, false, {x: Math.random()*98, y: Math.random()*98}, stage);
+    }
+}
+
+function createItem(content, isTarget, pos, stage) {
+    const el = document.createElement('span');
+    el.className = 'item';
+    if (isTarget) el.classList.add('target-item');
+    if (stage.target === "MIRROR_A" && isTarget) el.classList.add('mirror');
+    if (stage.target === "SHAKE" && isTarget) el.classList.add('shaking');
+    
+    el.style.left = pos.x + "%";
+    el.style.top = pos.y + "%";
+    if ((content === "🔴" || content === "🍒") && isTarget) el.style.color = "#ffb3b3";
+    if (stage.special === "scary" && !isTarget) el.style.opacity = "0.2";
+    
+    el.innerText = content;
+    if (isTarget) el.onclick = (e) => { e.stopPropagation(); handleFound(el); };
+    
+    if (stage.special === "evolve" && isTarget) {
+        el.innerText = "🥚";
+        setInterval(() => { if(!el.dataset.clicked) el.innerText = (el.innerText === "🥚") ? "🐥" : "🥚"; }, 800 + Math.random() * 1000);
+    }
+    field.appendChild(el);
 }
 
 function handleFound(el) {
