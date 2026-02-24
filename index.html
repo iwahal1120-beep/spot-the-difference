@@ -3,169 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-    <title>Search Challenge GIGA-HARD</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>10万円争奪：Search Challenge GIGA-HARD</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
-        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
-        .premium-box { border: 4px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 10px 0; width: 100%; max-width: 340px; }
-        .target-rule { color: #333; font-size: 13px; background: white; padding: 15px; border-radius: 10px; margin: 10px 0; line-height: 1.6; text-align: left; border-left: 5px solid #ffd700; width: 95%; box-sizing: border-box; }
-        .input-group { width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; }
-        input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; border:none; box-sizing:border-box; }
-        .header { background: #d44d5c; color: white; height: 110px; padding: 5px; }
-        #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 20px; }
-        .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; }
-        .item { position: absolute; cursor: pointer; user-select: none; width: 26px; height: 26px; font-size: 22px; display: flex; align-items: center; justify-content: center; }
+        body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 0; overflow: hidden; }
+        
+        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        
+        .premium-box { border: 4px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255, 215, 0, 0.15); margin: 10px 0; width: 100%; max-width: 340px; box-shadow: 0 0 25px rgba(255, 215, 0, 0.4); }
+        .gift-title { color: #ffd700; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px #000; margin: 5px 0; }
+        
+        /* 規約：指定のカード形式 */
+        .target-rule { color: #333; font-size: 13px; font-weight: normal; background: #fff; padding: 15px; border-radius: 10px; margin: 10px 0; line-height: 1.6; width: 95%; box-sizing: border-box; text-align: left; border-left: 5px solid #ffd700; }
+        .rule-bold { color: #ff4d4d; font-weight: bold; }
+
+        .input-group { width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-bottom: 15px; box-sizing: border-box; }
+        input { padding:12px; font-size:16px; border-radius:8px; width:100%; text-align:center; margin-bottom:10px; border:none; box-sizing:border-box; }
+
+        .header { padding: 5px; background: #d44d5c; color: white; height: 110px; box-sizing: border-box; border-bottom: 3px solid #b33a47; position: relative; z-index: 10000; }
+        #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 5px; min-width: 65px; display: inline-block; font-variant-numeric: tabular-nums; }
+        .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
+        .inner-field { width: 98%; height: 98%; position: relative; margin: auto; }
+        
+        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; font-size: 18px; }
+        .target-item { z-index: 9999 !important; }
         .mirror { transform: scaleX(-1); }
-        .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; }
+
+        .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; cursor:pointer; box-shadow: 0 6px 0 #8a2a35; }
     </style>
 </head>
 <body>
-<audio id="s-ping" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+
+<audio id="sound-pingpong" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
 <div id="start-screen">
-    <h2 style="color:#ffd700;">Search Challenge!</h2>
+    <h2 style="color:#ffd700; margin-bottom:5px;">Search Challenge!</h2>
     <div class="premium-box">
-        <div style="color:#ffd700; font-size:24px; font-weight:bold;">10万円分ギフト券</div>
-        <div class="target-rule">
-            【参加規約】<br>
-            ・本ゲームはどなたでも無料で挑戦可能です。<br>
-            ・1位入賞時の本人確認に<span style="color:red;font-weight:bold;">パスワード</span>を使用します。忘れないようメモしてください。<br>
-            ・不正ツール使用等は記録が無効となります。
-        </div>
+        <div style="font-size:12px;">2026年12月31日時点 ランキング1位</div>
+        <div class="gift-title">10万円分ギフト券</div>
     </div>
+
+    <div class="target-rule">
+        【参加規約】<br>
+        ・本ゲームはどなたでも無料で挑戦可能です。<br>
+        ・1位入賞時の本人確認に<span class="rule-bold">パスワード</span>を使用します。忘れないようメモしてください。<br>
+        ・不正ツール等の使用が発覚した場合は、記録が無効となります。
+    </div>
+
     <div class="input-group">
-        <input type="text" id="p-name" placeholder="名前 (10文字以内)">
-        <input type="password" id="p-pass" placeholder="パスワード (数字4桁)">
+        <input type="text" id="player-name" placeholder="名前 (最大10文字)" maxlength="10">
+        <input type="password" id="player-pass" placeholder="パスワード (数字4桁)" maxlength="4" inputmode="numeric">
         <button onclick="startGame()" class="btn">挑戦を開始する！🏆</button>
     </div>
+
+    <div id="top10-list" style="width:100%; max-width:320px; margin-top:10px; font-size:13px; background:rgba(255,255,255,0.1); padding:10px; border-radius:10px;">ランキング取得中...</div>
 </div>
 
 <div class="header">
-    <div id="stg-desc" style="font-weight:bold; font-size:18px;">Ready...</div>
-    <div style="margin-top:5px;">
-        残り: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/25
+    <div class="main-title">募金 & Challenge！</div>
+    <div id="stg-desc">Ready...</div>
+    <div class="status-bar">
+        <div>残り: <span id="timer">30.00</span></div>
+        <div>ステージ: <span id="stage-num">1</span>/25</div>
     </div>
 </div>
-<div class="game-area" id="field"></div>
+
+<div class="game-area" id="game-bg">
+    <div id="inner-field" class="inner-field"></div>
+</div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzvFsfk4Zp48AyJgQccCOQMX911-Itey8Sc8VH9ehnSF7J7PDpkPNayzijuO5BOBEQKaw/exec";
-let cur = 0, ms = 3000, tid = null, active = false, found = 0, score = 0, pName, pPass;
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzvFsfk4Zp48AyJgQccCOQMX911-Itey8Sc8VH9ehnSF7J7PDpkPNayzijuO5BOBEQKaw/exec"; 
 
-const stages = [
-    { t: "1. 動物から人間！", c: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], g: "🙋‍♂️", n: 1000 },
-    { t: "2. 人間から猫！", c: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️"], g: "🐱", n: 1200 },
-    { t: "3. 渋滞から自転車！", c: ["🚗","🚕","🚙","🚌","🏎"], g: "🚲", n: 1200 },
-    { t: "4. お菓子からクッキー！", c: ["🍬","🍭","🍫","🍩","🍮"], g: "🍪", n: 1200 },
-    { t: "5. 金貨の山から銀貨！", c: ["💰"], g: "🔘", n: 1400 },
-    { t: "6. ピエロを探せ！", c: ["👩","👱‍♀️","💃"], g: "🤡", n: 1300 },
-    { t: "7. 国旗（日米中露北）！", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 1000, goals: 5 },
-    { t: "8. 魚から骨！", c: ["🐟","🐠","🐡"], g: "🦴", n: 1400 },
-    { t: "9. 無数の星から梅干し！", c: ["✨","⭐","🌟"], g: "🔴", n: 1600 },
-    { t: "10. 「あ」を5個！", c: ["あ"], g: "MIRROR_A", n: 350, goals: 5 },
-    { t: "11. ビルから鳥居！", c: ["🏢","🏣","🏥"], g: "⛩", n: 1200 },
-    { t: "12. リンゴからサクランボ！", c: ["🍎"], g: "🍒", n: 1200 },
-    { t: "13. 葉っぱからイモムシ！", c: ["🍃","🌿","🌱"], g: "🐛", n: 1300 },
-    { t: "14. スポーツから優勝杯！", c: ["⚽","🏀","⚾"], g: "🏆", n: 1200 },
-    { t: "15. 月からバナナ！", c: ["🌙"], g: "🍌", n: 1400 },
-    { t: "16. 違う動物を5匹！", c: ["🐼"], g: "DIFFERENT", n: 500, goals: 5 },
-    { t: "17. イカからタコ！", c: ["🦑"], g: "🐙", n: 1300 },
-    { t: "18. 星空に潜むUFO！", c: ["✨","⭐","🌟"], g: "🛸", n: 1600 },
-    { t: "19. 💩の中からアイス！", c: ["💩"], g: "🍦", n: 1200 },
-    { t: "20. 開いている目5つ", c: ["😑"], g: "👁️", n: 1000, goals: 5 },
-    { t: "21. おじさんの中に美女5人", c: ["🧔"], g: "💃", n: 1000, goals: 5 },
-    { t: "22. 震えるブロック5つ", c: ["🟦"], g: "SHAKE", n: 400, goals: 5 },
-    { t: "23. ヒヨコを5匹！", c: ["🥚"], g: "CHICK", n: 300, goals: 5 },
-    { t: "24. 💩の中にアイス5個", c: ["💩"], g: "🍦", n: 1500, goals: 5 },
-    { t: "25. 断線5箇所を探せ", c: ["🌀"], g: "BREAK", n: 1, goals: 5 },
-    { t: "FINAL", g: "FINAL" }
+let currentStage = 0, msLeft = 3000, timerId = null, gameActive = false, foundCount = 0;
+let totalTimeScore = 0, playerName = "", playerPass = "";
+let existingNames = [];
+
+const field = document.getElementById('inner-field');
+const timerDisp = document.getElementById('timer');
+const pingSound = document.getElementById('sound-pingpong');
+
+const allStages = [
+    { title: "1. 動物から人間！", crowd: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], target: "🙋‍♂️", num: 1000 },
+    { title: "2. 人間から猫！", crowd: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️"], target: "🐱", num: 1200 },
+    { title: "3. 渋滞から自転車！", crowd: ["🚗","🚕","🚙","🚌","🏎"], target: "🚲", num: 1200 },
+    { title: "4. お菓子からクッキー！", crowd: ["🍬","🍭","🍫","🍩","🍮"], target: "🍪", num: 1200 },
+    { title: "5. 金貨の山から銀貨！", crowd: ["💰"], target: "🔘", num: 1400 },
+    { title: "6. ピエロを探せ！", crowd: ["👩","👱‍♀️","💃"], target: "🤡", num: 1300 },
+    { title: "7. 国旗（日米中露北）！", crowd: ["🌍","🌎","🌏"], target: "FLAGS", num: 1000, goals: 5 },
+    { title: "8. 魚から骨！", crowd: ["🐟","🐠","🐡"], target: "🦴", num: 1400 },
+    { title: "9. 無数の星から梅干し！", crowd: ["✨","⭐","🌟"], target: "🔴", num: 1600 },
+    { title: "10. 「あ」を5個見つけろ！", crowd: ["あ"], target: "MIRROR_A", num: 350, goals: 5 },
+    { title: "11. ビルから鳥居！", crowd: ["🏢","🏣","🏥"], target: "⛩", num: 1200 },
+    { title: "12. 🍎から🍒！", crowd: ["🍎"], target: "🍒", num: 1200 },
+    { title: "13. 🍃から🐛！", crowd: ["🍃","🌱"], target: "🐛", num: 1300 },
+    { title: "14. スポーツから🏆！", crowd: ["⚽","🏀","⚾"], target: "🏆", num: 1200 },
+    { title: "15. 月から🍌！", crowd: ["🌙"], target: "🍌", num: 1400 },
+    { title: "16. 違う動物を5匹！", crowd: ["🐼"], target: "DIFFERENT", num: 500, goals: 5 },
+    { title: "17. イカからタコ！", crowd: ["🦑"], target: "🐙", num: 1300 },
+    { title: "18. 星空に潜むUFO！", crowd: ["✨","⭐","🌟"], target: "🛸", num: 1600 },
+    { title: "19. 💩の中から🍦！", crowd: ["💩"], target: "🍦", num: 1200 },
+    { title: "20. 開いている目5つ", crowd: ["😑"], target: "👁️", num: 1000, goals: 5 },
+    { title: "21. 美女を5人！", crowd: ["🧔"], target: "💃", num: 1000, goals: 5 },
+    { title: "22. 震えるブロック5つ", crowd: ["🟦"], target: "SHAKE", num: 400, goals: 5 },
+    { title: "23. ヒヨコを5匹！", crowd: ["🥚"], target: "CHICK", num: 300, goals: 5 },
+    { title: "24. 💩の中の🍦5個", crowd: ["💩"], target: "🍦", num: 1500, goals: 5 },
+    { title: "25. 断線箇所を探せ", crowd: ["🌀"], target: "BREAK", num: 1, goals: 5 },
+    { title: "FINAL", target: "FINAL" }
 ];
 
+window.onload = async () => {
+    try {
+        const res = await fetch(GAS_URL);
+        const data = await res.json();
+        existingNames = data.map(d => d.name.trim());
+        document.getElementById('top10-list').innerHTML = data.slice(0, 10).map((e, i) => `<div>${i+1}. ${e.name} ${e.score}s</div>`).join('');
+    } catch(e) {}
+};
+
 function startGame() {
-    pName = document.getElementById('p-name').value.trim();
-    pPass = document.getElementById('p-pass').value.trim();
-    if(!pName || pPass.length<4) return alert("名前と4桁パスを入力！");
-    document.getElementById('start-screen').style.display='none';
-    init();
+    playerName = document.getElementById('player-name').value.trim();
+    playerPass = document.getElementById('player-pass').value.trim();
+    if (!playerName || playerPass.length < 4) { alert("入力が不十分です"); return; }
+    document.getElementById('start-screen').style.display = 'none';
+    initStage();
 }
 
-function init() {
-    const f = document.getElementById('field'); f.innerHTML = "";
-    found = 0; active = true; ms = 3000; // 30秒 (10ms単位でカウントするため3000)
-    const s = stages[cur];
-    if(s.g === "FINAL") return end();
+function initStage() {
+    field.innerHTML = ""; foundCount = 0; gameActive = true;
+    const stage = allStages[currentStage];
+    if (stage.target === "FINAL") { showFinalScreen(); return; }
     
-    document.getElementById('stg-desc').innerText = s.t;
-    document.getElementById('stg-n').innerText = cur + 1;
+    document.getElementById('stg-desc').innerText = stage.title;
+    document.getElementById('stage-num').innerText = currentStage + 1;
+    msLeft = 3000;
     
-    const mt = s.goals || 1;
+    const mt = stage.goals || 1;
     const flags = ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"];
-    
-    // まずターゲットを配置
-    for(let j=0; j<mt; j++) {
+
+    // ターゲットの生成
+    for (let j = 0; j < mt; j++) {
         const el = document.createElement('span');
         el.className = 'item target-item';
-        let txt = s.g;
-        if(s.g === "FLAGS") txt = flags[j];
-        if(s.g === "MIRROR_A") { txt = "あ"; el.classList.add('mirror'); }
-        if(s.g === "DIFFERENT") txt = ["🐨", "🐻‍❄️"][Math.floor(Math.random()*2)];
-        
+        let txt = stage.target;
+        if(stage.target === "FLAGS") txt = flags[j];
+        if(stage.target === "MIRROR_A") { txt = "あ"; el.classList.add('mirror'); }
+        if(stage.target === "DIFFERENT") txt = "🐨";
+
         el.innerText = txt;
-        el.style.left = Math.random()*90 + 5 + "%";
-        el.style.top = Math.random()*90 + 5 + "%";
-        el.style.zIndex = 100;
-        
+        el.style.left = Math.random() * 90 + 4 + "%";
+        el.style.top = Math.random() * 90 + 4 + "%";
         el.onclick = () => {
-            if(!active || el.style.opacity === "0") return;
-            document.getElementById('s-ping').currentTime = 0;
-            document.getElementById('s-ping').play().catch(()=>{});
-            el.style.opacity = "0";
-            found++;
-            score += (ms / 100);
-            if(found >= mt) {
-                active = false;
+            if(!gameActive || el.style.opacity === "0") return;
+            pingSound.currentTime = 0; pingSound.play().catch(()=>{});
+            el.style.opacity = "0"; foundCount++;
+            totalTimeScore += (msLeft / 100);
+            if (foundCount >= mt) {
+                gameActive = false;
                 confetti();
-                setTimeout(() => { cur++; init(); }, 600);
+                setTimeout(() => { currentStage++; initStage(); }, 600);
             }
         };
-        f.appendChild(el);
+        field.appendChild(el);
     }
 
-    // 次に邪魔なアイテムを配置
-    for(let i=0; i<s.n; i++) {
+    // 邪魔なアイテムの生成
+    for (let i = 0; i < stage.num; i++) {
         const el = document.createElement('span');
         el.className = 'item';
-        el.innerText = s.c[Math.floor(Math.random()*s.c.length)];
-        el.style.left = Math.random()*95+"%";
-        el.style.top = Math.random()*95+"%";
-        f.appendChild(el);
+        el.innerText = stage.crowd[Math.floor(Math.random()*stage.crowd.length)];
+        el.style.left = Math.random() * 95 + "%";
+        el.style.top = Math.random() * 95 + "%";
+        field.appendChild(el);
     }
-    
-    if(!tid) {
-        tid = setInterval(() => {
-            if(active) {
-                ms--;
-                document.getElementById('timer').innerText = (ms/100).toFixed(2);
-                if(ms <= 0) {
-                    active = false;
-                    alert("TIME UP! スコア: " + score.toFixed(2));
-                    location.reload();
+
+    if(!timerId) {
+        timerId = setInterval(() => {
+            if(gameActive) {
+                msLeft--;
+                timerDisp.innerText = (msLeft / 100).toFixed(2);
+                if(msLeft <= 0) { 
+                    gameActive = false;
+                    location.reload(); // 失敗したら即トップへ
                 }
             }
         }, 10);
     }
 }
 
-async function end() {
-    active = false;
-    clearInterval(tid);
-    document.getElementById('field').innerHTML = "<h2>全クリア！送信中...</h2>";
-    try {
-        await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({name:pName, score:score.toFixed(2), pass:pPass}) });
-        alert("送信完了！");
-    } catch(e) {}
+async function showFinalScreen() {
+    clearInterval(timerId);
+    field.innerHTML = "<h2>記録送信中...</h2>";
+    await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({name: playerName, score: totalTimeScore.toFixed(2), pass: playerPass}) });
     location.reload();
 }
 </script>
