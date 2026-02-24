@@ -10,20 +10,20 @@
         body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .premium-box { border: 4px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 10px 0; width: 100%; max-width: 340px; }
-        /* 規約修正：見やすくカード形式に変更 */
         .target-rule { color: #333; font-size: 13px; background: white; padding: 15px; border-radius: 10px; margin: 10px 0; line-height: 1.6; text-align: left; border-left: 5px solid #ffd700; width: 95%; box-sizing: border-box; }
         .input-group { width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; }
         input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; border:none; box-sizing:border-box; }
         .header { background: #d44d5c; color: white; height: 110px; padding: 5px; }
-        #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; }
+        #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 20px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; }
-        .item { position: absolute; cursor: pointer; user-select: none; width: 24px; height: 24px; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+        .item { position: absolute; cursor: pointer; user-select: none; width: 26px; height: 26px; font-size: 22px; display: flex; align-items: center; justify-content: center; }
         .mirror { transform: scaleX(-1); }
-        .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; box-shadow: 0 6px 0 #8a2a35; }
+        .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; }
     </style>
 </head>
 <body>
 <audio id="s-ping" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+
 <div id="start-screen">
     <h2 style="color:#ffd700;">Search Challenge!</h2>
     <div class="premium-box">
@@ -41,69 +41,132 @@
         <button onclick="startGame()" class="btn">挑戦を開始する！🏆</button>
     </div>
 </div>
+
 <div class="header">
-    <div id="stg-desc">Ready...</div>
-    <div>残り: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/25</div>
+    <div id="stg-desc" style="font-weight:bold; font-size:18px;">Ready...</div>
+    <div style="margin-top:5px;">
+        残り: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/25
+    </div>
 </div>
 <div class="game-area" id="field"></div>
+
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzvFsfk4Zp48AyJgQccCOQMX911-Itey8Sc8VH9ehnSF7J7PDpkPNayzijuO5BOBEQKaw/exec";
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, score = 0, pName, pPass;
+
 const stages = [
-    { t: "1. 動物から人間！", c: ["🐶","🐱","🐰"], g: "🙋‍♂️", n: 800 },
-    { t: "2. 人間から猫！", c: ["🧔","👵","👦"], g: "🐱", n: 1000 },
-    { t: "3. 渋滞から自転車！", c: ["🚗","🚕","🚙"], g: "🚲", n: 1000 },
-    { t: "4. お菓子からクッキー！", c: ["🍬","🍭","🍫"], g: "🍪", n: 1000 },
-    { t: "5. 金貨から銀貨！", c: ["💰"], g: "🔘", n: 1200 },
-    { t: "6. ピエロを探せ！", c: ["👩","👱‍♀️"], g: "🤡", n: 1100 },
-    { t: "7. 国旗を探せ！", c: ["🌍","🌏"], g: "FLAGS", n: 1000, goals: 5 },
-    { t: "8. 魚から骨！", c: ["🐟","🐡"], g: "🦴", n: 1200 },
-    { t: "9. 星から梅干し！", c: ["✨","⭐"], g: "🔴", n: 1400 },
-    /* 「あ」の難易度軽減：個数を350へ削減 */
+    { t: "1. 動物から人間！", c: ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯"], g: "🙋‍♂️", n: 1000 },
+    { t: "2. 人間から猫！", c: ["🧔","👵","👦","👧","👩‍🦰","👱‍♂️"], g: "🐱", n: 1200 },
+    { t: "3. 渋滞から自転車！", c: ["🚗","🚕","🚙","🚌","🏎"], g: "🚲", n: 1200 },
+    { t: "4. お菓子からクッキー！", c: ["🍬","🍭","🍫","🍩","🍮"], g: "🍪", n: 1200 },
+    { t: "5. 金貨の山から銀貨！", c: ["💰"], g: "🔘", n: 1400 },
+    { t: "6. ピエロを探せ！", c: ["👩","👱‍♀️","💃"], g: "🤡", n: 1300 },
+    { t: "7. 国旗（日米中露北）！", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 1000, goals: 5 },
+    { t: "8. 魚から骨！", c: ["🐟","🐠","🐡"], g: "🦴", n: 1400 },
+    { t: "9. 無数の星から梅干し！", c: ["✨","⭐","🌟"], g: "🔴", n: 1600 },
     { t: "10. 「あ」を5個！", c: ["あ"], g: "MIRROR_A", n: 350, goals: 5 },
-    { t: "11. ビルから鳥居！", c: ["🏢","🏥"], g: "⛩", n: 1100 },
-    { t: "12. 🍎から🍒！", c: ["🍎"], g: "🍒", n: 1100 },
-    { t: "13. 葉っぱから🐛！", c: ["🍃","🌱"], g: "🐛", n: 1100 },
-    { t: "14. スポーツから🏆！", c: ["⚽","⚾"], g: "🏆", n: 1100 },
-    { t: "15. 月から🍌！", c: ["🌙"], g: "🍌", n: 1300 },
-    { t: "16. 違う動物を5匹！", c: ["🐼"], g: "DIFFERENT", n: 400, goals: 5 },
-    { t: "17. イカからタコ！", c: ["🦑"], g: "🐙", n: 1200 },
-    { t: "18. 星空に潜むUFO！", c: ["✨","🌟"], g: "🛸", n: 1400 },
-    { t: "19. 💩の中から🍦！", c: ["💩"], g: "🍦", n: 1100 },
-    { t: "20. 開いた目5つ", c: ["😑"], g: "👁️", n: 800, goals: 5 },
-    { t: "21. 美女5人を！", c: ["🧔"], g: "💃", n: 800, goals: 5 },
-    { t: "22. 震えるブロック", c: ["🟦"], g: "SHAKE", n: 350, goals: 5 },
-    { t: "23. ヒヨコ5匹！", c: ["🥚"], g: "CHICK", n: 250, goals: 5 },
-    { t: "24. 💩の中に🍦5個", c: ["💩"], g: "🍦", n: 1300, goals: 5 },
+    { t: "11. ビルから鳥居！", c: ["🏢","🏣","🏥"], g: "⛩", n: 1200 },
+    { t: "12. リンゴからサクランボ！", c: ["🍎"], g: "🍒", n: 1200 },
+    { t: "13. 葉っぱからイモムシ！", c: ["🍃","🌿","🌱"], g: "🐛", n: 1300 },
+    { t: "14. スポーツから優勝杯！", c: ["⚽","🏀","⚾"], g: "🏆", n: 1200 },
+    { t: "15. 月からバナナ！", c: ["🌙"], g: "🍌", n: 1400 },
+    { t: "16. 違う動物を5匹！", c: ["🐼"], g: "DIFFERENT", n: 500, goals: 5 },
+    { t: "17. イカからタコ！", c: ["🦑"], g: "🐙", n: 1300 },
+    { t: "18. 星空に潜むUFO！", c: ["✨","⭐","🌟"], g: "🛸", n: 1600 },
+    { t: "19. 💩の中からアイス！", c: ["💩"], g: "🍦", n: 1200 },
+    { t: "20. 開いている目5つ", c: ["😑"], g: "👁️", n: 1000, goals: 5 },
+    { t: "21. おじさんの中に美女5人", c: ["🧔"], g: "💃", n: 1000, goals: 5 },
+    { t: "22. 震えるブロック5つ", c: ["🟦"], g: "SHAKE", n: 400, goals: 5 },
+    { t: "23. ヒヨコを5匹！", c: ["🥚"], g: "CHICK", n: 300, goals: 5 },
+    { t: "24. 💩の中にアイス5個", c: ["💩"], g: "🍦", n: 1500, goals: 5 },
     { t: "25. 断線5箇所を探せ", c: ["🌀"], g: "BREAK", n: 1, goals: 5 },
     { t: "FINAL", g: "FINAL" }
 ];
+
 function startGame() {
-    pName = document.getElementById('p-name').value; pPass = document.getElementById('p-pass').value;
+    pName = document.getElementById('p-name').value.trim();
+    pPass = document.getElementById('p-pass').value.trim();
     if(!pName || pPass.length<4) return alert("名前と4桁パスを入力！");
-    document.getElementById('start-screen').style.display='none'; init();
+    document.getElementById('start-screen').style.display='none';
+    init();
 }
+
 function init() {
-    const f = document.getElementById('field'); f.innerHTML = ""; found = 0; active = true; ms = 3000;
-    const s = stages[cur]; if(s.g === "FINAL") return end();
-    document.getElementById('stg-desc').innerText = s.t; document.getElementById('stg-n').innerText = cur + 1;
-    let tc = 0; const mt = s.goals || 1;
-    for(let i=0; i<s.n; i++) {
-        const el = document.createElement('span'); el.className = 'item';
-        let isT = (tc < mt && Math.random() < 0.05);
-        el.innerText = isT ? (s.g === "MIRROR_A" ? "あ" : s.g) : s.c[Math.floor(Math.random()*s.c.length)];
-        if(isT) { tc++; if(s.g==="MIRROR_A") el.classList.add('mirror'); el.onclick = () => {
-            if(!active) return; found++; score += ms/100; el.style.opacity = 0; document.getElementById('s-ping').play();
-            if(found >= mt) { active=false; confetti(); setTimeout(()=>{cur++; init();}, 600); }
-        }; }
-        el.style.left = Math.random()*92+"%"; el.style.top = Math.random()*92+"%"; f.appendChild(el);
+    const f = document.getElementById('field'); f.innerHTML = "";
+    found = 0; active = true; ms = 3000; // 30秒 (10ms単位でカウントするため3000)
+    const s = stages[cur];
+    if(s.g === "FINAL") return end();
+    
+    document.getElementById('stg-desc').innerText = s.t;
+    document.getElementById('stg-n').innerText = cur + 1;
+    
+    const mt = s.goals || 1;
+    const flags = ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"];
+    
+    // まずターゲットを配置
+    for(let j=0; j<mt; j++) {
+        const el = document.createElement('span');
+        el.className = 'item target-item';
+        let txt = s.g;
+        if(s.g === "FLAGS") txt = flags[j];
+        if(s.g === "MIRROR_A") { txt = "あ"; el.classList.add('mirror'); }
+        if(s.g === "DIFFERENT") txt = ["🐨", "🐻‍❄️"][Math.floor(Math.random()*2)];
+        
+        el.innerText = txt;
+        el.style.left = Math.random()*90 + 5 + "%";
+        el.style.top = Math.random()*90 + 5 + "%";
+        el.style.zIndex = 100;
+        
+        el.onclick = () => {
+            if(!active || el.style.opacity === "0") return;
+            document.getElementById('s-ping').currentTime = 0;
+            document.getElementById('s-ping').play().catch(()=>{});
+            el.style.opacity = "0";
+            found++;
+            score += (ms / 100);
+            if(found >= mt) {
+                active = false;
+                confetti();
+                setTimeout(() => { cur++; init(); }, 600);
+            }
+        };
+        f.appendChild(el);
     }
-    if(!tid) tid = setInterval(() => { if(active){ ms--; document.getElementById('timer').innerText = (ms/100).toFixed(2); if(ms<=0) location.reload(); } }, 10);
+
+    // 次に邪魔なアイテムを配置
+    for(let i=0; i<s.n; i++) {
+        const el = document.createElement('span');
+        el.className = 'item';
+        el.innerText = s.c[Math.floor(Math.random()*s.c.length)];
+        el.style.left = Math.random()*95+"%";
+        el.style.top = Math.random()*95+"%";
+        f.appendChild(el);
+    }
+    
+    if(!tid) {
+        tid = setInterval(() => {
+            if(active) {
+                ms--;
+                document.getElementById('timer').innerText = (ms/100).toFixed(2);
+                if(ms <= 0) {
+                    active = false;
+                    alert("TIME UP! スコア: " + score.toFixed(2));
+                    location.reload();
+                }
+            }
+        }, 10);
+    }
 }
+
 async function end() {
-    active = false; document.getElementById('field').innerHTML = "送信中...";
-    await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({name:pName, score:score.toFixed(2), pass:pPass}) });
-    alert("完了！記録:" + score.toFixed(2)); location.reload();
+    active = false;
+    clearInterval(tid);
+    document.getElementById('field').innerHTML = "<h2>全クリア！送信中...</h2>";
+    try {
+        await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({name:pName, score:score.toFixed(2), pass:pPass}) });
+        alert("送信完了！");
+    } catch(e) {}
+    location.reload();
 }
 </script>
 </body>
