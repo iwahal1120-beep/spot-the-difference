@@ -15,8 +15,14 @@
         .premium-box { border: 4px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255, 215, 0, 0.15); margin: 10px 0; width: 100%; max-width: 340px; box-shadow: 0 0 25px rgba(255, 215, 0, 0.4); }
         .gift-title { color: #ffd700; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px #000; margin: 5px 0; }
         
+        /* 規約カード */
         .target-rule { color: #333; font-size: 13px; font-weight: normal; background: #fff; padding: 15px; border-radius: 10px; margin: 10px 0; line-height: 1.6; width: 95%; box-sizing: border-box; text-align: left; border-left: 5px solid #ffd700; }
         .rule-bold { color: #ff4d4d; font-weight: bold; }
+
+        /* 応援プランエリア */
+        .donation-area { width: 100%; max-width: 340px; margin-bottom: 15px; }
+        .support-plans { background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 10px; margin-top: 5px; font-size: 11px; color: #ffcc00; text-align: left; border: 1px dashed #ed6c00; }
+        .support-plans b { color: #fff; border-bottom: 1px solid #ffcc00; margin-bottom: 2px; display: inline-block; }
 
         .input-group { width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-bottom: 15px; box-sizing: border-box; }
         input { padding:12px; font-size:16px; border-radius:8px; width:100%; text-align:center; margin-bottom:10px; border:none; box-sizing:border-box; }
@@ -31,6 +37,7 @@
         .mirror { transform: scaleX(-1); }
 
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; cursor:pointer; box-shadow: 0 6px 0 #8a2a35; }
+        .btn-ofuse-top { background: #ed6c00; color: white; padding: 10px; border-radius: 8px; text-decoration: none; font-size: 15px; font-weight: bold; display: block; }
     </style>
 </head>
 <body>
@@ -42,6 +49,16 @@
     <div class="premium-box">
         <div style="font-size:12px;">2026年12月31日時点 ランキング1位</div>
         <div class="gift-title">10万円分ギフト券</div>
+    </div>
+
+    <div class="donation-area">
+        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">活動を応援して10万円に挑戦！🚀</a>
+        <div class="support-plans">
+            <b>応援プランの例 (任意):</b><br>
+            ☕️ コーヒー1杯分 (100円〜) ：まずはお試し！<br>
+            🍱 ランチ1回分 (1,000円〜) ：開発の強い支えに！<br>
+            🔥 情熱の応援 (3,000円〜) ：特大の感謝を込めて！
+        </div>
     </div>
 
     <div class="target-rule">
@@ -137,7 +154,7 @@ function initStage() {
     
     document.getElementById('stg-desc').innerText = stage.title;
     document.getElementById('stage-num').innerText = currentStage + 1;
-    msLeft = 3000; // 30秒固定
+    msLeft = 3000;
     
     const mt = stage.goals || 1;
     const flags = ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"];
@@ -183,7 +200,7 @@ function initStage() {
                 timerDisp.innerText = (msLeft / 100).toFixed(2);
                 if(msLeft <= 0) { 
                     gameActive = false;
-                    location.reload(); // 失敗したら即座にトップへ
+                    location.reload(); 
                 }
             }
         }, 10);
