@@ -18,7 +18,8 @@
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; font-size: 24px; }
         .mirror { transform: scaleX(-1); }
-        .umeboshi { text-shadow: 1px 1px 2px #800, -1px -1px 0px #f66; color: #d00; font-weight: bold; border: 1px dashed #a00; border-radius: 50%; padding: 2px; }
+        /* 梅干しの色を薄く・しわ感を出す */
+        .umeboshi { color: rgba(220, 20, 60, 0.7); font-weight: bold; border: 1px dashed rgba(220, 20, 60, 0.4); border-radius: 50%; padding: 2px; font-size: 20px; }
         @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-2px,2px)} 40%{transform:translate(-2px,-2px)} 60%{transform:translate(2px,2px)} 80%{transform:translate(2px,-2px)} 100%{transform:translate(0)} }
         .shaking { animation: glitch 0.15s infinite; background: #007bff; border-radius: 4px; }
         .break-point { width: 10px; height: 10px; background: white; border-radius: 50%; z-index: 10000; cursor: pointer; border: 1px solid #000; }
@@ -62,18 +63,19 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzvFsfk4Zp48AyJgQccCOQM
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, score = 0, pName, pPass;
 
 const animals = ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐒"];
-const CLOSED_EYE = `<svg viewBox="0 0 100 100" width="24" height="24"><path d="M10,50 Q50,90 90,50" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round"/></svg>`;
+// 閉じている目 (上まぶたのライン)
+const CLOSED_EYE_SVG = `<svg viewBox="0 0 100 100" width="24" height="24"><path d="M10,40 Q50,70 90,40" fill="none" stroke="#333" stroke-width="10" stroke-linecap="round"/></svg>`;
 
 const stages = [
     { t: "1. 動物から人間！", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 1000 },
-    { t: "8. 魚から開きの身！", c: ["🐟"], g: "🍣", n: 1400 },
+    { t: "8. 魚から骨！", c: ["🐟"], g: "🦴", n: 1400 }, // 骨(🦴)に変更
     { t: "9. 星からしわしわ梅干し！", c: ["✨","⭐"], g: "🔴", n: 1600, special: "umeboshi" },
     { t: "10. 「あ」を5個！", c: ["あ"], g: "MIRROR_A", n: 350, goals: 5 },
     { t: "16. 全員違う動物を5匹！", c: ["🐼"], g: "DIFF_5", n: 500, goals: 5 },
-    { t: "20. 閉じている目400個から開いた目5つ", c: ["CLOSED_EYE"], g: "👁️", n: 400, goals: 5, special: "real_eye" },
+    { t: "20. 閉じている目400個から開いた目5つ", c: ["CLOSED_EYE"], g: "👁️", n: 400, goals: 5 },
     { t: "22. 【電脳】震えるブロック5つ", c: ["　"], g: "SHAKE", n: 1, goals: 5 },
     { t: "23. ヒヨコを5匹！", c: ["🥚"], g: "CHICK", n: 300, goals: 5 },
-    { t: "25. 70周の黒線からキレている5箇所", c: ["渦"], g: "SPIRAL_BREAK", n: 1, goals: 5 },
+    { t: "25. 渦巻きの黒線からキレている5箇所", c: ["渦"], g: "SPIRAL_BREAK", n: 1, goals: 5 },
     { t: "FINAL", g: "FINAL" }
 ];
 
@@ -115,7 +117,7 @@ function createItem(f, type, isT, idx=0, special="") {
     const el = document.createElement('span');
     el.className = 'item';
     if(type === "CLOSED_EYE") {
-        el.innerHTML = CLOSED_EYE;
+        el.innerHTML = CLOSED_EYE_SVG;
     } else if(isT) {
         el.style.zIndex = 1000;
         if(type === "MIRROR_A") { el.innerText = "あ"; el.classList.add('mirror'); }
@@ -146,19 +148,19 @@ function updateTimer() {
     ms--;
     const t = document.getElementById('timer');
     
-    // 0以下にならないように制御
+    // マイナスにならないよう停止
     if(ms <= 0) {
         ms = 0;
         active = false;
-        t.innerText = "0.00";
         clearInterval(tid);
-        location.reload(); // 失敗時即リロード
+        tid = null;
+        t.innerText = "0.00";
+        location.reload(); 
         return;
     }
 
     t.innerText = (ms/100).toFixed(2);
     
-    // 10秒を切った際の警告演出
     if(ms <= 1000) {
         t.style.color = "red";
         if(ms % 100 === 0) document.getElementById('s-warn').play().catch(()=>{});
