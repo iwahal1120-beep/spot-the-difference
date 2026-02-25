@@ -16,10 +16,10 @@
         .header { background: #d44d5c; color: white; height: 110px; padding: 5px; }
         #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 24px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; font-size: 24px; }
+        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; font-size: 22px; }
         .mirror { transform: scaleX(-1); }
-        /* 梅干しの色を薄く・しわ感を出す */
-        .umeboshi { color: rgba(220, 20, 60, 0.7); font-weight: bold; border: 1px dashed rgba(220, 20, 60, 0.4); border-radius: 50%; padding: 2px; font-size: 20px; }
+        /* 梅干し：より薄く、小さく */
+        .umeboshi { color: rgba(220, 20, 60, 0.4); font-weight: bold; font-size: 14px !important; }
         @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-2px,2px)} 40%{transform:translate(-2px,-2px)} 60%{transform:translate(2px,2px)} 80%{transform:translate(2px,-2px)} 100%{transform:translate(0)} }
         .shaking { animation: glitch 0.15s infinite; background: #007bff; border-radius: 4px; }
         .break-point { width: 10px; height: 10px; background: white; border-radius: 50%; z-index: 10000; cursor: pointer; border: 1px solid #000; }
@@ -43,7 +43,8 @@
         【参加規約】<br>
         ・本ゲームはどなたでも無料で挑戦可能です。<br>
         ・1位入賞時の本人確認に<span style="color:red;font-weight:bold;">パスワード</span>を使用します。<br>
-        ・<span style="color:red;font-weight:bold;">OFUSEはゲームのパスワードと同じものを使用し、本人確認を行います。</span>
+        ・<span style="color:red;font-weight:bold;">OFUSEはパスワードと同じものを使用し、本人確認を行います。</span><br>
+        ・<span style="font-weight:bold;">不正な記録は、管理者の判断で予告なく削除します。</span>
     </div>
     <div class="input-group">
         <input type="text" id="p-name" placeholder="名前 (10文字以内)">
@@ -63,18 +64,34 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzvFsfk4Zp48AyJgQccCOQM
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, score = 0, pName, pPass;
 
 const animals = ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐒"];
-// 閉じている目 (上まぶたのライン)
 const CLOSED_EYE_SVG = `<svg viewBox="0 0 100 100" width="24" height="24"><path d="M10,40 Q50,70 90,40" fill="none" stroke="#333" stroke-width="10" stroke-linecap="round"/></svg>`;
 
+// 全25ステージの定義（番号の飛びを修正）
 const stages = [
     { t: "1. 動物から人間！", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 1000 },
-    { t: "8. 魚から骨！", c: ["🐟"], g: "🦴", n: 1400 }, // 骨(🦴)に変更
+    { t: "2. 人間から猫！", c: ["🧔","👵","👦","👧"], g: "🐱", n: 1200 },
+    { t: "3. 渋滞から自転車！", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 1200 },
+    { t: "4. お菓子からクッキー！", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 1200 },
+    { t: "5. 金貨の山から銀貨！", c: ["💰"], g: "🔘", n: 1400 },
+    { t: "6. ピエロを探せ！", c: ["👩","👱‍♀️","💃"], g: "🤡", n: 1300 },
+    { t: "7. 国旗（日米中露北）！", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 1000, goals: 5 },
+    { t: "8. 魚から骨！", c: ["🐟"], g: "🦴", n: 1400 },
     { t: "9. 星からしわしわ梅干し！", c: ["✨","⭐"], g: "🔴", n: 1600, special: "umeboshi" },
     { t: "10. 「あ」を5個！", c: ["あ"], g: "MIRROR_A", n: 350, goals: 5 },
+    { t: "11. ビルから鳥居！", c: ["🏢","🏣"], g: "⛩", n: 1200 },
+    { t: "12. 🍎から🍒！", c: ["🍎"], g: "🍒", n: 1200 },
+    { t: "13. 🍃から🐛！", c: ["🍃","🌱"], g: "🐛", n: 1300 },
+    { t: "14. スポーツから🏆！", c: ["⚽","🏀"], g: "🏆", n: 1200 },
+    { t: "15. 月から🍌！", c: ["🌙"], g: "🍌", n: 1400 },
     { t: "16. 全員違う動物を5匹！", c: ["🐼"], g: "DIFF_5", n: 500, goals: 5 },
-    { t: "20. 閉じている目400個から開いた目5つ", c: ["CLOSED_EYE"], g: "👁️", n: 400, goals: 5 },
+    { t: "17. イカからタコ！", c: ["🦑"], g: "🐙", n: 1300 },
+    { t: "18. 星空に潜むUFO！", c: ["✨","🌟"], g: "🛸", n: 1600 },
+    { t: "19. 💩の中から🍦！", c: ["💩"], g: "🍦", n: 1200 },
+    { t: "20. 閉じている目400から開いた目5", c: ["CLOSED_EYE"], g: "👁️", n: 400, goals: 5 },
+    { t: "21. 美女を5人！", c: ["🧔"], g: "💃", n: 1000, goals: 5 },
     { t: "22. 【電脳】震えるブロック5つ", c: ["　"], g: "SHAKE", n: 1, goals: 5 },
     { t: "23. ヒヨコを5匹！", c: ["🥚"], g: "CHICK", n: 300, goals: 5 },
+    { t: "24. 💩の中の🍦5個", c: ["💩"], g: "🍦", n: 1500, goals: 5 },
     { t: "25. 渦巻きの黒線からキレている5箇所", c: ["渦"], g: "SPIRAL_BREAK", n: 1, goals: 5 },
     { t: "FINAL", g: "FINAL" }
 ];
@@ -88,7 +105,7 @@ function startGame() {
 function init() {
     const f = document.getElementById('field'); f.innerHTML = "";
     found = 0; active = true; ms = 3000;
-    const s = stages[cur < stages.length ? cur : stages.length-1];
+    const s = stages[cur];
     if(s.g === "FINAL") return end();
     
     document.getElementById('stg-desc').innerText = s.t;
@@ -99,26 +116,29 @@ function init() {
     
     if(s.g === "SPIRAL_BREAK") {
         const bg = document.createElement('div');
-        bg.style.cssText = "position:absolute;width:100%;height:100%;background:repeating-radial-gradient(circle, #000, #000 0.5px, transparent 0.5px, transparent 3px);";
+        bg.style.cssText = "position:absolute;width:100%;height:100%;background:repeating-radial-gradient(circle, #000, #000 0.5px, transparent 0.5px, transparent 3.4px);";
         f.appendChild(bg);
         for(let j=0; j<5; j++) createItem(f, "BREAK", true);
     } else {
-        for(let j=0; j<mt; j++) createItem(f, s.g, true, j, s.special);
+        const flags = ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"];
+        for(let j=0; j<mt; j++) {
+            let targetType = s.g;
+            if(s.g === "FLAGS") targetType = flags[j];
+            createItem(f, targetType, true, j, s.special);
+        }
         for(let i=0; i<s.n; i++) {
             const crowdType = (s.c[0] === "CLOSED_EYE") ? "CLOSED_EYE" : s.c[Math.floor(Math.random()*s.c.length)];
             createItem(f, crowdType, false);
         }
     }
-
     if(!tid) tid = setInterval(updateTimer, 10);
 }
 
 function createItem(f, type, isT, idx=0, special="") {
     const el = document.createElement('span');
     el.className = 'item';
-    if(type === "CLOSED_EYE") {
-        el.innerHTML = CLOSED_EYE_SVG;
-    } else if(isT) {
+    if(type === "CLOSED_EYE") { el.innerHTML = CLOSED_EYE_SVG; }
+    else if(isT) {
         el.style.zIndex = 1000;
         if(type === "MIRROR_A") { el.innerText = "あ"; el.classList.add('mirror'); }
         else if(type === "DIFF_5") { el.innerText = animals[idx % animals.length]; }
@@ -128,7 +148,6 @@ function createItem(f, type, isT, idx=0, special="") {
             el.innerText = type; 
             if(special === "umeboshi") el.classList.add('umeboshi');
         }
-        
         el.onclick = () => {
             if(!active || el.style.opacity === "0") return;
             document.getElementById('s-ping').currentTime = 0; document.getElementById('s-ping').play().catch(()=>{});
@@ -138,8 +157,7 @@ function createItem(f, type, isT, idx=0, special="") {
             }
         };
     } else { el.innerText = type; }
-    
-    el.style.left = Math.random()*92 + "%"; el.style.top = Math.random()*92 + "%";
+    el.style.left = (2 + Math.random()*90) + "%"; el.style.top = (2 + Math.random()*90) + "%";
     f.appendChild(el);
 }
 
@@ -147,20 +165,11 @@ function updateTimer() {
     if(!active) return;
     ms--;
     const t = document.getElementById('timer');
-    
-    // マイナスにならないよう停止
     if(ms <= 0) {
-        ms = 0;
-        active = false;
-        clearInterval(tid);
-        tid = null;
-        t.innerText = "0.00";
-        location.reload(); 
-        return;
+        ms = 0; active = false; clearInterval(tid); tid = null;
+        t.innerText = "0.00"; location.reload(); return;
     }
-
     t.innerText = (ms/100).toFixed(2);
-    
     if(ms <= 1000) {
         t.style.color = "red";
         if(ms % 100 === 0) document.getElementById('s-warn').play().catch(()=>{});
