@@ -62,8 +62,6 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzvFsfk4Zp48AyJgQccCOQM
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, score = 0, pName, pPass;
 
 const animals = ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐒"];
-
-// 20番：閉じた目（リアルな線描画）のHTML
 const CLOSED_EYE = `<svg viewBox="0 0 100 100" width="24" height="24"><path d="M10,50 Q50,90 90,50" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round"/></svg>`;
 
 const stages = [
@@ -147,9 +145,24 @@ function updateTimer() {
     if(!active) return;
     ms--;
     const t = document.getElementById('timer');
+    
+    // 0以下にならないように制御
+    if(ms <= 0) {
+        ms = 0;
+        active = false;
+        t.innerText = "0.00";
+        clearInterval(tid);
+        location.reload(); // 失敗時即リロード
+        return;
+    }
+
     t.innerText = (ms/100).toFixed(2);
-    if(ms === 1000) { document.getElementById('s-warn').play().catch(()=>{}); t.style.color = "red"; }
-    if(ms <= 0) location.reload();
+    
+    // 10秒を切った際の警告演出
+    if(ms <= 1000) {
+        t.style.color = "red";
+        if(ms % 100 === 0) document.getElementById('s-warn').play().catch(()=>{});
+    }
 }
 
 async function end() {
