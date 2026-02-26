@@ -16,13 +16,10 @@
         .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
         #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 24px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; font-size: 22px; width: 32px; height: 32px; }
         
-        /* 24番：縦線と赤丸ギミック */
         .v-line { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: #333; z-index: 500; }
         .choice-circle { position: absolute; top: 50%; width: 80px; height: 80px; border: 6px solid #ff0000; border-radius: 50%; transform: translateY(-50%); cursor: pointer; z-index: 1000; }
-        
-        /* 25番：極細ピッチ渦巻き */
         .spiral-break { width: 12px; height: 12px; background: #fff; border: 1px solid #000; border-radius: 50%; z-index: 2000; }
         
         .umeboshi { color: rgba(220, 20, 60, 0.2); font-weight: bold; font-size: 12px !important; }
@@ -70,18 +67,30 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzvFsfk4Zp48AyJgQccCOQMX911-Itey8Sc8VH9ehnSF7J7PDpkPNayzijuO5BOBEQKaw/exec";
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, score = 0, pName, pPass;
 
-const EYE_SVG = (color) => `<svg viewBox="0 0 100 100" width="24" height="24"><path d="M10,50 Q50,10 90,50 Q50,90 10,50" fill="white" stroke="#333" stroke-width="4"/><circle cx="50" cy="50" r="18" fill="${color}"/></svg>`;
+const EYE_SVG = (color) => `<svg viewBox="0 0 100 100" width="24" height="24" style="pointer-events:none;"><path d="M10,50 Q50,10 90,50 Q50,90 10,50" fill="white" stroke="#333" stroke-width="4"/><circle cx="50" cy="50" r="18" fill="${color}"/></svg>`;
 
 const stages = [
     { t: "1. 動物から人間！", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 1000 },
+    { t: "2. 人間から猫！", c: ["🧔","👵","👦","👧"], g: "🐱", n: 1200 },
+    { t: "3. 渋滞から自転車！", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 1200 },
+    { t: "4. お菓子からクッキー！", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 1200 },
     { t: "5. 金貨の山から銀貨5枚！", c: ["💰"], g: "SILVER", n: 1400, goals: 5 },
+    { t: "6. ピエロを探せ！", c: ["👩","👱‍♀️","💃"], g: "🤡", n: 1300 },
+    { t: "7. 国旗（日米中露北）！", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 1000, goals: 5 },
     { t: "8. 魚から骨！", c: ["🐟"], g: "🦴", n: 1400 },
     { t: "9. 星から淡い梅干し！", c: ["✨","⭐"], g: "🔴", n: 1600, special: "umeboshi" },
+    { t: "10. 「あ」を5個！", c: ["あ"], g: "MIRROR_A", n: 350, goals: 5 },
     { t: "11. ビルから赤い鳥居！", c: ["🏢","🏣"], g: "⛩", n: 1200, special: "torii" },
+    { t: "12. 🍎から🍒！", c: ["🍎"], g: "🍒", n: 1200 },
+    { t: "13. 🍃から🐛！", c: ["🍃","🌱"], g: "🐛", n: 1300 },
+    { t: "14. スポーツから🏆！", c: ["⚽","🏀"], g: "🏆", n: 1200 },
+    { t: "15. 月から🍌！", c: ["🌙"], g: "🍌", n: 1400 },
     { t: "16. 全員違う動物を5匹！", c: ["🐼"], g: "DIFF_5", n: 500, goals: 5 },
+    { t: "17. イカからタコ！", c: ["🦑"], g: "🐙", n: 1300 },
     { t: "18. 薄いUFOを探せ！", c: ["✨","🌟"], g: "🛸", n: 1600, special: "ufo" },
     { t: "19. 🍭の中から🍦5個！", c: ["🍭"], g: "🍦", n: 300, goals: 5 },
     { t: "20. 黒目の中から茶色目5つ", c: ["BLACK_EYE"], g: "BROWN_EYE", n: 300, goals: 5 },
+    { t: "21. 美女を5人！", c: ["🧔"], g: "💃", n: 1000, goals: 5 },
     { t: "22. 震える中から「静止」5つ", c: ["SHAKE_BOX"], g: "STILL_BOX", n: 300, goals: 5 },
     { t: "23. 🐓の中からヒヨコ5匹", c: ["🐓"], g: "🐥", n: 300, goals: 5 },
     { t: "24. 運命の選択（正解はどちらか一つ）", g: "CHOICE_STG" },
@@ -93,14 +102,16 @@ function startGame() {
     pName = document.getElementById('p-name').value.trim();
     pPass = document.getElementById('p-pass').value.trim();
     if(!pName || pPass.length<4) return alert("入力不備");
-    document.getElementById('start-screen').style.display='none'; init();
+    document.getElementById('start-screen').style.display='none'; 
+    cur = 0; // 確実に1番から開始
+    init();
 }
 
 function init() {
     const f = document.getElementById('field'); f.innerHTML = "";
     found = 0; active = true; ms = 3000;
     const s = stages[cur];
-    if(s.g === "FINAL") return end();
+    if(!s || s.g === "FINAL") return end();
     
     document.getElementById('stg-desc').innerText = s.t;
     document.getElementById('stg-n').innerText = cur + 1;
@@ -122,15 +133,12 @@ function createChoiceStage(f) {
     const leftCircle = document.createElement('div');
     leftCircle.className = 'choice-circle';
     leftCircle.style.left = "calc(25% - 40px)";
-    leftCircle.onclick = () => isLeftCorrect ? nextStage() : location.reload();
-    
+    leftCircle.onclick = () => { if(!active) return; if(isLeftCorrect) nextStage(); else location.reload(); };
     const rightCircle = document.createElement('div');
     rightCircle.className = 'choice-circle';
     rightCircle.style.left = "calc(75% - 40px)";
-    rightCircle.onclick = () => !isLeftCorrect ? nextStage() : location.reload();
-    
-    f.appendChild(leftCircle);
-    f.appendChild(rightCircle);
+    rightCircle.onclick = () => { if(!active) return; if(!isLeftCorrect) nextStage(); else location.reload(); };
+    f.appendChild(leftCircle); f.appendChild(rightCircle);
 }
 
 function createUltraSpiral(f) {
@@ -142,20 +150,19 @@ function createUltraSpiral(f) {
         el.className = 'item spiral-break';
         el.style.left = (5 + Math.random()*90) + "%";
         el.style.top = (5 + Math.random()*90) + "%";
-        el.onclick = () => {
-            if(!active || el.style.opacity === "0") return;
-            document.getElementById('s-ping').currentTime = 0; document.getElementById('s-ping').play();
-            el.style.opacity = "0"; found++; score += ms/100;
-            if(found >= 5) nextStage();
-        };
+        el.onclick = () => { if(!active || el.style.opacity === "0") return; ping(); el.style.opacity = "0"; found++; score += ms/100; if(found >= 5) nextStage(); };
         f.appendChild(el);
     }
 }
 
 function createNormalStage(f, s) {
     const mt = s.goals || 1;
-    for(let j=0; j<mt; j++) createItem(f, s.g, true, j, s.special);
-    for(let i=0; i<s.n; i++) createItem(f, s.c[0] === "BLACK_EYE" ? "BLACK_EYE" : (s.c[0] === "SHAKE_BOX" ? "SHAKE_BOX" : s.c[Math.floor(Math.random()*s.c.length)]), false);
+    const flags = ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"];
+    for(let j=0; j<mt; j++) {
+        let t = s.g; if(s.g === "FLAGS") t = flags[j];
+        createItem(f, t, true, j, s.special);
+    }
+    for(let i=0; i<s.n; i++) createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false);
 }
 
 function createItem(f, type, isT, idx=0, special="") {
@@ -165,38 +172,47 @@ function createItem(f, type, isT, idx=0, special="") {
     else if(type === "BROWN_EYE") el.innerHTML = EYE_SVG("#630");
     else if(type === "SHAKE_BOX") { el.innerText = "■"; el.classList.add("shaking"); }
     else if(type === "STILL_BOX") { el.innerText = "■"; }
-    else if(type === "SILVER") { el.innerHTML = `<div style="width:20px;height:20px;background:#bbb;border-radius:50%;"></div>`; }
-    else if(isT) {
+    else if(type === "SILVER") { el.innerHTML = `<div style="width:20px;height:20px;background:#bbb;border-radius:50%;pointer-events:none;"></div>`; }
+    else { el.innerText = type; }
+    
+    if(isT) {
         el.style.zIndex = 1000;
-        if(type === "MIRROR_A") { el.innerText = "あ"; el.classList.add('mirror'); }
-        else if(type === "DIFF_5") { el.innerText = ["🐶","🐱","🐭","🐹","🐰"][idx%5]; }
-        else {
-            el.innerText = type;
-            if(special === "umeboshi") el.classList.add('umeboshi');
-            if(special === "torii") el.classList.add('torii');
-            if(special === "ufo") el.classList.add('ufo');
-        }
-        el.onclick = () => { if(!active) return; document.getElementById('s-ping').currentTime = 0; document.getElementById('s-ping').play(); el.style.opacity = 0; found++; score += ms/100; if(found >= (stages[cur].goals || 1)) nextStage(); };
-    } else { el.innerText = type; }
+        if(type === "MIRROR_A") el.classList.add('mirror');
+        if(type === "DIFF_5") el.innerText = ["🐶","🐱","🐭","🐹","🐰"][idx%5];
+        if(special === "umeboshi") el.classList.add('umeboshi');
+        if(special === "torii") el.classList.add('torii');
+        if(special === "ufo") el.classList.add('ufo');
+        el.onclick = (e) => {
+            e.stopPropagation();
+            if(!active || el.style.opacity === "0") return;
+            ping(); el.style.opacity = 0; found++; score += ms/100;
+            const targetGoals = stages[cur].goals || 1;
+            if(found >= targetGoals) nextStage();
+        };
+    }
     el.style.left = (2 + Math.random()*90) + "%"; el.style.top = (2 + Math.random()*90) + "%";
     f.appendChild(el);
 }
 
+function ping() { document.getElementById('s-ping').currentTime = 0; document.getElementById('s-ping').play().catch(()=>{}); }
 function nextStage() { active = false; confetti(); setTimeout(()=>{cur++; init();}, 600); }
 
 function updateTimer() {
     if(!active) return;
     ms--;
-    if(ms <= 0) { ms = 0; active = false; clearInterval(tid); location.reload(); return; }
-    document.getElementById('timer').innerText = (ms/100).toFixed(2);
-    if(ms <= 1000) { document.getElementById('timer').style.color = "red"; if(ms % 100 === 0) document.getElementById('s-warn').play(); }
+    const t = document.getElementById('timer');
+    if(ms <= 0) { ms = 0; active = false; clearInterval(tid); tid = null; location.reload(); return; }
+    t.innerText = (ms/100).toFixed(2);
+    if(ms <= 1000) { t.style.color = "red"; if(ms % 100 === 0) document.getElementById('s-warn').play().catch(()=>{}); }
 }
 
 async function end() {
     active = false; clearInterval(tid);
-    document.getElementById('field').innerHTML = "<h2>記録送信中...</h2>";
-    await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({name:pName, score:score.toFixed(2), pass:pPass}) });
-    location.reload();
+    document.getElementById('field').innerHTML = "<h2>全ステージクリア！送信中...</h2>";
+    try {
+        await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({name:pName, score:score.toFixed(2), pass:pPass}) });
+        location.reload();
+    } catch(e) { location.reload(); }
 }
 </script>
 </body>
