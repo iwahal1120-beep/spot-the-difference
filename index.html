@@ -18,14 +18,14 @@
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; font-size: 22px; width: 34px; height: 34px; }
         
-        /* 指定の修正スタイル */
-        .bicycle-hint { text-shadow: 0 0 2px rgba(0,0,0,0.5); } /* 3番：わずかに形を強調 */
-        .mirror-font { transform: scaleX(-1) !important; display: inline-block; } /* 10番：確実に反転 */
-        .umeboshi-style { color: rgba(220, 20, 60, 0.05) !important; font-size: 11px !important; } /* 9番：極限まで淡く */
+        /* ステージ別スタイル */
+        .bicycle-hint { text-shadow: 1px 1px 1px rgba(0,0,0,0.3); } 
+        .mirror-font { transform: scaleX(-1) !important; display: inline-flex !important; } 
+        .umeboshi-style { color: rgba(220, 20, 60, 0.05) !important; font-size: 11px !important; }
         
         .v-line { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: #333; z-index: 500; }
         .choice-circle { position: absolute; top: 50%; width: 80px; height: 80px; border: 6px solid #ff0000; border-radius: 50%; transform: translateY(-50%); cursor: pointer; z-index: 1000; }
-        .spiral-hit-area { width: 16px; height: 16px; background: transparent; z-index: 2000; }
+        .spiral-hit-area { width: 18px; height: 18px; background: transparent; z-index: 2000; }
         
         @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-1px,1px)} 40%{transform:translate(-1px,-1px)} 60%{transform:translate(1px,1px)} 80%{transform:translate(1px,-1px)} 100%{transform:translate(0)} }
         .shaking { animation: glitch 0.1s infinite; }
@@ -89,11 +89,11 @@ const stages = [
     { t: "16. 全員違う動物を5匹！", c: ["🐼"], g: "DIFF_5", n: 500, goals: 5 },
     { t: "17. イカからタコ！", c: ["🦑"], g: "🐙", n: 1300 },
     { t: "18. 薄いUFOを探せ！", c: ["✨","🌟"], g: "🛸", n: 1600, special: "ufo" },
-    { t: "19. 🍭の中からソフト5個！", c: ["🍭"], g: "🍦", n: 300, goals: 5 },
+    { t: "19. アイスの中からソフト5個！", c: ["🍭"], g: "🍦", n: 300, goals: 5 },
     { t: "20. 黒目の中から茶色目5つ", c: ["BLACK_EYE"], g: "BROWN_EYE", n: 300, goals: 5 },
     { t: "21. 美女を5人！", c: ["🧔"], g: "💃", n: 1000, goals: 5 },
     { t: "22. 震える中から「静止」5つ", c: ["SHAKE_BOX"], g: "STILL_BOX", n: 300, goals: 5 },
-    { t: "23. 🐓の中からヒヨコ5匹", c: ["🐓"], g: "🐥", n: 300, goals: 5 },
+    { t: "23. 鶏300からヒヨコ5匹", c: ["🐓"], g: "🐥", n: 300, goals: 5 },
     { t: "24. 運命の選択（左右どちらか）", g: "CHOICE_STG" },
     { t: "25. 極細渦巻き：見えない断線5箇所", g: "ULTRA_SPIRAL" },
     { t: "FINAL", g: "FINAL" }
@@ -153,11 +153,15 @@ function createUltraSpiral(f) {
 function createNormalStage(f, s) {
     const mt = s.goals || 1;
     const flags = ["🇯🇵", "🇺🇸", "🇨🇳", "🇰🇵", "🇷🇺"];
+    // ターゲットを確実に生成
     for(let j=0; j<mt; j++) {
         let t = s.g; if(s.g === "FLAGS") t = flags[j];
         createItem(f, t, true, j, s.special);
     }
-    for(let i=0; i<s.n; i++) createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false, 0, s.special);
+    // 群衆を生成
+    for(let i=0; i<s.n; i++) {
+        createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false, 0, s.special);
+    }
 }
 
 function createItem(f, type, isT, idx=0, special="") {
@@ -205,7 +209,7 @@ function updateTimer() {
 
 async function end() {
     active = false; clearInterval(tid);
-    document.getElementById('field').innerHTML = "<h2>全クリア！結果を送信中...</h2>";
+    document.getElementById('field').innerHTML = "<h2>全クリア！送信中...</h2>";
     try {
         await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({name:pName, score:score.toFixed(2), pass:pPass}) });
         location.reload();
