@@ -20,9 +20,10 @@
         
         .v-line { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: #333; z-index: 500; }
         .choice-circle { position: absolute; top: 50%; width: 80px; height: 80px; border: 6px solid #ff0000; border-radius: 50%; transform: translateY(-50%); cursor: pointer; z-index: 1000; }
-        .spiral-break { width: 12px; height: 12px; background: #fff; border: 1px solid #000; border-radius: 50%; z-index: 2000; }
+        /* 25番：目印のない断線判定エリア */
+        .spiral-hit { width: 14px; height: 14px; background: transparent; z-index: 2000; }
         
-        .umeboshi { color: rgba(220, 20, 60, 0.2); font-weight: bold; font-size: 12px !important; }
+        .umeboshi { color: rgba(220, 20, 60, 0.1); font-weight: bold; font-size: 11px !important; }
         .torii { color: #ff0000; }
         .ufo { opacity: 0.3; }
         @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-1px,1px)} 40%{transform:translate(-1px,-1px)} 60%{transform:translate(1px,1px)} 80%{transform:translate(1px,-1px)} 100%{transform:translate(0)} }
@@ -47,7 +48,7 @@
     </div>
     <div class="target-rule">
         【参加規約】<br>
-        ・本人確認に<span style="color:red;font-weight:bold;">パスワード</span>を使用します。OFUSEも共通の物を使用してください。<br>
+        ・本人確認に<span style="color:red;font-weight:bold;">パスワード</span>を使用します。OFUSEも共通の物を使用して下さい。<br>
         ・<span style="font-weight:bold;color:#d44d5c;">不正な記録は、管理者の判断で予告なく削除します。</span>
     </div>
     <div class="input-group">
@@ -78,7 +79,7 @@ const stages = [
     { t: "6. ピエロを探せ！", c: ["👩","👱‍♀️","💃"], g: "🤡", n: 1300 },
     { t: "7. 国旗（日米中露北）！", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 1000, goals: 5 },
     { t: "8. 魚から骨！", c: ["🐟"], g: "🦴", n: 1400 },
-    { t: "9. 星から淡い梅干し！", c: ["✨","⭐"], g: "🔴", n: 1600, special: "umeboshi" },
+    { t: "9. 星から淡すぎる梅干し！", c: ["✨","⭐"], g: "🔴", n: 1600, special: "umeboshi" },
     { t: "10. 「あ」を5個！", c: ["あ"], g: "MIRROR_A", n: 350, goals: 5 },
     { t: "11. ビルから赤い鳥居！", c: ["🏢","🏣"], g: "⛩", n: 1200, special: "torii" },
     { t: "12. 🍎から🍒！", c: ["🍎"], g: "🍒", n: 1200 },
@@ -88,13 +89,13 @@ const stages = [
     { t: "16. 全員違う動物を5匹！", c: ["🐼"], g: "DIFF_5", n: 500, goals: 5 },
     { t: "17. イカからタコ！", c: ["🦑"], g: "🐙", n: 1300 },
     { t: "18. 薄いUFOを探せ！", c: ["✨","🌟"], g: "🛸", n: 1600, special: "ufo" },
-    { t: "19. 🍭の中から🍦5個！", c: ["🍭"], g: "🍦", n: 300, goals: 5 },
+    { t: "19. 🍭の中からソフト5個！", c: ["🍭"], g: "🍦", n: 300, goals: 5 },
     { t: "20. 黒目の中から茶色目5つ", c: ["BLACK_EYE"], g: "BROWN_EYE", n: 300, goals: 5 },
     { t: "21. 美女を5人！", c: ["🧔"], g: "💃", n: 1000, goals: 5 },
     { t: "22. 震える中から「静止」5つ", c: ["SHAKE_BOX"], g: "STILL_BOX", n: 300, goals: 5 },
     { t: "23. 🐓の中からヒヨコ5匹", c: ["🐓"], g: "🐥", n: 300, goals: 5 },
-    { t: "24. 運命の選択（正解はどちらか一つ）", g: "CHOICE_STG" },
-    { t: "25. 高密度渦巻き：断線5箇所を探せ", g: "ULTRA_SPIRAL" },
+    { t: "24. 運命の選択（左右どちらか）", g: "CHOICE_STG" },
+    { t: "25. 極細渦巻き：見えない断線5箇所を探せ", g: "ULTRA_SPIRAL" },
     { t: "FINAL", g: "FINAL" }
 ];
 
@@ -103,8 +104,7 @@ function startGame() {
     pPass = document.getElementById('p-pass').value.trim();
     if(!pName || pPass.length<4) return alert("入力不備");
     document.getElementById('start-screen').style.display='none'; 
-    cur = 0; // 確実に1番から開始
-    init();
+    cur = 0; init();
 }
 
 function init() {
@@ -130,26 +130,21 @@ function init() {
 function createChoiceStage(f) {
     f.innerHTML += `<div class="v-line"></div>`;
     const isLeftCorrect = Math.random() < 0.5;
-    const leftCircle = document.createElement('div');
-    leftCircle.className = 'choice-circle';
-    leftCircle.style.left = "calc(25% - 40px)";
-    leftCircle.onclick = () => { if(!active) return; if(isLeftCorrect) nextStage(); else location.reload(); };
-    const rightCircle = document.createElement('div');
-    rightCircle.className = 'choice-circle';
-    rightCircle.style.left = "calc(75% - 40px)";
-    rightCircle.onclick = () => { if(!active) return; if(!isLeftCorrect) nextStage(); else location.reload(); };
-    f.appendChild(leftCircle); f.appendChild(rightCircle);
+    const l = document.createElement('div'); l.className = 'choice-circle'; l.style.left = "calc(25% - 40px)";
+    l.onclick = () => { if(active) isLeftCorrect ? nextStage() : location.reload(); };
+    const r = document.createElement('div'); r.className = 'choice-circle'; r.style.left = "calc(75% - 40px)";
+    r.onclick = () => { if(active) !isLeftCorrect ? nextStage() : location.reload(); };
+    f.appendChild(l); f.appendChild(r);
 }
 
 function createUltraSpiral(f) {
     const bg = document.createElement('div');
-    bg.style.cssText = "position:absolute;width:100%;height:100%;background:repeating-radial-gradient(circle, #000, #000 0.2px, transparent 0.2px, transparent 1.2px);";
+    bg.style.cssText = "position:absolute;width:100%;height:100%;background:repeating-radial-gradient(circle, #000, #000 0.1px, transparent 0.1px, transparent 1.1px);";
     f.appendChild(bg);
     for(let j=0; j<5; j++) {
         const el = document.createElement('div');
-        el.className = 'item spiral-break';
-        el.style.left = (5 + Math.random()*90) + "%";
-        el.style.top = (5 + Math.random()*90) + "%";
+        el.className = 'item spiral-hit';
+        el.style.left = (5 + Math.random()*90) + "%"; el.style.top = (5 + Math.random()*90) + "%";
         el.onclick = () => { if(!active || el.style.opacity === "0") return; ping(); el.style.opacity = "0"; found++; score += ms/100; if(found >= 5) nextStage(); };
         f.appendChild(el);
     }
@@ -172,19 +167,19 @@ function createItem(f, type, isT, idx=0, special="") {
     else if(type === "BROWN_EYE") el.innerHTML = EYE_SVG("#630");
     else if(type === "SHAKE_BOX") { el.innerText = "■"; el.classList.add("shaking"); }
     else if(type === "STILL_BOX") { el.innerText = "■"; }
-    else if(type === "SILVER") { el.innerHTML = `<div style="width:20px;height:20px;background:#bbb;border-radius:50%;pointer-events:none;"></div>`; }
+    else if(type === "SILVER") { el.style.cssText="width:20px;height:20px;background:#bbb;border-radius:50%;"; }
     else { el.innerText = type; }
     
-    if(isT) {
+    if(isT || type === "SILVER") {
         el.style.zIndex = 1000;
-        if(type === "MIRROR_A") el.classList.add('mirror');
+        if(type === "MIRROR_A") { el.innerText = "あ"; el.classList.add('mirror'); }
         if(type === "DIFF_5") el.innerText = ["🐶","🐱","🐭","🐹","🐰"][idx%5];
         if(special === "umeboshi") el.classList.add('umeboshi');
         if(special === "torii") el.classList.add('torii');
         if(special === "ufo") el.classList.add('ufo');
         el.onclick = (e) => {
             e.stopPropagation();
-            if(!active || el.style.opacity === "0") return;
+            if(!active || (isT && el.style.opacity === "0")) return;
             ping(); el.style.opacity = 0; found++; score += ms/100;
             const targetGoals = stages[cur].goals || 1;
             if(found >= targetGoals) nextStage();
