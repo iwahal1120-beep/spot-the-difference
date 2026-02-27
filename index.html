@@ -8,7 +8,7 @@
     <style>
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
         body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
-        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; }
         .premium-box { border: 4px solid #ffd700; padding: 10px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 5px 0; width: 100%; max-width: 340px; }
         .target-rule { color: #333; font-size: 12px; background: white; padding: 12px; border-radius: 10px; margin: 8px 0; line-height: 1.5; text-align: left; border-left: 5px solid #ffd700; width: 95%; box-sizing: border-box; }
         .input-group { width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; }
@@ -16,19 +16,19 @@
         .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
         #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 24px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; font-size: 22px; width: 32px; height: 32px; }
+        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; font-size: 22px; width: 34px; height: 34px; }
+        
+        /* 指定の修正スタイル */
+        .bicycle-hint { text-shadow: 0 0 2px rgba(0,0,0,0.5); } /* 3番：わずかに形を強調 */
+        .mirror-font { transform: scaleX(-1) !important; display: inline-block; } /* 10番：確実に反転 */
+        .umeboshi-style { color: rgba(220, 20, 60, 0.05) !important; font-size: 11px !important; } /* 9番：極限まで淡く */
         
         .v-line { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: #333; z-index: 500; }
         .choice-circle { position: absolute; top: 50%; width: 80px; height: 80px; border: 6px solid #ff0000; border-radius: 50%; transform: translateY(-50%); cursor: pointer; z-index: 1000; }
-        /* 25番：目印のない断線判定エリア */
-        .spiral-hit { width: 14px; height: 14px; background: transparent; z-index: 2000; }
+        .spiral-hit-area { width: 16px; height: 16px; background: transparent; z-index: 2000; }
         
-        .umeboshi { color: rgba(220, 20, 60, 0.1); font-weight: bold; font-size: 11px !important; }
-        .torii { color: #ff0000; }
-        .ufo { opacity: 0.3; }
         @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-1px,1px)} 40%{transform:translate(-1px,-1px)} 60%{transform:translate(1px,1px)} 80%{transform:translate(1px,-1px)} 100%{transform:translate(0)} }
         .shaking { animation: glitch 0.1s infinite; }
-        
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; box-shadow: 0 6px 0 #8a2a35; }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin-bottom: 5px; }
     </style>
@@ -73,17 +73,17 @@ const EYE_SVG = (color) => `<svg viewBox="0 0 100 100" width="24" height="24" st
 const stages = [
     { t: "1. 動物から人間！", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 1000 },
     { t: "2. 人間から猫！", c: ["🧔","👵","👦","👧"], g: "🐱", n: 1200 },
-    { t: "3. 渋滞から自転車！", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 1200 },
+    { t: "3. 渋滞から自転車！", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 1200, special: "bicycle" },
     { t: "4. お菓子からクッキー！", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 1200 },
     { t: "5. 金貨の山から銀貨5枚！", c: ["💰"], g: "SILVER", n: 1400, goals: 5 },
     { t: "6. ピエロを探せ！", c: ["👩","👱‍♀️","💃"], g: "🤡", n: 1300 },
     { t: "7. 国旗（日米中露北）！", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 1000, goals: 5 },
     { t: "8. 魚から骨！", c: ["🐟"], g: "🦴", n: 1400 },
     { t: "9. 星から淡すぎる梅干し！", c: ["✨","⭐"], g: "🔴", n: 1600, special: "umeboshi" },
-    { t: "10. 「あ」を5個！", c: ["あ"], g: "MIRROR_A", n: 350, goals: 5 },
+    { t: "10. 反転した「あ」を5個！", c: ["あ"], g: "あ", n: 350, goals: 5, special: "mirror" },
     { t: "11. ビルから赤い鳥居！", c: ["🏢","🏣"], g: "⛩", n: 1200, special: "torii" },
     { t: "12. 🍎から🍒！", c: ["🍎"], g: "🍒", n: 1200 },
-    { t: "13. 🍃から🐛！", c: ["🍃","🌱"], g: "🐛", n: 1300 },
+    { t: "13. 葉っぱから🐛！", c: ["🍃","🌱"], g: "🐛", n: 1300 },
     { t: "14. スポーツから🏆！", c: ["⚽","🏀"], g: "🏆", n: 1200 },
     { t: "15. 月から🍌！", c: ["🌙"], g: "🍌", n: 1400 },
     { t: "16. 全員違う動物を5匹！", c: ["🐼"], g: "DIFF_5", n: 500, goals: 5 },
@@ -95,7 +95,7 @@ const stages = [
     { t: "22. 震える中から「静止」5つ", c: ["SHAKE_BOX"], g: "STILL_BOX", n: 300, goals: 5 },
     { t: "23. 🐓の中からヒヨコ5匹", c: ["🐓"], g: "🐥", n: 300, goals: 5 },
     { t: "24. 運命の選択（左右どちらか）", g: "CHOICE_STG" },
-    { t: "25. 極細渦巻き：見えない断線5箇所を探せ", g: "ULTRA_SPIRAL" },
+    { t: "25. 極細渦巻き：見えない断線5箇所", g: "ULTRA_SPIRAL" },
     { t: "FINAL", g: "FINAL" }
 ];
 
@@ -143,7 +143,7 @@ function createUltraSpiral(f) {
     f.appendChild(bg);
     for(let j=0; j<5; j++) {
         const el = document.createElement('div');
-        el.className = 'item spiral-hit';
+        el.className = 'item spiral-hit-area';
         el.style.left = (5 + Math.random()*90) + "%"; el.style.top = (5 + Math.random()*90) + "%";
         el.onclick = () => { if(!active || el.style.opacity === "0") return; ping(); el.style.opacity = "0"; found++; score += ms/100; if(found >= 5) nextStage(); };
         f.appendChild(el);
@@ -157,12 +157,13 @@ function createNormalStage(f, s) {
         let t = s.g; if(s.g === "FLAGS") t = flags[j];
         createItem(f, t, true, j, s.special);
     }
-    for(let i=0; i<s.n; i++) createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false);
+    for(let i=0; i<s.n; i++) createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false, 0, s.special);
 }
 
 function createItem(f, type, isT, idx=0, special="") {
     const el = document.createElement('span');
     el.className = 'item';
+    
     if(type === "BLACK_EYE") el.innerHTML = EYE_SVG("#000");
     else if(type === "BROWN_EYE") el.innerHTML = EYE_SVG("#630");
     else if(type === "SHAKE_BOX") { el.innerText = "■"; el.classList.add("shaking"); }
@@ -172,17 +173,18 @@ function createItem(f, type, isT, idx=0, special="") {
     
     if(isT || type === "SILVER") {
         el.style.zIndex = 1000;
-        if(type === "MIRROR_A") { el.innerText = "あ"; el.classList.add('mirror'); }
+        if(special === "mirror") el.classList.add('mirror-font');
+        if(special === "bicycle") el.classList.add('bicycle-hint');
+        if(special === "umeboshi") el.classList.add('umeboshi-style');
+        if(special === "torii") el.style.color = "#ff0000";
+        if(special === "ufo") el.style.opacity = "0.3";
         if(type === "DIFF_5") el.innerText = ["🐶","🐱","🐭","🐹","🐰"][idx%5];
-        if(special === "umeboshi") el.classList.add('umeboshi');
-        if(special === "torii") el.classList.add('torii');
-        if(special === "ufo") el.classList.add('ufo');
+        
         el.onclick = (e) => {
             e.stopPropagation();
             if(!active || (isT && el.style.opacity === "0")) return;
             ping(); el.style.opacity = 0; found++; score += ms/100;
-            const targetGoals = stages[cur].goals || 1;
-            if(found >= targetGoals) nextStage();
+            if(found >= (stages[cur].goals || 1)) nextStage();
         };
     }
     el.style.left = (2 + Math.random()*90) + "%"; el.style.top = (2 + Math.random()*90) + "%";
@@ -196,14 +198,14 @@ function updateTimer() {
     if(!active) return;
     ms--;
     const t = document.getElementById('timer');
-    if(ms <= 0) { ms = 0; active = false; clearInterval(tid); tid = null; location.reload(); return; }
+    if(ms <= 0) { ms = 0; active = false; clearInterval(tid); tid = null; t.innerText = "0.00"; location.reload(); return; }
     t.innerText = (ms/100).toFixed(2);
     if(ms <= 1000) { t.style.color = "red"; if(ms % 100 === 0) document.getElementById('s-warn').play().catch(()=>{}); }
 }
 
 async function end() {
     active = false; clearInterval(tid);
-    document.getElementById('field').innerHTML = "<h2>全ステージクリア！送信中...</h2>";
+    document.getElementById('field').innerHTML = "<h2>全クリア！結果を送信中...</h2>";
     try {
         await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({name:pName, score:score.toFixed(2), pass:pPass}) });
         location.reload();
