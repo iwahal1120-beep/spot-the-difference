@@ -3,84 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-    <title>Search Challenge 25 - REBUILT</title>
+    <title>Search Challenge GIGA-HARD</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
         body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
-        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; }
-        .premium-box { border: 4px solid #ffd700; padding: 10px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 5px 0; width: 100%; max-width: 340px; }
-        .target-rule { color: #333; font-size: 11px; background: white; padding: 10px; border-radius: 10px; margin: 8px 0; line-height: 1.4; text-align: left; border-left: 5px solid #ffd700; width: 95%; box-sizing: border-box; }
-        input { padding:10px; font-size:16px; width:100%; margin-bottom:8px; border-radius:8px; border:none; box-sizing:border-box; }
-        .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
-        #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 24px; }
-        .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         
-        /* ターゲット共通設定 */
+        /* スタート画面 */
+        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .premium-box { border: 4px solid #ffd700; padding: 10px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 5px 0; width: 100%; max-width: 340px; }
+        .target-rule { color: #333; font-size: 12px; background: white; padding: 12px; border-radius: 10px; margin: 8px 0; line-height: 1.5; text-align: left; border-left: 5px solid #ffd700; width: 95%; max-width: 340px; box-sizing: border-box; }
+        .btn-ofuse-top { background: #ed6c00; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin-bottom: 5px; width: 100%; text-align: center; }
+        
+        /* ゲームUI */
+        .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
+        #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 24px; transition: color 0.2s; }
+        .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; font-size: 24px; }
         .target-item { z-index: 20000 !important; filter: drop-shadow(0 0 6px gold); }
-        
-        /* リクエスト修正用スタイル */
-        .target-silver { width: 32px !important; height: 32px !important; font-size: 22px !important; }
-        .target-umeboshi { width: 34px !important; height: 34px !important; } /* ピンク背景廃止 */
+        .target-silver { width: 30px !important; height: 30px !important; font-size: 22px !important; }
         .target-img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-        
-        /* 特殊ステージ用 */
         .mirror-font { transform: scaleX(-1) !important; }
         .shaking { animation: glitch 0.1s infinite; }
         @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-1px,1px)} 40%{transform:translate(-1px,-1px)} 60%{transform:translate(1px,1px)} 100%{transform:translate(0)} }
-        .v-line { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: #333; }
-        .choice-circle { position: absolute; top: 50%; width: 80px; height: 80px; border: 6px solid #ff0000; border-radius: 50%; transform: translateY(-50%); cursor: pointer; z-index: 1000; }
         
-        /* 新25番：300本渦巻き */
-        #spiral-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; }
-        .spiral-hit-area { width: 15px; height: 15px; background: transparent; z-index: 10000; }
-
-        .btn { width:100%; padding:16px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:12px; font-size:18px; font-weight:bold; box-shadow: 0 5px 0 #8a2a35; cursor:pointer; }
+        #spiral-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
+        .spiral-hit-area { width: 22px; height: 22px; background: transparent; z-index: 20000; border-radius: 50%; position: absolute; }
+        .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; box-shadow: 0 6px 0 #8a2a35; cursor:pointer; }
+        input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; border:none; box-sizing:border-box; }
     </style>
 </head>
 <body>
 
 <div id="start-screen">
-    <h3 style="color:#ffd700; margin: 10px 0;">Search Challenge 25</h3>
+    <h2 style="color:#ffd700; margin: 10px 0;">Search Challenge GIGA-HARD</h2>
     <div class="premium-box">
-        <div style="font-size:16px; font-weight:bold; color:#ffd700;">10万円分ギフト券 挑戦権</div>
+        <div style="font-size:18px; font-weight:bold; color:#ffd700;">10万円分ギフト券</div>
+        <div style="font-size:11px; margin-top:5px;">応援(OFUSE)によりユニセフ・国境なき医師団等への寄付を目指します。</div>
+    </div>
+    <div style="width: 100%; max-width: 340px; margin: 10px 0;">
+        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">活動を応援して10万円に挑戦！🚀</a>
     </div>
     <div class="target-rule">
-        【バグ修正済・タイマー調整】<br>
-        ・背景の金貨を修正。<br>
-        ・25番：300本渦巻き（1本の線画）<br>
-        ・タイマーを15秒に延長。
+        【参加規約】<br>
+        ・制限時間は各ステージ<span style="color:red;font-weight:bold;">30秒</span>です。<br>
+        ・本人確認にパスワードを使用します。OFUSEも共通の物を使用して下さい。<br>
+        ・不正な記録は、管理者の判断で予告なく削除します。
     </div>
     <div style="width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px;">
-        <input type="text" id="p-name" placeholder="名前">
-        <input type="password" id="p-pass" placeholder="パスワード(4桁)">
-        <button onclick="startGame()" class="btn">25ステージ開始！🏆</button>
+        <input type="text" id="p-name" placeholder="名前 (10文字以内)">
+        <input type="password" id="p-pass" placeholder="パスワード (数字4桁)">
+        <button onclick="startGame()" class="btn">挑戦を開始する！🏆</button>
     </div>
 </div>
 
 <div class="header">
-    <div id="stg-desc" style="font-weight:bold; font-size:13px;">Ready...</div>
-    <div>残り: <span id="timer">150.00</span> | Stage: <span id="stg-n">1</span>/25</div>
+    <div id="stg-desc" style="font-weight:bold;">Ready...</div>
+    <div>残り: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/25</div>
 </div>
 <div class="game-area" id="field"></div>
 
 <script>
-let cur = 0, ms = 15000, tid = null, active = false, found = 0, score = 0, pName, pPass;
+let cur = 0, ms = 3000, tid = null, active = false, found = 0, score = 0, pName, pPass;
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-const EYE_SVG = (color) => `<svg viewBox="0 0 100 100" width="24" height="24"><path d="M10,50 Q50,10 90,50 Q50,90 10,50" fill="white" stroke="#333" stroke-width="4"/><circle cx="50" cy="50" r="18" fill="${color}"/></svg>`;
+function playSound(freq, type, dur) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + dur);
+}
 
 const stages = [
-    { t: "1. 動物から人間！", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 500 }, // 背景+100
+    { t: "1. 動物から人間！", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 500 },
     { t: "2. 人間から猫！", c: ["🧔","👵","👦","👧"], g: "🐱", n: 500 },
-    { t: "3. 渋滞から自転車！", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 350 }, // -100台（維持）
+    { t: "3. 渋滞から自転車！", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 350 },
     { t: "4. お菓子からクッキー！", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 500 },
-    { t: "5. 金貨の山から銀貨5枚！", c: ["🪙"], g: "🥈", n: 600, goals: 5, type: "silver" }, // 背景金貨に修正
+    { t: "5. 金貨の山から銀貨5枚！", c: ["🪙"], g: "🥈", n: 600, goals: 5, type: "silver" },
     { t: "6. 美女の中に…相撲力士！", c: ["👩‍🦰","👱‍♀️","💃"], g: "sumo.png", n: 500 },
-    { t: "7. 国旗（日米中露北）！", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 500, goals: 5, type: "flags_rand" }, // ランダム配置
-    { t: "8. 魚から魚の骨！", c: ["🐟","🐠"], g: "fishbone.png", n: 550 }, // 骨バグ修正
-    { t: "9. 宇宙に梅干しが1個！", c: ["🪐","⭐","🌌"], g: "umeboshi.png", n: 550, type: "umeboshi" }, // 梅バグ修正
-    { t: "10. 反転した「あ」を5個！", c: ["あ"], g: "あ", n: 400, goals: 5, type: "mirror" }, // 色バグ修正
+    { t: "7. 国旗（日米中露北）を全部！", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 500, goals: 5 },
+    { t: "8. 魚から魚の骨！", c: ["🐟","🐠"], g: "fishbone.png", n: 550 },
+    { t: "9. 宇宙に梅干しが1個！", c: ["🪐","⭐","🌌"], g: "umeboshi.png", n: 550 },
+    { t: "10. 反転した「あ」を5個！", c: ["あ"], g: "あ", n: 400, goals: 5, type: "mirror" },
     { t: "11. ビルから赤い鳥居！", c: ["🏢","🏣"], g: "⛩", n: 500, type: "torii" },
     { t: "12. 🍎から🍒！", c: ["🍎"], g: "🍒", n: 550 },
     { t: "13. 葉っぱから🐛！", c: ["🍃","🌱"], g: "🐛", n: 500 },
@@ -90,12 +97,12 @@ const stages = [
     { t: "17. イカからタコ！", c: ["🦑"], g: "🐙", n: 550 },
     { t: "18. 薄いUFOを探せ！", c: ["✨","🌟"], g: "🛸", n: 600, type: "ufo" },
     { t: "19. キャンディからソフト5個！", c: ["🍭"], g: "🍦", n: 400, goals: 5 },
-    { t: "20. 黒目から茶色目5つ", c: ["EYE_B"], g: "EYE_BR", n: 400, goals: 5 },
+    { t: "20. 黒目から茶色目5つ", c: ["👁️"], g: "👁️", n: 400, goals: 5, type: "eye" },
     { t: "21. 美女を5人！", c: ["🧔"], g: "💃", n: 500, goals: 5 },
-    { t: "22. 震える中から静止5つ", c: ["SHAKE"], g: "STILL", n: 350, goals: 5 },
+    { t: "22. 震える中から静止5つ", c: ["■"], g: "■", n: 350, goals: 5, type: "shake" },
     { t: "23. 鶏からヒヨコ5匹", c: ["🐓"], g: "🐥", n: 400, goals: 5 },
-    { t: "24. 運命の選択（左右）", g: "CHOICE" },
-    { t: "25. 300本渦巻き：断線5箇所", g: "SPIRAL" },
+    { t: "24. 運命の選択（左右どちらか）", g: "CHOICE" },
+    { t: "25. 極細渦巻き：断線5箇所", g: "SPIRAL" },
     { t: "FINAL", g: "FINAL" }
 ];
 
@@ -103,79 +110,67 @@ function startGame() {
     pName = document.getElementById('p-name').value.trim();
     pPass = document.getElementById('p-pass').value.trim();
     if(!pName || pPass.length<4) return alert("名前と4桁パスワードを入力してください");
+    if(audioCtx.state === 'suspended') audioCtx.resume();
     document.getElementById('start-screen').style.display='none'; 
     cur = 0; init();
 }
 
 function init() {
     const f = document.getElementById('field'); f.innerHTML = "";
-    found = 0; active = true; ms = 15000;
+    found = 0; active = true; ms = 3000; // 30秒固定
     const s = stages[cur];
     if(!s || s.g === "FINAL") return end();
-    
     document.getElementById('stg-desc').innerText = s.t;
     document.getElementById('stg-n').innerText = cur + 1;
 
-    if(s.g === "CHOICE") {
-        createChoiceStage(f);
-    } else if(s.g === "SPIRAL") {
-        createSpiralStage(f);
-    } else {
-        createNormalStage(f, s);
-    }
+    if(s.g === "CHOICE") createChoiceStage(f);
+    else if(s.g === "SPIRAL") createSpiralStage(f);
+    else createNormalStage(f, s);
+
     if(!tid) tid = setInterval(updateTimer, 10);
 }
 
 function createNormalStage(f, s) {
-    // 1. ダミーを先に配置（下層）
-    for(let i=0; i<s.n; i++) createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false);
-    
-    // 2. 正解を後に配置（最前面）
-    if(s.g === "FLAGS" || s.type === "flags_rand") {
-        ["🇯🇵", "🇺🇸", "🇨🇳", "🇷🇺", "🇰🇵"].forEach((flag) => createItem(f, flag, true)); // ランダム配置
-    } else if(s.goals > 1) {
-        for(let j=0; j<s.goals; j++) createItem(f, s.g, true, null, null, s.type, j);
+    for(let i=0; i<s.n; i++) createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false, s.type);
+    if(s.g === "FLAGS") {
+        ["🇯🇵", "🇺🇸", "🇨🇳", "🇷🇺", "🇰🇵"].forEach((flag) => createItem(f, flag, true));
     } else {
-        createItem(f, s.g, true, null, null, s.type);
+        const goalNum = s.goals || 1;
+        for(let j=0; j<goalNum; j++) createItem(f, s.g, true, s.type, j);
     }
 }
 
-function createItem(f, type, isT, cx, cy, st, idx) {
+function createItem(f, type, isT, st, idx) {
     const el = document.createElement('span');
     el.className = isT ? 'item target-item' : 'item';
-    
-    if(isT) {
+    if(!isT) {
+        el.style.zIndex = Math.floor(Math.random()*10000);
+        if(st === "shake") { el.innerText = "■"; el.classList.add("shaking"); }
+        else if(st === "eye") { el.innerText = "👁️"; el.style.filter = "grayscale(100%)"; }
+        else el.innerText = type;
+        el.style.left = (Math.random()*92)+"%"; el.style.top = (Math.random()*92)+"%";
+    } else {
         if(st === "silver") el.classList.add('target-silver');
-        if(st === "umeboshi") el.classList.add('target-umeboshi');
         if(st === "mirror") el.classList.add('mirror-font');
         if(st === "torii") el.style.color = "red";
         if(st === "ufo") el.style.opacity = "0.2";
-        if(type === "DIFF_5") el.innerText = ["🐶","🐱","🐭","🐹","🐰"][idx];
-        if(type === "EYE_BR") el.innerHTML = EYE_SVG("#630");
-        if(type === "STILL") el.innerText = "■";
-        
-        el.style.left = cx ? cx+"%" : (5+Math.random()*90)+"%";
-        el.style.top = cy ? cy+"%" : (5+Math.random()*90)+"%";
-    } else {
-        if(type === "EYE_B") el.innerHTML = EYE_SVG("#000");
-        else if(type === "SHAKE") { el.innerText = "■"; el.classList.add("shaking"); }
+        if(st === "eye") { el.innerText = "👁️"; el.style.filter = "sepia(100%) saturate(300%) hue-rotate(10deg)"; }
+        else if(type === "DIFF_5") el.innerText = ["🐶","🐱","🐭","🐹","🐰"][idx];
         else el.innerText = type;
-        el.style.zIndex = Math.floor(Math.random()*10000);
-        el.style.left = (Math.random()*92)+"%"; el.style.top = (Math.random()*92)+"%";
+        el.style.left = (5+Math.random()*85)+"%"; el.style.top = (5+Math.random()*85)+"%";
     }
 
     if(type.indexOf(".png") !== -1) {
+        el.innerText = "";
         const img = document.createElement('img');
         img.className = 'target-img';
         img.src = type + "?v=" + Date.now();
         img.onerror = function() {
             this.style.display="none";
-            el.innerText = type==="sumo.png"?"力士":(type==="umeboshi.png"?"梅":"骨");
-            el.style.fontSize="11px"; el.style.color="#d44d5c"; // 漢字バグ修正
+            el.innerText = type==="sumo.png"?"力士":(type==="umeboshi.png"?"梅干し":"魚の骨");
+            el.style.fontSize="11px"; el.style.color="#d44d5c"; el.style.fontWeight="bold";
         };
         el.appendChild(img);
-    } else if(!el.innerHTML) {
-        el.innerText = type;
     }
 
     el.onclick = () => {
@@ -183,6 +178,7 @@ function createItem(f, type, isT, cx, cy, st, idx) {
         if(isT) {
             if(el.style.opacity === "0.4") return;
             found++; score += ms/100; el.style.opacity = "0.4";
+            playSound(880, 'sine', 0.1);
             if(found >= (stages[cur].goals || 1)) nextStage();
         } else {
             el.style.opacity = "0"; el.style.pointerEvents = "none";
@@ -192,91 +188,66 @@ function createItem(f, type, isT, cx, cy, st, idx) {
 }
 
 function createChoiceStage(f) {
-    f.innerHTML += `<div class="v-line"></div>`;
     const isL = Math.random() < 0.5;
-    const l = document.createElement('div'); l.className = 'choice-circle'; l.style.left = "calc(25% - 40px)";
+    const l = document.createElement('div'); l.style.cssText="position:absolute;top:50%;left:20%;width:80px;height:80px;border:6px solid red;border-radius:50%;transform:translateY(-50%);cursor:pointer;z-index:20000;";
     l.onclick = () => isL ? nextStage() : location.reload();
-    const r = document.createElement('div'); r.className = 'choice-circle'; r.style.left = "calc(75% - 40px)";
+    const r = document.createElement('div'); r.style.cssText="position:absolute;top:50%;left:60%;width:80px;height:80px;border:6px solid red;border-radius:50%;transform:translateY(-50%);cursor:pointer;z-index:20000;";
     r.onclick = () => !isL ? nextStage() : location.reload();
+    f.innerHTML += `<div style="position:absolute;top:0;left:50%;width:2px;height:100%;background:#333;"></div>`;
     f.appendChild(l); f.appendChild(r);
 }
 
 function createSpiralStage(f) {
-    const canvas = document.createElement('canvas');
-    canvas.id = 'spiral-canvas';
-    f.appendChild(canvas);
-    const ctx = canvas.getContext('2d');
-    
-    // Canvasサイズ設定
-    const w = canvas.width = f.offsetWidth;
-    const h = canvas.height = f.offsetHeight;
-    const cx = w/2, cy = h/2;
-    
-    // 300本渦巻き（1本の線画）
-    ctx.beginPath();
-    ctx.lineWidth = 0.5;
-    ctx.strokeStyle = '#000';
-    
-    const numTurns = 120; // 300本の線ができるように調整
-    const maxRadius = Math.max(w, h);
-    
-    let pathPoints = [];
-    
-    for(let i=0; i<360 * numTurns; i++) {
-        const angle = i * Math.PI / 180;
-        const radius = (angle / (Math.PI / 2)) * 0.4;
-        const x = cx + Math.cos(angle) * radius;
-        const y = cy + Math.sin(angle) * radius;
-        
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-        
-        pathPoints.push({x, y});
-        if(radius > maxRadius) break;
+    const canvas = document.createElement('canvas'); canvas.id = 'spiral-canvas'; f.appendChild(canvas);
+    const ctx = canvas.getContext('2d'); const w = canvas.width = f.offsetWidth; const h = canvas.height = f.offsetHeight;
+    const cx = w/2, cy = h/2; ctx.beginPath(); ctx.lineWidth = 1; ctx.strokeStyle = '#333';
+    let pts = [];
+    for(let i=0; i<360 * 120; i++) {
+        const angle = i * Math.PI / 180; const radius = angle * 0.15;
+        const x = cx + Math.cos(angle) * radius; const y = cy + Math.sin(angle) * radius;
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        pts.push({x,y}); if(radius > Math.max(w,h)) break;
     }
     ctx.stroke();
-    
-    // 断線5箇所（タップ判定）
     for(let j=0; j<5; j++) {
-        const pIdx = Math.floor(Math.random() * (pathPoints.length - 2000) + 1000); // 中央付近を除外
-        const p = pathPoints[pIdx];
-        
-        // 線を白で上書きして断線させる
-        ctx.beginPath();
-        ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
-
-        // タップエリア
-        const el = document.createElement('div');
-        el.className = 'item spiral-hit-area'; 
-        el.style.left = (p.x - 7.5) + "px"; el.style.top = (p.y - 7.5) + "px";
-        el.onclick = () => { if(el.style.opacity==="0")return; confetti({particleCount:10}); el.style.opacity="0"; found++; if(found>=5) nextStage(); };
-        f.appendChild(el);
+        const p = pts[Math.floor(Math.random()*(pts.length-2000)+1000)];
+        ctx.clearRect(p.x-6, p.y-6, 12, 12);
+        const hit = document.createElement('div'); hit.className = 'spiral-hit-area';
+        hit.style.left = (p.x-11)+"px"; hit.style.top = (p.y-11)+"px";
+        hit.onclick = () => { if(hit.style.opacity==="0")return; hit.style.opacity="0"; playSound(880, 'sine', 0.1); found++; if(found>=5) nextStage(); };
+        f.appendChild(hit);
     }
 }
 
-function nextStage() { active = false; confetti({particleCount:80}); setTimeout(()=>{cur++; init();}, 600); }
+function nextStage() { active = false; confetti({particleCount:100}); setTimeout(()=>{cur++; init();}, 600); }
 
 function updateTimer() {
     if(!active) return;
     ms--;
     const t = document.getElementById('timer');
-    if(ms <= 0) { location.reload(); return; }
+    if(ms <= 0) { playSound(150, 'sawtooth', 0.5); location.reload(); return; }
     t.innerText = (ms/100).toFixed(2);
-    if(ms <= 3000) t.style.color = "red";
-    else t.style.color = "white";
+    
+    // 10秒以下で赤文字 & 1秒ごとにピッ
+    if(ms <= 1000) {
+        t.style.color = "red";
+        if(ms % 100 === 0) playSound(440, 'sine', 0.05);
+    } else {
+        t.style.color = "white";
+    }
 }
 
 function end() {
     active = false; clearInterval(tid);
     document.getElementById('field').innerHTML = `
-        <div style="padding:20px;">
-            <h2 style="color:#d44d5c;">25ステージ全クリア！</h2>
-            <p>最終スコア: ${score.toFixed(2)}</p>
+        <div style="padding:20px; overflow-y:auto; height:100%;">
+            <h2 style="color:#d44d5c;">全クリア！</h2>
+            <p>SCORE: ${score.toFixed(2)}</p>
             <div class="premium-box" style="margin:20px auto; background:white; color:#333;">
-                <p><b>1円募金（支援）のお願い</b></p>
+                <p><b>支援のお願い</b></p>
                 <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn" style="text-decoration:none; display:inline-block; width:80%;">PayPayで応援</a>
             </div>
-            <button onclick="location.reload()" class="btn" style="width:200px;">もう一度挑戦</button>
+            <button onclick="location.reload()" class="btn" style="width:200px;">再挑戦する</button>
         </div>`;
 }
 </script>
