@@ -3,88 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-    <title>Search Challenge - PREMIER</title>
+    <title>Search Challenge GIGA-25</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
         body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; }
         .premium-box { border: 4px solid #ffd700; padding: 10px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 5px 0; width: 100%; max-width: 340px; }
-        .target-rule { color: #333; font-size: 12px; background: white; padding: 12px; border-radius: 10px; margin: 8px 0; line-height: 1.5; text-align: left; border-left: 5px solid #ffd700; width: 95%; box-sizing: border-box; }
-        input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; border:none; box-sizing:border-box; }
+        .target-rule { color: #333; font-size: 11px; background: white; padding: 10px; border-radius: 10px; margin: 8px 0; line-height: 1.4; text-align: left; border-left: 5px solid #ffd700; width: 95%; box-sizing: border-box; }
+        input { padding:10px; font-size:16px; width:100%; margin-bottom:8px; border-radius:8px; border:none; box-sizing:border-box; }
         .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
         #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 24px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         
-        /* 共通アイテムスタイル */
-        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
+        /* ターゲット共通設定 */
+        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; font-size: 24px; }
+        .target-item { z-index: 20000 !important; filter: drop-shadow(0 0 6px gold); }
         
-        /* ターゲット：絶対最前面 & 発光エフェクト */
-        .target-item { 
-            z-index: 20000 !important; 
-            filter: drop-shadow(0 0 8px gold);
-        }
-
-        /* 個別調整 */
-        .target-silver { width: 32px !important; height: 32px !important; font-size: 24px !important; }
-        .target-umeboshi { width: 34px !important; height: 34px !important; background: #ffc0cb; border-radius: 50%; padding: 3px; }
+        /* リクエスト修正用スタイル */
+        .target-silver { width: 30px !important; height: 30px !important; font-size: 22px !important; }
+        .target-umeboshi { width: 32px !important; height: 32px !important; background: #ffc0cb; border-radius: 50%; padding: 2px; }
         .target-img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-        .emoji-item { font-size: 28px; }
-
-        /* ボタン類 */
-        .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; box-shadow: 0 6px 0 #8a2a35; cursor:pointer; }
-        .btn-ofuse-top { background: #ed6c00; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin-bottom: 5px; }
+        
+        /* 特殊ステージ用 */
+        .mirror-font { transform: scaleX(-1) !important; }
+        .shaking { animation: glitch 0.1s infinite; }
+        @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-1px,1px)} 40%{transform:translate(-1px,-1px)} 60%{transform:translate(1px,1px)} 100%{transform:translate(0)} }
+        .v-line { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: #333; }
+        .choice-circle { position: absolute; top: 50%; width: 80px; height: 80px; border: 6px solid #ff0000; border-radius: 50%; transform: translateY(-50%); cursor: pointer; z-index: 1000; }
+        
+        .btn { width:100%; padding:16px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:12px; font-size:18px; font-weight:bold; box-shadow: 0 5px 0 #8a2a35; cursor:pointer; }
     </style>
 </head>
 <body>
 
 <div id="start-screen">
-    <h2 style="color:#ffd700; margin: 10px 0;">Search Challenge!</h2>
+    <h3 style="color:#ffd700; margin: 10px 0;">Search Challenge 25</h3>
     <div class="premium-box">
-        <div style="font-size:18px; font-weight:bold; color:#ffd700;">10万円分ギフト券</div>
-        <div style="font-size:11px; margin-top:5px;">応援(OFUSE)により寄付を目指します。</div>
-    </div>
-    <div style="width: 100%; max-width: 340px; margin: 10px 0;">
-        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">活動を応援して10万円に挑戦！🚀</a>
+        <div style="font-size:16px; font-weight:bold; color:#ffd700;">10万円分ギフト券 挑戦権</div>
     </div>
     <div class="target-rule">
-        【ルール】<br>
-        ・金貨から<b>銀貨5枚</b>、宇宙から<b>ピンクの梅</b>を探せ！<br>
-        ・ターゲットは常に最前面にあります。
+        【最新修正済】<br>
+        ・金貨から<b>銀貨5枚(小)</b>を探せ！<br>
+        ・宇宙から<b>ピンクの梅(小)</b>を探せ！<br>
+        ・自転車の渋滞を100台緩和。
     </div>
     <div style="width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px;">
         <input type="text" id="p-name" placeholder="名前">
         <input type="password" id="p-pass" placeholder="パスワード(4桁)">
-        <button onclick="startGame()" class="btn">挑戦を開始！🏆</button>
+        <button onclick="startGame()" class="btn">全25ステージ開始！🏆</button>
     </div>
 </div>
 
 <div class="header">
-    <div id="stg-desc" style="font-weight:bold; font-size:14px;">Ready...</div>
-    <div>残り: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/10</div>
+    <div id="stg-desc" style="font-weight:bold; font-size:13px;">Ready...</div>
+    <div>残り: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/25</div>
 </div>
 <div class="game-area" id="field"></div>
 
 <script>
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, score = 0, pName, pPass;
 
+const EYE_SVG = (color) => `<svg viewBox="0 0 100 100" width="24" height="24"><path d="M10,50 Q50,10 90,50 Q50,90 10,50" fill="white" stroke="#333" stroke-width="4"/><circle cx="50" cy="50" r="18" fill="${color}"/></svg>`;
+
 const stages = [
-    { t: "1. 動物から人間！", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 450 },
-    { t: "2. 人間から猫！", c: ["🧔","👵","👦","👧"], g: "🐱", n: 450 },
-    { t: "3. 渋滞から自転車！", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 350 }, // 減量
-    { t: "4. お菓子からクッキー！", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 450 },
-    { t: "5. 金貨から「銀貨5枚」！", c: ["🪙"], g: "🥈", n: 500, goals: 5, type: "silver" },
-    { t: "6. 美女の中に…相撲力士！", c: ["👩‍🦰","👱‍♀️","💃"], g: "sumo.png", n: 450 },
-    { t: "7. 国旗（日米中露北）！", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 450, goals: 5 },
+    { t: "1. 動物から人間！", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 400 },
+    { t: "2. 人間から猫！", c: ["🧔","👵","👦","👧"], g: "🐱", n: 400 },
+    { t: "3. 渋滞から自転車！", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 350 }, // -100台
+    { t: "4. お菓子からクッキー！", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 400 },
+    { t: "5. 金貨から銀貨5枚(小)！", c: ["🪙"], g: "🥈", n: 500, goals: 5, type: "silver" },
+    { t: "6. 美女の中に…相撲力士！", c: ["👩‍🦰","👱‍♀️","💃"], g: "sumo.png", n: 400 },
+    { t: "7. 国旗（日米中露北）！", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 400, goals: 5 },
     { t: "8. 魚から魚の骨！", c: ["🐟","🐠"], g: "fishbone.png", n: 450 },
-    { t: "9. 宇宙に「ピンクの梅干し」！", c: ["🪐","⭐","🌌"], g: "umeboshi.png", n: 450, type: "umeboshi" },
-    { t: "FINAL: 1円募金のお願い", g: "FINAL" }
+    { t: "9. 宇宙にピンクの梅干し(小)！", c: ["🪐","⭐","🌌"], g: "umeboshi.png", n: 450, type: "umeboshi" },
+    { t: "10. 反転した「あ」を5個！", c: ["あ"], g: "あ", n: 300, goals: 5, type: "mirror" },
+    { t: "11. ビルから赤い鳥居！", c: ["🏢","🏣"], g: "⛩", n: 400, type: "torii" },
+    { t: "12. 🍎から🍒！", c: ["🍎"], g: "🍒", n: 450 },
+    { t: "13. 葉っぱから🐛！", c: ["🍃","🌱"], g: "🐛", n: 400 },
+    { t: "14. スポーツから🏆！", c: ["⚽","🏀"], g: "🏆", n: 400 },
+    { t: "15. 月から🍌！", c: ["🌙"], g: "🍌", n: 450 },
+    { t: "16. 全員違う動物を5匹！", c: ["🐼"], g: "DIFF_5", n: 300, goals: 5 },
+    { t: "17. イカからタコ！", c: ["🦑"], g: "🐙", n: 450 },
+    { t: "18. 薄いUFOを探せ！", c: ["✨","🌟"], g: "🛸", n: 500, type: "ufo" },
+    { t: "19. キャンディからソフト5個！", c: ["🍭"], g: "🍦", n: 300, goals: 5 },
+    { t: "20. 黒目から茶色目5つ", c: ["EYE_B"], g: "EYE_BR", n: 300, goals: 5 },
+    { t: "21. 美女を5人！", c: ["🧔"], g: "💃", n: 400, goals: 5 },
+    { t: "22. 震える中から静止5つ", c: ["SHAKE"], g: "STILL", n: 250, goals: 5 },
+    { t: "23. 鶏からヒヨコ5匹", c: ["🐓"], g: "🐥", n: 300, goals: 5 },
+    { t: "24. 運命の選択（左右）", g: "CHOICE" },
+    { t: "25. 極細渦巻き：断線5箇所", g: "SPIRAL" },
+    { t: "FINAL", g: "FINAL" }
 ];
 
 function startGame() {
     pName = document.getElementById('p-name').value.trim();
     pPass = document.getElementById('p-pass').value.trim();
-    if(!pName || pPass.length<4) return alert("入力不備");
+    if(!pName || pPass.length<4) return alert("名前と4桁パスワードを入力してください");
     document.getElementById('start-screen').style.display='none'; 
     cur = 0; init();
 }
@@ -93,43 +107,55 @@ function init() {
     const f = document.getElementById('field'); f.innerHTML = "";
     found = 0; active = true; ms = 3000;
     const s = stages[cur];
-    if(s.g === "FINAL") return end();
+    if(!s || s.g === "FINAL") return end();
     
     document.getElementById('stg-desc').innerText = s.t;
     document.getElementById('stg-n').innerText = cur + 1;
 
-    // 1. 群衆を生成
-    for(let i=0; i<s.n; i++) {
-        createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false);
-    }
-
-    // 2. ターゲットを生成（最前面）
-    if(s.g === "FLAGS") {
-        ["🇯🇵", "🇺🇸", "🇨🇳", "🇷🇺", "🇰🇵"].forEach((flag, i) => {
-            createItem(f, flag, true, 15 + (i * 18), 40); // 重ならない配置
-        });
-    } else if(s.type === "silver") {
-        for(let j=0; j<5; j++) createItem("🥈", true, null, null, "silver");
+    if(s.g === "CHOICE") {
+        createChoiceStage(f);
+    } else if(s.g === "SPIRAL") {
+        createSpiralStage(f);
     } else {
-        createItem(f, s.g, true, null, null, s.type);
+        createNormalStage(f, s);
     }
-
     if(!tid) tid = setInterval(updateTimer, 10);
 }
 
-function createItem(f, type, isT, customX, customY, specialType) {
+function createNormalStage(f, s) {
+    for(let i=0; i<s.n; i++) createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false);
+    
+    if(s.g === "FLAGS") {
+        ["🇯🇵", "🇺🇸", "🇨🇳", "🇷🇺", "🇰🇵"].forEach((flag, i) => createItem(f, flag, true, 12+(i*18), 40));
+    } else if(s.goals > 1) {
+        for(let j=0; j<s.goals; j++) createItem(f, s.g, true, null, null, s.type, j);
+    } else {
+        createItem(f, s.g, true, null, null, s.type);
+    }
+}
+
+function createItem(f, type, isT, cx, cy, st, idx) {
     const el = document.createElement('span');
     el.className = isT ? 'item target-item' : 'item';
     
-    if (isT) {
-        if (specialType === "silver" || type === "🥈") el.classList.add('target-silver');
-        if (specialType === "umeboshi") el.classList.add('target-umeboshi');
-        el.style.left = customX ? customX + "%" : (10 + Math.random()*80) + "%";
-        el.style.top = customY ? customY + "%" : (10 + Math.random()*80) + "%";
+    if(isT) {
+        if(st === "silver") el.classList.add('target-silver');
+        if(st === "umeboshi") el.classList.add('target-umeboshi');
+        if(st === "mirror") el.classList.add('mirror-font');
+        if(st === "torii") el.style.color = "red";
+        if(st === "ufo") el.style.opacity = "0.2";
+        if(type === "DIFF_5") el.innerText = ["🐶","🐱","🐭","🐹","🐰"][idx];
+        if(type === "EYE_BR") el.innerHTML = EYE_SVG("#630");
+        if(type === "STILL") el.innerText = "■";
+        
+        el.style.left = cx ? cx+"%" : (10+Math.random()*80)+"%";
+        el.style.top = cy ? cy+"%" : (10+Math.random()*80)+"%";
     } else {
+        if(type === "EYE_B") el.innerHTML = EYE_SVG("#000");
+        else if(type === "SHAKE") { el.innerText = "■"; el.classList.add("shaking"); }
+        else el.innerText = type;
         el.style.zIndex = Math.floor(Math.random()*10000);
-        el.style.left = (Math.random()*92) + "%";
-        el.style.top = (Math.random()*92) + "%";
+        el.style.left = (Math.random()*92)+"%"; el.style.top = (Math.random()*92)+"%";
     }
 
     if(type.indexOf(".png") !== -1) {
@@ -137,36 +163,52 @@ function createItem(f, type, isT, customX, customY, specialType) {
         img.className = 'target-img';
         img.src = type + "?v=" + Date.now();
         img.onerror = function() {
-            this.style.display = "none";
-            el.innerText = type === "sumo.png" ? "力士" : (type === "umeboshi.png" ? "梅" : "骨");
-            el.style.background = "#fff"; el.style.border = "2px solid gold"; el.style.borderRadius = "5px";
-            el.style.fontSize = "14px"; el.style.fontWeight = "bold";
+            this.style.display="none";
+            el.innerText = type==="sumo.png"?"力士":(type==="umeboshi.png"?"梅":"骨");
+            el.style.fontSize="12px"; el.style.background="#fff"; el.style.border="1px solid gold";
         };
         el.appendChild(img);
-    } else {
+    } else if(!el.innerHTML) {
         el.innerText = type;
-        el.classList.add('emoji-item');
     }
 
-    el.onclick = (e) => {
+    el.onclick = () => {
         if(!active) return;
         if(isT) {
-            if(el.style.opacity === "0.3") return;
-            found++; score += ms/100;
-            el.style.opacity = "0.3"; el.style.transform = "scale(2) rotate(360deg)"; el.style.transition = "0.3s";
+            if(el.style.opacity === "0.4") return;
+            found++; score += ms/100; el.style.opacity = "0.4";
             if(found >= (stages[cur].goals || 1)) nextStage();
         } else {
-            el.style.opacity = "0"; el.style.pointerEvents = "none"; // ハズレを消せる
+            el.style.opacity = "0"; el.style.pointerEvents = "none";
         }
     };
     f.appendChild(el);
 }
 
-function nextStage() { 
-    active = false; 
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-    setTimeout(()=>{cur++; init();}, 600); 
+function createChoiceStage(f) {
+    f.innerHTML += `<div class="v-line"></div>`;
+    const isL = Math.random() < 0.5;
+    const l = document.createElement('div'); l.className = 'choice-circle'; l.style.left = "calc(25% - 40px)";
+    l.onclick = () => isL ? nextStage() : location.reload();
+    const r = document.createElement('div'); r.className = 'choice-circle'; r.style.left = "calc(75% - 40px)";
+    r.onclick = () => !isL ? nextStage() : location.reload();
+    f.appendChild(l); f.appendChild(r);
 }
+
+function createSpiralStage(f) {
+    const bg = document.createElement('div');
+    bg.style.cssText = "position:absolute;width:100%;height:100%;background:repeating-radial-gradient(circle, #000, #000 0.2px, transparent 0.2px, transparent 1.5px);";
+    f.appendChild(bg);
+    for(let j=0; j<5; j++) {
+        const el = document.createElement('div');
+        el.className = 'item target-item'; el.style.width="20px"; el.style.height="20px";
+        el.style.left = (10+Math.random()*80)+"%"; el.style.top = (10+Math.random()*80)+"%";
+        el.onclick = () => { if(el.style.opacity==="0")return; el.style.opacity="0"; found++; if(found>=5) nextStage(); };
+        f.appendChild(el);
+    }
+}
+
+function nextStage() { active = false; confetti({particleCount:80}); setTimeout(()=>{cur++; init();}, 600); }
 
 function updateTimer() {
     if(!active) return;
@@ -181,11 +223,11 @@ function end() {
     active = false; clearInterval(tid);
     document.getElementById('field').innerHTML = `
         <div style="padding:20px;">
-            <h2 style="color:#d44d5c;">全クリア！</h2>
-            <p>SCORE: ${score.toFixed(2)}</p>
+            <h2 style="color:#d44d5c;">25ステージ全クリア！</h2>
+            <p>最終スコア: ${score.toFixed(2)}</p>
             <div class="premium-box" style="margin:20px auto; background:white; color:#333;">
                 <p><b>1円募金（支援）のお願い</b></p>
-                <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn" style="text-decoration:none; display:inline-block; width:80%;">PayPayで支援</a>
+                <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn" style="text-decoration:none; display:inline-block; width:80%;">PayPayで応援</a>
             </div>
             <button onclick="location.reload()" class="btn" style="width:200px;">もう一度挑戦</button>
         </div>`;
