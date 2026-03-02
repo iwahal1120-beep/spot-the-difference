@@ -8,16 +8,12 @@
     <style>
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
         body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
-        
-        /* スタート画面 */
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .premium-box { border: 4px solid #ffd700; padding: 10px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 5px 0; width: 100%; max-width: 340px; }
         .target-rule { color: #333; font-size: 12px; background: white; padding: 12px; border-radius: 10px; margin: 8px 0; line-height: 1.5; text-align: left; border-left: 5px solid #ffd700; width: 95%; max-width: 340px; box-sizing: border-box; }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin-bottom: 5px; width: 100%; text-align: center; }
-        
-        /* ゲームUI */
         .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
-        #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 24px; transition: color 0.2s; }
+        #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 24px; transition: color 0.1s; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; font-size: 24px; }
         .target-item { z-index: 20000 !important; filter: drop-shadow(0 0 6px gold); }
@@ -26,9 +22,9 @@
         .mirror-font { transform: scaleX(-1) !important; }
         .shaking { animation: glitch 0.1s infinite; }
         @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-1px,1px)} 40%{transform:translate(-1px,-1px)} 60%{transform:translate(1px,1px)} 100%{transform:translate(0)} }
-        
         #spiral-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
         .spiral-hit-area { width: 22px; height: 22px; background: transparent; z-index: 20000; border-radius: 50%; position: absolute; }
+        .choice-btn { position:absolute; top:50%; width:100px; height:100px; border-radius:50%; transform:translateY(-50%); cursor:pointer; z-index:20000; border:4px solid white; box-shadow: 0 0 15px rgba(0,0,0,0.3); }
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; box-shadow: 0 6px 0 #8a2a35; cursor:pointer; }
         input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; border:none; box-sizing:border-box; }
     </style>
@@ -39,16 +35,16 @@
     <h2 style="color:#ffd700; margin: 10px 0;">Search Challenge GIGA-HARD</h2>
     <div class="premium-box">
         <div style="font-size:18px; font-weight:bold; color:#ffd700;">10万円分ギフト券</div>
-        <div style="font-size:11px; margin-top:5px;">応援(OFUSE)によりユニセフ・国境なき医師団等への寄付を目指します。</div>
+        <div style="font-size:11px; margin-top:5px;">応援(OFUSE)により寄付を目指します。</div>
     </div>
     <div style="width: 100%; max-width: 340px; margin: 10px 0;">
         <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">活動を応援して10万円に挑戦！🚀</a>
     </div>
     <div class="target-rule">
-        【参加規約】<br>
-        ・制限時間は各ステージ<span style="color:red;font-weight:bold;">30秒</span>です。<br>
-        ・本人確認にパスワードを使用します。OFUSEも共通の物を使用して下さい。<br>
-        ・不正な記録は、管理者の判断で予告なく削除します。
+        【GIGA-HARD 規約】<br>
+        ・制限時間：各ステージ<span style="color:red;font-weight:bold;">30秒</span><br>
+        ・ミスやタイムアウトは<span style="color:red;font-weight:bold;">即終了、最初からやり直し</span>です。<br>
+        ・24番：運命の二択。赤か青、正解は毎回変わります。
     </div>
     <div style="width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px;">
         <input type="text" id="p-name" placeholder="名前 (10文字以内)">
@@ -67,14 +63,18 @@
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, score = 0, pName, pPass;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-function playSound(freq, type, dur) {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type; osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+function playSound(freq, type, dur, vol=0.1) {
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(); osc.stop(audioCtx.currentTime + dur);
+}
+
+function playHeartbeat() {
+    playSound(60, 'sine', 0.15, 0.3);
+    setTimeout(() => { playSound(50, 'sine', 0.2, 0.4); }, 150);
 }
 
 const stages = [
@@ -101,7 +101,7 @@ const stages = [
     { t: "21. 美女を5人！", c: ["🧔"], g: "💃", n: 500, goals: 5 },
     { t: "22. 震える中から静止5つ", c: ["■"], g: "■", n: 350, goals: 5, type: "shake" },
     { t: "23. 鶏からヒヨコ5匹", c: ["🐓"], g: "🐥", n: 400, goals: 5 },
-    { t: "24. 運命の選択（左右どちらか）", g: "CHOICE" },
+    { t: "24. 赤か青か、運命の二択", g: "CHOICE" },
     { t: "25. 極細渦巻き：断線5箇所", g: "SPIRAL" },
     { t: "FINAL", g: "FINAL" }
 ];
@@ -112,21 +112,28 @@ function startGame() {
     if(!pName || pPass.length<4) return alert("名前と4桁パスワードを入力してください");
     if(audioCtx.state === 'suspended') audioCtx.resume();
     document.getElementById('start-screen').style.display='none'; 
-    cur = 0; init();
+    cur = 0; score = 0; init();
+}
+
+function resetToTop() {
+    active = false; clearInterval(tid); tid = null;
+    playSound(150, 'sawtooth', 0.5);
+    document.getElementById('start-screen').style.display = 'flex';
+    document.getElementById('timer').innerText = "30.00";
+    document.getElementById('stg-n').innerText = "1";
+    document.getElementById('field').innerHTML = "";
 }
 
 function init() {
     const f = document.getElementById('field'); f.innerHTML = "";
-    found = 0; active = true; ms = 3000; // 30秒固定
+    found = 0; active = true; ms = 3000;
     const s = stages[cur];
     if(!s || s.g === "FINAL") return end();
     document.getElementById('stg-desc').innerText = s.t;
     document.getElementById('stg-n').innerText = cur + 1;
-
     if(s.g === "CHOICE") createChoiceStage(f);
     else if(s.g === "SPIRAL") createSpiralStage(f);
     else createNormalStage(f, s);
-
     if(!tid) tid = setInterval(updateTimer, 10);
 }
 
@@ -141,8 +148,7 @@ function createNormalStage(f, s) {
 }
 
 function createItem(f, type, isT, st, idx) {
-    const el = document.createElement('span');
-    el.className = isT ? 'item target-item' : 'item';
+    const el = document.createElement('span'); el.className = isT ? 'item target-item' : 'item';
     if(!isT) {
         el.style.zIndex = Math.floor(Math.random()*10000);
         if(st === "shake") { el.innerText = "■"; el.classList.add("shaking"); }
@@ -159,42 +165,32 @@ function createItem(f, type, isT, st, idx) {
         else el.innerText = type;
         el.style.left = (5+Math.random()*85)+"%"; el.style.top = (5+Math.random()*85)+"%";
     }
-
     if(type.indexOf(".png") !== -1) {
-        el.innerText = "";
-        const img = document.createElement('img');
-        img.className = 'target-img';
+        el.innerText = ""; const img = document.createElement('img'); img.className = 'target-img';
         img.src = type + "?v=" + Date.now();
-        img.onerror = function() {
-            this.style.display="none";
-            el.innerText = type==="sumo.png"?"力士":(type==="umeboshi.png"?"梅干し":"魚の骨");
-            el.style.fontSize="11px"; el.style.color="#d44d5c"; el.style.fontWeight="bold";
-        };
+        img.onerror = function() { this.style.display="none"; el.innerText = type==="sumo.png"?"力士":(type==="umeboshi.png"?"梅干し":"骨"); el.style.fontSize="11px"; el.style.color="#d44d5c"; };
         el.appendChild(img);
     }
-
     el.onclick = () => {
         if(!active) return;
         if(isT) {
             if(el.style.opacity === "0.4") return;
             found++; score += ms/100; el.style.opacity = "0.4";
-            playSound(880, 'sine', 0.1);
-            if(found >= (stages[cur].goals || 1)) nextStage();
-        } else {
-            el.style.opacity = "0"; el.style.pointerEvents = "none";
-        }
+            playSound(880, 'sine', 0.1); if(found >= (stages[cur].goals || 1)) nextStage();
+        } else { el.style.opacity = "0"; el.style.pointerEvents = "none"; }
     };
     f.appendChild(el);
 }
 
 function createChoiceStage(f) {
-    const isL = Math.random() < 0.5;
-    const l = document.createElement('div'); l.style.cssText="position:absolute;top:50%;left:20%;width:80px;height:80px;border:6px solid red;border-radius:50%;transform:translateY(-50%);cursor:pointer;z-index:20000;";
-    l.onclick = () => isL ? nextStage() : location.reload();
-    const r = document.createElement('div'); r.style.cssText="position:absolute;top:50%;left:60%;width:80px;height:80px;border:6px solid red;border-radius:50%;transform:translateY(-50%);cursor:pointer;z-index:20000;";
-    r.onclick = () => !isL ? nextStage() : location.reload();
-    f.innerHTML += `<div style="position:absolute;top:0;left:50%;width:2px;height:100%;background:#333;"></div>`;
-    f.appendChild(l); f.appendChild(r);
+    const isRedCorrect = Math.random() < 0.5;
+    const red = document.createElement('div'); red.className = 'choice-btn'; red.style.background = "#ff0000"; red.style.left = "20%";
+    const blue = document.createElement('div'); blue.className = 'choice-btn'; blue.style.background = "#0000ff"; blue.style.left = "60%";
+    
+    red.onclick = () => isRedCorrect ? nextStage() : resetToTop();
+    blue.onclick = () => !isRedCorrect ? nextStage() : resetToTop();
+    
+    f.appendChild(red); f.appendChild(blue);
 }
 
 function createSpiralStage(f) {
@@ -222,32 +218,24 @@ function createSpiralStage(f) {
 function nextStage() { active = false; confetti({particleCount:100}); setTimeout(()=>{cur++; init();}, 600); }
 
 function updateTimer() {
-    if(!active) return;
-    ms--;
-    const t = document.getElementById('timer');
-    if(ms <= 0) { playSound(150, 'sawtooth', 0.5); location.reload(); return; }
+    if(!active) return; ms--; const t = document.getElementById('timer');
+    if(ms <= 0) { resetToTop(); return; }
     t.innerText = (ms/100).toFixed(2);
-    
-    // 10秒以下で赤文字 & 1秒ごとにピッ
-    if(ms <= 1000) {
-        t.style.color = "red";
-        if(ms % 100 === 0) playSound(440, 'sine', 0.05);
-    } else {
-        t.style.color = "white";
-    }
+    if(ms <= 1000) { t.style.color = "red"; if(ms % 50 === 0) playHeartbeat(); } 
+    else { t.style.color = "white"; }
 }
 
 function end() {
     active = false; clearInterval(tid);
     document.getElementById('field').innerHTML = `
-        <div style="padding:20px; overflow-y:auto; height:100%;">
-            <h2 style="color:#d44d5c;">全クリア！</h2>
-            <p>SCORE: ${score.toFixed(2)}</p>
+        <div style="padding:20px;">
+            <h2 style="color:#d44d5c;">完全制覇！</h2>
+            <p>最終スコア: ${score.toFixed(2)}</p>
             <div class="premium-box" style="margin:20px auto; background:white; color:#333;">
                 <p><b>支援のお願い</b></p>
                 <a href="https://qr.paypay.ne.jp/p2p01_nSoMCZ93V9DzYia0" target="_blank" class="btn" style="text-decoration:none; display:inline-block; width:80%;">PayPayで応援</a>
             </div>
-            <button onclick="location.reload()" class="btn" style="width:200px;">再挑戦する</button>
+            <button onclick="location.reload()" class="btn" style="width:200px;">最初に戻る</button>
         </div>`;
 }
 </script>
