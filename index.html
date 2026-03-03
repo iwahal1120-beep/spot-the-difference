@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-    <title>Search Challenge GIGA-HARD</title>
+    <title>Search Challenge GIGA-HARD v2.6</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
         body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .premium-box { border: 4px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 10px 0; width: 100%; max-width: 340px; }
-        .ranking-box { width: 100%; max-width: 340px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; margin: 10px 0; font-size: 13px; box-sizing: border-box; border: 1px solid rgba(255,215,0,0.3); }
-        .ranking-title { color: #ffd700; font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #ffd700; }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 15px; border-radius: 10px; text-decoration: none; font-size: 18px; font-weight: bold; display: block; margin-bottom: 10px; width: 100%; text-align: center; border: 2px solid #fff; }
         .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
         #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 24px; }
@@ -19,17 +17,20 @@
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; font-size: 24px; border-radius: 50%; }
         .target-item { z-index: 20000 !important; } 
 
-        /* 金貨と銀貨の視覚効果（CSSで黄色と白銀を完全再現） */
+        /* 【重要】5番ステージ専用：強制的に「黄色い金貨」にする設定 */
         .gold-coin { 
-            background: radial-gradient(circle, #fff 0%, #ffd700 50%, #b8860b 100%);
-            box-shadow: 0 0 12px rgba(255,215,0,0.9);
-            border: 1.5px solid #daa520;
+            background: #FFD700 !important; /* 純粋なゴールドイエロー */
+            background: radial-gradient(circle, #FFF5A0 0%, #FFD700 60%, #B8860B 100%) !important;
+            box-shadow: 0 0 10px rgba(255,215,0,0.9);
+            border: 2px solid #DAA520;
             color: transparent !important;
         }
+        /* シルバーも白っぽく輝かせる */
         .silver-coin { 
-            background: radial-gradient(circle, #fff 0%, #e0e0e0 50%, #708090 100%);
-            box-shadow: 0 0 12px rgba(255,255,255,0.9);
-            border: 1.5px solid #a9a9a9;
+            background: #C0C0C0 !important; /* シルバーグレー */
+            background: radial-gradient(circle, #FFFFFF 0%, #C0C0C0 60%, #708090 100%) !important;
+            box-shadow: 0 0 10px rgba(255,255,255,0.9);
+            border: 2px solid #A9A9A9;
             color: transparent !important;
         }
 
@@ -40,31 +41,17 @@
 <body onload="loadRanking()">
 
 <div id="start-screen">
-    <h2 style="color:#ffd700; margin: 15px 0;">Search Challenge GIGA-HARD</h2>
-    
+    <h2 style="color:#ffd700;">Search Challenge GIGA-HARD</h2>
     <div class="premium-box">
-        <div style="font-size:18px; font-weight:bold; color:#ffd700;">
-            2026年12月31日 0:00(JST) 締切！<br>
-            トップタイムの人に10万円ギフト券を贈呈
-        </div>
-        <div style="font-size:14px; color:#fff; margin-top:8px; opacity:0.9;">
-            Deadline: Dec 31, 2026, 0:00 AM (JST)<br>
-            100,000 JPY Gift Card for the Top Scorer!
-        </div>
+        <div style="font-size:18px; font-weight:bold; color:#ffd700;">2026年12月31日 締切！<br>トップに10万円ギフト券</div>
     </div>
-
-    <div class="ranking-box" id="ranking-display">
-        <div class="ranking-title">🏆 CURRENT TOP RECORDS</div>
-        <div id="rank-list" style="font-family: monospace; font-size:15px;">No records yet</div>
-    </div>
-
     <div style="width: 100%; max-width: 340px;">
-        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">Support & Start!<br><span style="font-size:12px; font-weight:normal;">応援して10万円に挑戦！🚀</span></a>
+        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">応援して10万円に挑戦！🚀</a>
     </div>
-
-    <div style="width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; margin-top:10px;">
-        <input type="text" id="p-name" placeholder="Nickname / ニックネーム">
-        <input type="password" id="p-pass" placeholder="4-digit Pass / 4桁パスワード">
+    <div id="ranking-display" style="color:white; font-size:14px; margin:10px;">ランキング読み込み中...</div>
+    <div style="width: 100%; max-width: 320px;">
+        <input type="text" id="p-name" placeholder="Nickname">
+        <input type="password" id="p-pass" placeholder="4-digit Pass">
         <button onclick="startGame()" class="btn">START / 挑戦する 🏆</button>
     </div>
 </div>
@@ -79,48 +66,41 @@
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, score = 0, pName, pPass;
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-function playSound(freq, type, dur, vol=0.1) {
+function playSound(freq, type, dur) {
     const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
     osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(); osc.stop(audioCtx.currentTime + dur);
 }
 
 function loadRanking() {
-    const rankList = document.getElementById('rank-list');
     const records = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
-    if(records.length === 0) {
-        rankList.innerHTML = "No records yet. Be the first!";
-        return;
-    }
-    rankList.innerHTML = records.map((r, i) => 
-        `<div>${i+1}. ${r.name.slice(0,10).padEnd(10, ' ')} : ${r.score.toFixed(2)}s</div>`
-    ).join('');
+    const rDiv = document.getElementById('ranking-display');
+    if(records.length === 0) { rDiv.innerText = "No records yet."; return; }
+    rDiv.innerHTML = "🏆 TOP RECORDS:<br>" + records.map((r,i)=>`${i+1}. ${r.name}: ${r.score.toFixed(2)}s`).join('<br>');
 }
 
 function updateRanking(newName, newScore) {
     let records = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
     records.push({name: newName, score: newScore});
     records.sort((a, b) => b.score - a.score);
-    records = records.slice(0, 3);
-    localStorage.setItem('gigaHard_ranks', JSON.stringify(records));
-    loadRanking();
+    localStorage.setItem('gigaHard_ranks', JSON.stringify(records.slice(0, 3)));
 }
 
 const stages = [
     { t: "1. Find Human! / 人間を探せ", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 700 },
     { t: "2. Find Cat! / 猫を探せ", c: ["🧔","👵","👦","👧"], g: "🐱", n: 700 },
-    { t: "3. Find Bicycle! / 自転車を探せ", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 520 },
+    { t: "3. Find Bicycle! / 自転車を探せ", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 670 }, // 150増量
     { t: "4. Find Cookie! / クッキーを探せ", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 700 },
-    { t: "5. GOLD Mountain, 5 SILVER! / 金貨の中の銀貨5枚", c: ["●"], g: "●", n: 820, goals: 5, type: "silver" },
-    { t: "6. Find Clown! / ピエロを探せ", c: ["👩‍🦰","👱‍♀️","💃"], g: "🤡", n: 700, type: "clown" },
+    { t: "5. GOLD vs SILVER! / 金貨の中の銀貨5枚", c: ["●"], g: "●", n: 820, goals: 5, type: "silver" },
+    { t: "6. Find Clown! / ピエロを探せ", c: ["👩‍🦰","👱‍♀️","💃"], g: "🤡", n: 700 },
     { t: "7. Find 5 Flags! / 国旗を5つ", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 700, goals: 5 },
     { t: "8. Find Bone! / 骨を探せ", c: ["🐟","🐠"], g: "🦴", n: 760 },
     { t: "9. Find Umeboshi! / 梅干しを探せ", c: ["🪐","⭐","🌌"], g: "🔴", n: 760 },
     { t: "10. 5 Mirror 'あ' / 反転あ×5", c: ["あ"], g: "あ", n: 580, goals: 5, type: "mirror" },
-    { t: "11. Find Torii! / 鳥居を探せ", c: ["🏢","🏣"], g: "⛩", n: 700, type: "torii" },
+    { t: "11. Find Torii! / 鳥居を探せ", c: ["🏢","🏣"], g: "⛩", n: 700 },
     { t: "12. Find Cherries! / さくらんぼ", c: ["🍎"], g: "🍒", n: 760 },
     { t: "13. Find Bug! / 虫を探せ", c: ["🍃","🌱"], g: "🐛", n: 700 },
     { t: "14. Find Trophy! / トロフィー", c: ["⚽","🏀"], g: "🏆", n: 700 },
@@ -133,7 +113,7 @@ const stages = [
     { t: "21. Find 5 Ladies! / 女性を5人", c: ["🧔"], g: "💃", n: 700, goals: 5 },
     { t: "22. 5 Still Boxes! / 静止箱5つ", c: ["■"], g: "■", n: 520, goals: 5, type: "shake" },
     { t: "23. 5 Chicks! / ヒヨコ5匹", c: ["🐓"], g: "🐥", n: 580, goals: 5 },
-    { t: "24. Luck! Red or Blue? / 運命の二択", g: "CHOICE" },
+    { t: "24. Luck! Red or Blue? / 二択", g: "CHOICE" },
     { t: "25. 5 Gaps in Spiral / 渦の切れ目5", g: "SPIRAL" },
     { t: "FINAL", g: "FINAL" }
 ];
@@ -141,16 +121,10 @@ const stages = [
 function startGame() {
     pName = document.getElementById('p-name').value.trim();
     pPass = document.getElementById('p-pass').value.trim();
-    if(!pName || pPass.length<4) return alert("Enter Nickname & 4-digit Passcode");
+    if(!pName || pPass.length<4) return alert("Nickname & 4-digit Pass required");
     if(audioCtx.state === 'suspended') audioCtx.resume();
     document.getElementById('start-screen').style.display='none'; 
     cur = 0; score = 0; init();
-}
-
-function resetToTop() {
-    active = false; clearInterval(tid); tid = null;
-    loadRanking();
-    document.getElementById('start-screen').style.display = 'flex';
 }
 
 function init() {
@@ -168,10 +142,10 @@ function init() {
 
 function createNormalStage(f, s) {
     for(let i=0; i<s.n; i++) createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false, s.type);
+    const goalNum = s.goals || 1;
     if(s.g === "FLAGS") {
         ["🇯🇵", "🇺🇸", "🇨🇳", "🇷🇺", "🇰🇵"].forEach((flag) => createItem(f, flag, true));
     } else {
-        const goalNum = s.goals || 1;
         for(let j=0; j<goalNum; j++) createItem(f, s.g, true, s.type, j);
     }
 }
@@ -182,19 +156,14 @@ function createItem(f, type, isT, st, idx) {
     
     if(!isT) {
         el.style.zIndex = Math.floor(Math.random()*10000);
-        if(st === "silver") { el.classList.add("gold-coin"); }
-        else if(st === "shake") { el.innerText = "■"; el.style.animation = "glitch 0.1s infinite"; }
-        else if(st === "eye") { el.innerText = "👁️"; el.style.filter = "grayscale(100%)"; }
+        if(st === "silver") { el.classList.add("gold-coin"); } // 強制的に黄色
         else el.innerText = type;
     } else {
-        if(st === "silver") { el.classList.add("silver-coin"); }
+        if(st === "silver") { el.classList.add("silver-coin"); } // 強制的にシルバー
         else if(st === "mirror") { el.innerText = "あ"; el.style.transform = "scaleX(-1)"; }
         else if(st === "ufo") { el.innerText = "🛸"; el.style.opacity = "0.2"; }
-        else if(st === "clown") { el.innerText = "🤡"; el.style.fontSize = "18px"; }
-        else if(st === "eye") { el.innerText = "👁️"; el.style.filter = "sepia(100%) saturate(300%) hue-rotate(10deg)"; }
         else if(type === "DIFF_5") el.innerText = ["🐶","🐱","🐭","🐹","🐰"][idx];
         else el.innerText = type;
-        if(type === "⛩") el.style.color = "red";
     }
 
     el.onclick = () => {
@@ -203,44 +172,27 @@ function createItem(f, type, isT, st, idx) {
             if(el.style.opacity === "0.4") return;
             found++; score += ms/100; el.style.opacity = "0.4";
             playSound(880, 'sine', 0.1); if(found >= (stages[cur].goals || 1)) nextStage();
-        } else { resetToTop(); } // ミスで即終了
+        } else { active = false; clearInterval(tid); tid = null; document.getElementById('start-screen').style.display='flex'; }
     };
     f.appendChild(el);
 }
 
 function createChoiceStage(f) {
-    const isRedCorrect = Math.random() < 0.5;
-    const red = document.createElement('div'); red.style.position="absolute"; red.style.width="100px"; red.style.height="100px"; red.style.borderRadius="50%"; red.style.background = "#ff0000"; red.style.left = "20%"; red.style.top="40%";
-    const blue = document.createElement('div'); blue.style.position="absolute"; blue.style.width="100px"; blue.style.height="100px"; blue.style.borderRadius="50%"; blue.style.background = "#0000ff"; blue.style.left = "60%"; blue.style.top="40%";
-    red.onclick = () => isRedCorrect ? nextStage() : resetToTop();
-    blue.onclick = () => !isRedCorrect ? nextStage() : resetToTop();
-    f.appendChild(red); f.appendChild(blue);
+    const isRed = Math.random() < 0.5;
+    const r = document.createElement('div'); r.style.cssText="position:absolute;width:100px;height:100px;border-radius:50%;background:#ff0000;left:20%;top:40%;";
+    const b = document.createElement('div'); b.style.cssText="position:absolute;width:100px;height:100px;border-radius:50%;background:#0000ff;left:60%;top:40%;";
+    r.onclick = () => isRed ? nextStage() : location.reload();
+    b.onclick = () => !isRed ? nextStage() : location.reload();
+    f.appendChild(r); f.appendChild(b);
 }
 
 function createSpiralStage(f) {
-    const canvas = document.createElement('canvas'); canvas.id = 'spiral-canvas'; f.appendChild(canvas);
-    const ctx = canvas.getContext('2d'); const w = canvas.width = f.offsetWidth; const h = canvas.height = f.offsetHeight;
-    const cx = w/2, cy = h/2; ctx.beginPath(); ctx.lineWidth = 1.5; ctx.strokeStyle = '#333';
-    let pts = [];
-    for(let i=0; i<360 * 400; i++) {
-        const angle = i * Math.PI / 180; const radius = angle * 0.08;
-        const x = cx + Math.cos(angle) * radius; const y = cy + Math.sin(angle) * radius;
-        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-        pts.push({x,y}); if(radius > Math.max(w, h)) break;
-    }
-    ctx.stroke();
-    for(let j=0; j<5; j++) {
-        const idx = Math.floor(Math.random()*(pts.length-5000)+2000); const p = pts[idx];
-        ctx.clearRect(p.x-10, p.y-10, 20, 20);
-        const hit = document.createElement('div'); 
-        hit.style.position = "absolute"; hit.style.width = "22px"; hit.style.height = "22px";
-        hit.style.left = (p.x-11)+"px"; hit.style.top = (p.y-11)+"px";
-        hit.onclick = () => { 
-            if(hit.style.background === "rgba(212,77,92,0.5)") return;
-            hit.style.background = "rgba(212,77,92,0.5)";
-            playSound(880, 'sine', 0.1); found++; if(found>=5) nextStage(); 
-        };
-        f.appendChild(hit);
+    const canvas = document.createElement('canvas'); canvas.width = f.offsetWidth; canvas.height = f.offsetHeight; f.appendChild(canvas);
+    const ctx = canvas.getContext('2d'); const cx = canvas.width/2, cy = canvas.height/2;
+    ctx.beginPath(); for(let i=0; i<360*400; i++){ let a=i*Math.PI/180, r=a*0.08; ctx.lineTo(cx+Math.cos(a)*r, cy+Math.sin(a)*r); } ctx.stroke();
+    for(let j=0; j<5; j++){
+        let d = document.createElement('div'); d.style.cssText=`position:absolute;width:25px;height:25px;left:${Math.random()*90}%;top:${Math.random()*90}%;`;
+        d.onclick=()=>{ d.style.background="rgba(212,77,92,0.5)"; found++; if(found>=5) nextStage(); }; f.appendChild(d);
     }
 }
 
@@ -248,24 +200,14 @@ function nextStage() { active = false; confetti({particleCount:100}); setTimeout
 
 function updateTimer() {
     if(!active) return; ms--; const t = document.getElementById('timer');
-    if(ms <= 0) { resetToTop(); return; }
+    if(ms <= 0) { location.reload(); return; }
     t.innerText = (ms/100).toFixed(2);
     if(ms <= 1000) t.style.color = "red"; else t.style.color = "white";
 }
 
 function end() {
-    active = false; clearInterval(tid);
-    updateRanking(pName, score);
-    document.getElementById('field').innerHTML = `
-        <div style="padding:20px; overflow-y:auto; height:100%;">
-            <h2 style="color:#d44d5c;">ALL STAGES CLEARED!<br>完全制覇おめでとう！</h2>
-            <p style="font-size:24px; font-weight:bold;">Final Score: ${score.toFixed(2)}s</p>
-            <div class="premium-box" style="margin:20px auto; background:white; color:#333; text-align:left; font-size:14px;">
-                <p>この感動を応援（OFUSE）に変えて、寄付へ繋げましょう！</p>
-                <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn" style="text-decoration:none; display:inline-block; width:100%; box-sizing:border-box; text-align:center;">Support via OFUSE / 応援する</a>
-            </div>
-            <button onclick="resetToTop()" class="btn" style="width:240px;">TOP (SAVE RECORD)</button>
-        </div>`;
+    active = false; clearInterval(tid); updateRanking(pName, score);
+    document.getElementById('field').innerHTML = `<h2 style="padding-top:50px;">CLEARED! Score: ${score.toFixed(2)}s</h2><a href="https://ofuse.me/d33e72b9" class="btn">OFUSEで応援する</a><button onclick="location.reload()" class="btn">TOP</button>`;
 }
 </script>
 </body>
