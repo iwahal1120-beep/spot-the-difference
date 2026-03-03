@@ -3,41 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-    <title>Search Challenge GIGA-HARD</title>
+    <title>Search Challenge GIGA-HARD Final</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
         body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
         
-        /* 豪華なトップページ設定 */
+        /* 完璧なバイリンガル・プレミアムトップページ */
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
-        .premium-box { border: 4px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 10px 0; width: 100%; max-width: 340px; box-shadow: 0 0 20px rgba(255,215,0,0.3); }
-        .ranking-box { width: 100%; max-width: 340px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 12px; margin: 10px 0; font-size: 14px; box-sizing: border-box; border: 1px solid rgba(255,215,0,0.3); }
+        .premium-box { border: 4px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 10px 0; width: 100%; max-width: 360px; box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+        .ranking-box { width: 100%; max-width: 360px; background: rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; margin: 10px 0; font-size: 14px; box-sizing: border-box; border: 1px solid rgba(255,215,0,0.3); }
         .ranking-title { color: #ffd700; font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #ffd700; }
-        .btn-ofuse-top { background: #ed6c00; color: white; padding: 16px; border-radius: 10px; text-decoration: none; font-size: 18px; font-weight: bold; display: block; margin-bottom: 10px; width: 100%; text-align: center; border: 2px solid #fff; box-shadow: 0 4px 15px rgba(237,108,0,0.4); }
+        .btn-ofuse-top { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 18px; font-weight: bold; display: block; margin-bottom: 10px; width: 100%; text-align: center; border: 2px solid #fff; box-shadow: 0 4px 15px rgba(237,108,0,0.4); }
         
-        /* ゲーム画面設定 */
-        .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
-        #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 24px; }
-        .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; font-size: 24px; border-radius: 50%; }
-        .target-item { z-index: 25000 !important; } 
+        /* ターゲットは必ず最前面（自転車重なり防止） */
+        .target-item { z-index: 28000 !important; } 
 
-        /* 金貨：誰がどう見ても「真っ黄色」 */
+        /* 【究極修正】金貨：CSSで強制的に鮮明なイエローを出す */
         .gold-coin { 
-            background: #FFFF00 !important; 
-            background: radial-gradient(circle, #FFFFFF 0%, #FFFF00 50%, #FFD700 100%) !important;
-            box-shadow: 0 0 15px rgba(255,255,0,1);
+            background-color: #FFFF00 !important; /* 絶対的な黄色 */
+            background-image: radial-gradient(circle, #FFFFFF 0%, #FFFF00 70%, #FFD700 100%) !important;
+            box-shadow: 0 0 12px rgba(255,255,0,1);
             border: 2px solid #FFCC00;
             color: transparent !important;
         }
         .silver-coin { 
-            background: #E0E0E0 !important;
-            background: radial-gradient(circle, #FFFFFF 0%, #C0C0C0 60%, #708090 100%) !important;
-            box-shadow: 0 0 15px rgba(255,255,255,1);
+            background-color: #E0E0E0 !important;
+            background-image: radial-gradient(circle, #FFFFFF 0%, #C0C0C0 60%, #708090 100%) !important;
+            box-shadow: 0 0 12px rgba(255,255,255,1);
             border: 2px solid #A9A9A9;
             color: transparent !important;
         }
+
+        .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
+        #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 24px; }
+        .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
+        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; font-size: 24px; border-radius: 50%; }
 
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:20px; font-weight:bold; box-shadow: 0 6px 0 #8a2a35; cursor:pointer; margin-top:10px; }
         input { padding:14px; font-size:16px; width:100%; margin-bottom:12px; border-radius:8px; border:none; box-sizing:border-box; }
@@ -50,30 +51,31 @@
     
     <div class="premium-box">
         <div style="font-size:18px; font-weight:bold; color:#ffd700;">
-            2026年12月31日 0:00 締切！<br>
+            2026年12月31日 0:00(JST) 締切！<br>
             1位に10万円ギフトカード贈呈
+        </div>
+        <div style="font-size:13px; color:#fff; margin-top:5px; opacity:0.9;">
+            Deadline: Dec 31, 2026. Top Scorer wins 100,000 JPY!
         </div>
     </div>
 
     <div class="ranking-box">
-        <div class="ranking-title">🏆 CURRENT TOP 3 RECORDS</div>
-        <div id="rank-list" style="font-family: monospace;">No records yet</div>
+        <div class="ranking-title">🏆 CURRENT TOP RECORDS</div>
+        <div id="rank-list" style="font-family: monospace; font-size:14px;">No records yet</div>
     </div>
 
-    <div style="width: 100%; max-width: 340px;">
+    <div style="width: 100%; max-width: 360px;">
         <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">
             応援して10万円に挑戦！🚀<br>
-            <span style="font-size:12px; font-weight:normal;">Support to increase the prize pool!</span>
+            <span style="font-size:12px; font-weight:normal;">Support & Start Challenge!</span>
         </a>
     </div>
 
-    <div style="width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-top:5px;">
-        <input type="text" id="p-name" placeholder="Nickname">
-        <input type="password" id="p-pass" placeholder="4-digit Pass">
+    <div style="width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 18px; border-radius: 15px; margin-top:5px;">
+        <input type="text" id="p-name" placeholder="Nickname / ニックネーム">
+        <input type="password" id="p-pass" placeholder="4-digit Pass / パスワード">
         <button onclick="startGame()" class="btn">START / 挑戦する 🏆</button>
     </div>
-    
-    <p style="font-size:11px; margin-top:10px; color:#aaa;">※不正行為、複数垢は失格となります</p>
 </div>
 
 <div class="header">
@@ -112,8 +114,8 @@ function updateRanking(newName, newScore) {
 
 const stages = [
     { t: "1. Find Human! / 人間を探せ", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 700 },
-    { t: "2. Find Cat! / 猫を探せ", c: ["🧔","👵","👦","👧"], g: "🐱", n: 900 }, 
-    { t: "3. Find Bicycle! / 自転車を探せ", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 870 }, 
+    { t: "2. Find Cat! / 猫を探せ", c: ["🧔","👵","👦","👧"], g: "🐱", n: 900 }, // 200増量
+    { t: "3. Find Bicycle! / 自転車を探せ", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 870 }, // 200増量
     { t: "4. Find Cookie! / クッキーを探せ", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 700 },
     { t: "5. YELLOW vs SILVER! / 黄色い金貨の中の銀貨", c: ["●"], g: "●", n: 820, goals: 5, type: "silver" },
     { t: "6. Find Clown! / ピエロを探せ", c: ["👩‍🦰","👱‍♀️","💃"], g: "🤡", n: 700 },
@@ -228,13 +230,13 @@ function end() {
     active = false; clearInterval(tid); updateRanking(pName, score);
     document.getElementById('field').innerHTML = `
         <div style="padding:20px;">
-            <h2 style="color:#d44d5c;">ALL STAGES CLEARED!</h2>
+            <h2 style="color:#d44d5c;">ALL STAGES CLEARED!<br>完全制覇おめでとう！</h2>
             <p style="font-size:24px; font-weight:bold;">Final Score: ${score.toFixed(2)}s</p>
             <div class="premium-box" style="background:white; color:#333; margin:20px auto;">
                 <p>10万円に届くかな？応援もよろしくお願いします！</p>
                 <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn">OFUSEで応援する</a>
             </div>
-            <button onclick="location.reload()" class="btn">TOPに戻る</button>
+            <button onclick="location.reload()" class="btn">TOPに戻る / Return to Top</button>
         </div>`;
 }
 </script>
