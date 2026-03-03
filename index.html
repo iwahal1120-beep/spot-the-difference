@@ -22,7 +22,6 @@
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:18px; font-weight:bold; box-shadow: 0 6px 0 #8a2a35; cursor:pointer; margin-top:10px; }
         input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; border:none; box-sizing:border-box; }
         .lang-sub { font-size: 0.85em; opacity: 0.85; display: block; font-weight: normal; margin-top: 2px; }
-        .deadline-text { font-size: 12px; color: #ff4d4d; font-weight: bold; margin-top: 5px; }
     </style>
 </head>
 <body onload="loadRanking()">
@@ -58,8 +57,7 @@
         【Challenge Rules / 規約】<br>
         ・Time Limit: <span style="color:red;font-weight:bold;">30s</span> / stage<br>
         ・Instant Game Over on mistake / ミスで即終了<br>
-        ・Cheating = Disqualified / 不正は失格<br>
-        <span class="lang-sub">※トップタイムは厳重に審査されます。</span>
+        ・Cheating = Disqualified / 不正は失格
     </div>
 
     <div style="width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px;">
@@ -109,30 +107,31 @@ function updateRanking(newName, newScore) {
     loadRanking();
 }
 
+// すべてのステージの出現数を+100調整
 const stages = [
-    { t: "1. Find Human! / 人間を探せ", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 600 },
-    { t: "2. Find Cat! / 猫を探せ", c: ["🧔","👵","👦","👧"], g: "🐱", n: 600 },
-    { t: "3. Find Bicycle! / 自転車を探せ", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 420 },
-    { t: "4. Find Cookie! / クッキーを探せ", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 600 },
-    { t: "5. Find 5 Silver Coins! / 銀貨を5枚", c: ["🪙"], g: "🥈", n: 720, goals: 5, type: "silver" },
-    { t: "6. Find Clown! / ピエロを探せ", c: ["👩‍🦰","👱‍♀️","💃"], g: "🤡", n: 600, type: "clown" },
-    { t: "7. Find 5 Flags! / 国旗を5つ", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 600, goals: 5 },
-    { t: "8. Find Bone! / 骨を探せ", c: ["🐟","🐠"], g: "🦴", n: 660 },
-    { t: "9. Find Umeboshi! / 梅干しを探せ", c: ["🪐","⭐","🌌"], g: "🔴", n: 660 },
-    { t: "10. 5 Mirror 'あ' / 反転あ×5", c: ["あ"], g: "あ", n: 480, goals: 5, type: "mirror" },
-    { t: "11. Find Torii! / 鳥居を探せ", c: ["🏢","🏣"], g: "⛩", n: 600, type: "torii" },
-    { t: "12. Find Cherries! / さくらんぼ", c: ["🍎"], g: "🍒", n: 660 },
-    { t: "13. Find Bug! / 虫を探せ", c: ["🍃","🌱"], g: "🐛", n: 600 },
-    { t: "14. Find Trophy! / トロフィー", c: ["⚽","🏀"], g: "🏆", n: 600 },
-    { t: "15. Find Banana! / バナナを探せ", c: ["🌙"], g: "🍌", n: 660 },
-    { t: "16. 5 Different Animals! / 動物5匹", c: ["🐼"], g: "DIFF_5", n: 480, goals: 5 },
-    { t: "17. Find Octopus! / タコを探せ", c: ["🦑"], g: "🐙", n: 660 },
-    { t: "18. Faint UFO! / 薄いUFO", c: ["✨","🌟"], g: "🛸", n: 720, type: "ufo" },
-    { t: "19. 5 Ice Creams! / ソフト5個", c: ["🍭"], g: "🍦", n: 480, goals: 5 },
-    { t: "20. 5 Brown Eyes! / 茶色の目5つ", c: ["👁️"], g: "👁️", n: 480, goals: 5, type: "eye" },
-    { t: "21. Find 5 Ladies! / 女性を5人", c: ["🧔"], g: "💃", n: 600, goals: 5 },
-    { t: "22. 5 Still Boxes! / 静止箱5つ", c: ["■"], g: "■", n: 420, goals: 5, type: "shake" },
-    { t: "23. 5 Chicks! / ヒヨコ5匹", c: ["🐓"], g: "🐥", n: 480, goals: 5 },
+    { t: "1. Find Human! / 人間を探せ", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 700 },
+    { t: "2. Find Cat! / 猫を探せ", c: ["🧔","👵","👦","👧"], g: "🐱", n: 700 },
+    { t: "3. Find Bicycle! / 自転車を探せ", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 520 },
+    { t: "4. Find Cookie! / クッキーを探せ", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 700 },
+    { t: "5. Find 5 Silver Coins! / 金貨の中の銀貨5枚", c: ["🪙"], g: "🥈", n: 820, goals: 5, type: "silver" },
+    { t: "6. Find Clown! / ピエロを探せ", c: ["👩‍🦰","👱‍♀️","💃"], g: "🤡", n: 700, type: "clown" },
+    { t: "7. Find 5 Flags! / 国旗を5つ", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 700, goals: 5 },
+    { t: "8. Find Bone! / 骨を探せ", c: ["🐟","🐠"], g: "🦴", n: 760 },
+    { t: "9. Find Umeboshi! / 梅干しを探せ", c: ["🪐","⭐","🌌"], g: "🔴", n: 760 },
+    { t: "10. 5 Mirror 'あ' / 反転あ×5", c: ["あ"], g: "あ", n: 580, goals: 5, type: "mirror" },
+    { t: "11. Find Torii! / 鳥居を探せ", c: ["🏢","🏣"], g: "⛩", n: 700, type: "torii" },
+    { t: "12. Find Cherries! / さくらんぼ", c: ["🍎"], g: "🍒", n: 760 },
+    { t: "13. Find Bug! / 虫を探せ", c: ["🍃","🌱"], g: "🐛", n: 700 },
+    { t: "14. Find Trophy! / トロフィー", c: ["⚽","🏀"], g: "🏆", n: 700 },
+    { t: "15. Find Banana! / バナナを探せ", c: ["🌙"], g: "🍌", n: 760 },
+    { t: "16. 5 Different Animals! / 動物5匹", c: ["🐼"], g: "DIFF_5", n: 580, goals: 5 },
+    { t: "17. Find Octopus! / タコを探せ", c: ["🦑"], g: "🐙", n: 760 },
+    { t: "18. Faint UFO! / 薄いUFO", c: ["✨","🌟"], g: "🛸", n: 820, type: "ufo" },
+    { t: "19. 5 Ice Creams! / ソフト5個", c: ["🍭"], g: "🍦", n: 580, goals: 5 },
+    { t: "20. 5 Brown Eyes! / 茶色の目5つ", c: ["👁️"], g: "👁️", n: 580, goals: 5, type: "eye" },
+    { t: "21. Find 5 Ladies! / 女性を5人", c: ["🧔"], g: "💃", n: 700, goals: 5 },
+    { t: "22. 5 Still Boxes! / 静止箱5つ", c: ["■"], g: "■", n: 520, goals: 5, type: "shake" },
+    { t: "23. 5 Chicks! / ヒヨコ5匹", c: ["🐓"], g: "🐥", n: 580, goals: 5 },
     { t: "24. Luck! Red or Blue? / 運命の二択", g: "CHOICE" },
     { t: "25. 5 Gaps in Spiral / 渦の切れ目5", g: "SPIRAL" },
     { t: "FINAL", g: "FINAL" }
@@ -181,12 +180,12 @@ function createItem(f, type, isT, st, idx) {
     el.style.left = (2+Math.random()*92) + "%"; el.style.top = (2+Math.random()*92) + "%";
     if(!isT) {
         el.style.zIndex = Math.floor(Math.random()*10000);
-        if(st === "shake") { el.innerText = "■"; el.classList.add("shaking"); }
+        if(st === "silver") { el.innerText = "🪙"; el.style.color = "#FFD700"; } // 5ステ背景：金貨
+        else if(st === "shake") { el.innerText = "■"; el.classList.add("shaking"); }
         else if(st === "eye") { el.innerText = "👁️"; el.style.filter = "grayscale(100%)"; }
-        else if(st === "silver") { el.innerText = "🪙"; el.style.color = "#FFD700"; }
         else el.innerText = type;
     } else {
-        if(st === "silver") { el.innerText = "🥈"; el.style.fontSize = "22px"; }
+        if(st === "silver") { el.innerText = "🥈"; el.style.fontSize = "22px"; } // 5ステ正解：銀貨
         else if(st === "mirror") { el.innerText = "あ"; el.style.transform = "scaleX(-1)"; }
         else if(st === "ufo") { el.innerText = "🛸"; el.style.opacity = "0.2"; }
         else if(st === "clown") { el.innerText = "🤡"; el.style.fontSize = "18px"; }
