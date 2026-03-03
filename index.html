@@ -10,6 +10,8 @@
         body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .premium-box { border: 4px solid #ffd700; padding: 10px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 5px 0; width: 100%; max-width: 340px; }
+        .ranking-box { width: 100%; max-width: 340px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; margin: 10px 0; font-size: 13px; box-sizing: border-box; }
+        .ranking-title { color: #ffd700; font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #ffd700; }
         .target-rule { color: #333; font-size: 11px; background: white; padding: 12px; border-radius: 10px; margin: 8px 0; line-height: 1.4; text-align: left; border-left: 5px solid #ffd700; width: 95%; max-width: 340px; box-sizing: border-box; }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin-bottom: 5px; width: 100%; text-align: center; }
         .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
@@ -30,7 +32,7 @@
         .lang-sub { font-size: 0.85em; opacity: 0.85; display: block; font-weight: normal; margin-top: 2px; }
     </style>
 </head>
-<body>
+<body onload="loadRanking()">
 
 <div id="start-screen">
     <h2 style="color:#ffd700; margin: 10px 0;">Search Challenge GIGA-HARD</h2>
@@ -43,19 +45,24 @@
         </div>
     </div>
 
-    <div style="width: 100%; max-width: 340px; margin: 10px 0;">
+    <div class="ranking-box" id="ranking-display">
+        <div class="ranking-title">🏆 LOCAL BEST RECORDS (Top 3)</div>
+        <div id="rank-list" style="font-family: monospace;">No records yet</div>
+    </div>
+
+    <div style="width: 100%; max-width: 340px; margin: 5px 0;">
         <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">Support & Start Challenge!<br><span style="font-size:11px; font-weight:normal;">応援して挑戦を開始する！🚀</span></a>
     </div>
 
     <div class="target-rule">
-        【GIGA-HARD Rules / 規約】<br>
-        ・Time Limit / 制限時間: <span style="color:red;font-weight:bold;">30s</span> per stage<br>
-        ・Mistakes / ミス: <span style="color:red;font-weight:bold;">Instant Game Over</span> (即終了)<br>
-        ・Cheating / 不正: <span style="color:red;font-weight:bold;">Record Deletion</span> (記録削除)
+        【Rules / 規約】<br>
+        ・Time Limit: <span style="color:red;font-weight:bold;">30s</span> per stage (各30秒)<br>
+        ・Mistakes: <span style="color:red;font-weight:bold;">Instant Game Over</span> (即終了)<br>
+        ・Cheating: <span style="color:red;font-weight:bold;">Record Deletion</span> (不正は記録削除)
     </div>
 
     <div style="width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px;">
-        <input type="text" id="p-name" placeholder="Name / 名前 (Max 10)">
+        <input type="text" id="p-name" placeholder="Nickname / ニックネーム">
         <input type="password" id="p-pass" placeholder="4-digit Pass / 4桁パスワード">
         <button onclick="startGame()" class="btn">START / 挑戦する 🏆</button>
     </div>
@@ -78,6 +85,30 @@ function playSound(freq, type, dur, vol=0.1) {
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(); osc.stop(audioCtx.currentTime + dur);
+}
+
+// ランキング読み込み
+function loadRanking() {
+    const rankList = document.getElementById('rank-list');
+    const records = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
+    if(records.length === 0) {
+        rankList.innerHTML = "No records yet. Be the first!";
+        return;
+    }
+    rankList.innerHTML = records.map((r, i) => 
+        `<div>${i+1}. ${r.name.padEnd(10, ' ')} : ${r.score.toFixed(2)}s</div>`
+    ).join('');
+}
+
+// ランキング更新
+function updateRanking(newName, newScore) {
+    let records = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
+    records.push({name: newName, score: newScore});
+    // スコア（秒数）が高い順（残り時間の合計が多い順）にソート
+    records.sort((a, b) => b.score - a.score);
+    records = records.slice(0, 3);
+    localStorage.setItem('gigaHard_ranks', JSON.stringify(records));
+    loadRanking();
 }
 
 const stages = [
@@ -106,13 +137,13 @@ const stages = [
     { t: "23. 5 Chicks! / ヒヨコ5匹", c: ["🐓"], g: "🐥", n: 480, goals: 5 },
     { t: "24. Luck! Red or Blue? / 運命の二択", g: "CHOICE" },
     { t: "25. 5 Gaps in Spiral / 渦の切れ目5箇所", g: "SPIRAL" },
-    { t: "FINAL / 完全制覇", g: "FINAL" }
+    { t: "FINAL", g: "FINAL" }
 ];
 
 function startGame() {
     pName = document.getElementById('p-name').value.trim();
     pPass = document.getElementById('p-pass').value.trim();
-    if(!pName || pPass.length<4) return alert("Enter Name & 4-digit Passcode / 名前と4桁パスワードを入力");
+    if(!pName || pPass.length<4) return alert("Enter Nickname & 4-digit Passcode");
     if(audioCtx.state === 'suspended') audioCtx.resume();
     document.getElementById('start-screen').style.display='none'; 
     cur = 0; score = 0; init();
@@ -121,6 +152,7 @@ function startGame() {
 function resetToTop() {
     active = false; clearInterval(tid); tid = null;
     playSound(150, 'sawtooth', 0.5);
+    loadRanking();
     document.getElementById('start-screen').style.display = 'flex';
 }
 
@@ -223,17 +255,18 @@ function updateTimer() {
 
 function end() {
     active = false; clearInterval(tid);
+    updateRanking(pName, score); // ランキング保存
     document.getElementById('field').innerHTML = `
         <div style="padding:20px; overflow-y:auto; height:100%;">
             <h2 style="color:#d44d5c;">ALL STAGES CLEARED!<br><span class="lang-sub">完全制覇おめでとう！</span></h2>
-            <p>Score: ${score.toFixed(2)}</p>
+            <p style="font-size:24px; font-weight:bold;">Total Time Bonus: ${score.toFixed(2)}s</p>
             <div class="premium-box" style="margin:20px auto; background:white; color:#333; text-align:left; font-size:14px;">
                 <p>面白くない？めんどくさかった！楽しい？ドキドキした？<br>
                 もし少しでも感情が動いたら、その気持ちをぜひOFUSEの応援として寄付へ繋げてください！</p>
                 <p class="lang-sub">Was it fun? Annoying? Exciting? If you felt anything, please support us via OFUSE to help our donation goal!</p>
                 <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn" style="text-decoration:none; display:inline-block; width:100%; box-sizing:border-box; text-align:center;">Support via OFUSE / 応援する</a>
             </div>
-            <button onclick="location.reload()" class="btn" style="width:200px;">BACK TO TOP / 最初に戻る</button>
+            <button onclick="resetToTop()" class="btn" style="width:200px;">BACK TO TOP / 最初に戻る</button>
         </div>`;
 }
 </script>
