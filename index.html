@@ -10,7 +10,7 @@
         body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .premium-box { border: 4px solid #ffd700; padding: 10px; border-radius: 15px; background: rgba(255,215,0,0.15); margin: 5px 0; width: 100%; max-width: 340px; }
-        .ranking-box { width: 100%; max-width: 340px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; margin: 10px 0; font-size: 13px; box-sizing: border-box; }
+        .ranking-box { width: 100%; max-width: 340px; background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; margin: 10px 0; font-size: 13px; box-sizing: border-box; border: 1px solid rgba(255,215,0,0.3); }
         .ranking-title { color: #ffd700; font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #ffd700; }
         .target-rule { color: #333; font-size: 11px; background: white; padding: 12px; border-radius: 10px; margin: 8px 0; line-height: 1.4; text-align: left; border-left: 5px solid #ffd700; width: 95%; max-width: 340px; box-sizing: border-box; }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin-bottom: 5px; width: 100%; text-align: center; }
@@ -19,17 +19,10 @@
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; font-size: 24px; }
         .target-item { z-index: 20000 !important; } 
-        .target-silver { width: 30px !important; height: 30px !important; font-size: 22px !important; }
-        .clown-size { font-size: 18px !important; }
-        .mirror-font { transform: scaleX(-1) !important; }
-        .shaking { animation: glitch 0.1s infinite; }
-        @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-1px,1px)} 40%{transform:translate(-1px,-1px)} 60%{transform:translate(1px,1px)} 100%{transform:translate(0)} }
-        #spiral-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
-        .spiral-hit-area { width: 22px; height: 22px; background: transparent; z-index: 20000; border-radius: 50%; position: absolute; }
-        .choice-btn { position:absolute; top:50%; width:100px; height:100px; border-radius:50%; transform:translateY(-50%); cursor:pointer; z-index:20000; border:4px solid white; box-shadow: 0 0 15px rgba(0,0,0,0.3); }
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:15px; font-size:18px; font-weight:bold; box-shadow: 0 6px 0 #8a2a35; cursor:pointer; margin-top:10px; }
         input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; border:none; box-sizing:border-box; }
         .lang-sub { font-size: 0.85em; opacity: 0.85; display: block; font-weight: normal; margin-top: 2px; }
+        .deadline-text { font-size: 12px; color: #ff4d4d; font-weight: bold; margin-top: 5px; }
     </style>
 </head>
 <body onload="loadRanking()">
@@ -38,27 +31,35 @@
     <h2 style="color:#ffd700; margin: 10px 0;">Search Challenge GIGA-HARD</h2>
     
     <div class="premium-box">
-        <div style="font-size:18px; font-weight:bold; color:#ffd700;">寄付目標：10万円 / Donation Goal: 100k JPY</div>
-        <div style="font-size:11px; margin-top:8px; line-height:1.4;">
-            応援(OFUSE)によりユニセフ、国境なき医師団などへ寄付を目指します。<br>
-            <span class="lang-sub">We aim to donate to UNICEF, MSF, etc. through your OFUSE support.</span>
+        <div style="font-size:16px; font-weight:bold; color:#ffd700;">
+            2026年12月31日 0:00(JST) 締切！<br>
+            トップタイムの人に10万円ギフト券を贈呈
+        </div>
+        <div style="font-size:13px; font-weight:bold; color:#fff; margin-top:5px; border-top:1px solid rgba(255,215,0,0.3); padding-top:5px;">
+            Deadline: Dec 31, 2026, 0:00 AM (JST)<br>
+            100,000 JPY Gift Card for the Top Scorer!
+        </div>
+        <div style="font-size:10px; margin-top:8px; line-height:1.3; opacity:0.9;">
+            あなたの応援(OFUSE)がユニセフ等への寄付に繋がります。<br>
+            Your support via OFUSE leads to donations to UNICEF, etc.
         </div>
     </div>
 
     <div class="ranking-box" id="ranking-display">
-        <div class="ranking-title">🏆 LOCAL BEST RECORDS (Top 3)</div>
-        <div id="rank-list" style="font-family: monospace;">No records yet</div>
+        <div class="ranking-title">🏆 CURRENT TOP RECORDS (Top 3)</div>
+        <div id="rank-list" style="font-family: monospace; font-size:14px;">No records yet</div>
     </div>
 
     <div style="width: 100%; max-width: 340px; margin: 5px 0;">
-        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">Support & Start Challenge!<br><span style="font-size:11px; font-weight:normal;">応援して挑戦を開始する！🚀</span></a>
+        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">Support & Start Challenge!<br><span style="font-size:11px; font-weight:normal;">応援して10万円に挑戦する！🚀</span></a>
     </div>
 
     <div class="target-rule">
-        【Rules / 規約】<br>
-        ・Time Limit: <span style="color:red;font-weight:bold;">30s</span> per stage (各30秒)<br>
-        ・Mistakes: <span style="color:red;font-weight:bold;">Instant Game Over</span> (即終了)<br>
-        ・Cheating: <span style="color:red;font-weight:bold;">Record Deletion</span> (不正は記録削除)
+        【Challenge Rules / 規約】<br>
+        ・Time Limit: <span style="color:red;font-weight:bold;">30s</span> / stage<br>
+        ・Instant Game Over on mistake / ミスで即終了<br>
+        ・Cheating = Disqualified / 不正は失格<br>
+        <span class="lang-sub">※トップタイムは厳重に審査されます。</span>
     </div>
 
     <div style="width: 100%; max-width: 320px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px;">
@@ -87,7 +88,6 @@ function playSound(freq, type, dur, vol=0.1) {
     osc.start(); osc.stop(audioCtx.currentTime + dur);
 }
 
-// ランキング読み込み
 function loadRanking() {
     const rankList = document.getElementById('rank-list');
     const records = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
@@ -96,15 +96,13 @@ function loadRanking() {
         return;
     }
     rankList.innerHTML = records.map((r, i) => 
-        `<div>${i+1}. ${r.name.padEnd(10, ' ')} : ${r.score.toFixed(2)}s</div>`
+        `<div>${i+1}. ${r.name.slice(0,10).padEnd(10, ' ')} : ${r.score.toFixed(2)}s</div>`
     ).join('');
 }
 
-// ランキング更新
 function updateRanking(newName, newScore) {
     let records = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
     records.push({name: newName, score: newScore});
-    // スコア（秒数）が高い順（残り時間の合計が多い順）にソート
     records.sort((a, b) => b.score - a.score);
     records = records.slice(0, 3);
     localStorage.setItem('gigaHard_ranks', JSON.stringify(records));
@@ -114,29 +112,29 @@ function updateRanking(newName, newScore) {
 const stages = [
     { t: "1. Find Human! / 人間を探せ", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 600 },
     { t: "2. Find Cat! / 猫を探せ", c: ["🧔","👵","👦","👧"], g: "🐱", n: 600 },
-    { t: "3. Find Bicycle! / 自転車を探せ", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 420, type: "spread" },
+    { t: "3. Find Bicycle! / 自転車を探せ", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 420 },
     { t: "4. Find Cookie! / クッキーを探せ", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 600 },
     { t: "5. Find 5 Silver Coins! / 銀貨を5枚", c: ["🪙"], g: "🥈", n: 720, goals: 5, type: "silver" },
     { t: "6. Find Clown! / ピエロを探せ", c: ["👩‍🦰","👱‍♀️","💃"], g: "🤡", n: 600, type: "clown" },
     { t: "7. Find 5 Flags! / 国旗を5つ", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 600, goals: 5 },
     { t: "8. Find Bone! / 骨を探せ", c: ["🐟","🐠"], g: "🦴", n: 660 },
     { t: "9. Find Umeboshi! / 梅干しを探せ", c: ["🪐","⭐","🌌"], g: "🔴", n: 660 },
-    { t: "10. 5 Mirror 'あ' / 反転した「あ」×5", c: ["あ"], g: "あ", n: 480, goals: 5, type: "mirror" },
+    { t: "10. 5 Mirror 'あ' / 反転あ×5", c: ["あ"], g: "あ", n: 480, goals: 5, type: "mirror" },
     { t: "11. Find Torii! / 鳥居を探せ", c: ["🏢","🏣"], g: "⛩", n: 600, type: "torii" },
-    { t: "12. Find Cherries! / さくらんぼを探せ", c: ["🍎"], g: "🍒", n: 660 },
+    { t: "12. Find Cherries! / さくらんぼ", c: ["🍎"], g: "🍒", n: 660 },
     { t: "13. Find Bug! / 虫を探せ", c: ["🍃","🌱"], g: "🐛", n: 600 },
-    { t: "14. Find Trophy! / トロフィーを探せ", c: ["⚽","🏀"], g: "🏆", n: 600 },
+    { t: "14. Find Trophy! / トロフィー", c: ["⚽","🏀"], g: "🏆", n: 600 },
     { t: "15. Find Banana! / バナナを探せ", c: ["🌙"], g: "🍌", n: 660 },
-    { t: "16. 5 Different Animals! / 違う動物5匹", c: ["🐼"], g: "DIFF_5", n: 480, goals: 5 },
+    { t: "16. 5 Different Animals! / 動物5匹", c: ["🐼"], g: "DIFF_5", n: 480, goals: 5 },
     { t: "17. Find Octopus! / タコを探せ", c: ["🦑"], g: "🐙", n: 660 },
-    { t: "18. Faint UFO! / 薄いUFOを探せ", c: ["✨","🌟"], g: "🛸", n: 720, type: "ufo" },
+    { t: "18. Faint UFO! / 薄いUFO", c: ["✨","🌟"], g: "🛸", n: 720, type: "ufo" },
     { t: "19. 5 Ice Creams! / ソフト5個", c: ["🍭"], g: "🍦", n: 480, goals: 5 },
     { t: "20. 5 Brown Eyes! / 茶色の目5つ", c: ["👁️"], g: "👁️", n: 480, goals: 5, type: "eye" },
     { t: "21. Find 5 Ladies! / 女性を5人", c: ["🧔"], g: "💃", n: 600, goals: 5 },
-    { t: "22. 5 Still Boxes! / 静止した箱5つ", c: ["■"], g: "■", n: 420, goals: 5, type: "shake" },
+    { t: "22. 5 Still Boxes! / 静止箱5つ", c: ["■"], g: "■", n: 420, goals: 5, type: "shake" },
     { t: "23. 5 Chicks! / ヒヨコ5匹", c: ["🐓"], g: "🐥", n: 480, goals: 5 },
     { t: "24. Luck! Red or Blue? / 運命の二択", g: "CHOICE" },
-    { t: "25. 5 Gaps in Spiral / 渦の切れ目5箇所", g: "SPIRAL" },
+    { t: "25. 5 Gaps in Spiral / 渦の切れ目5", g: "SPIRAL" },
     { t: "FINAL", g: "FINAL" }
 ];
 
@@ -151,7 +149,6 @@ function startGame() {
 
 function resetToTop() {
     active = false; clearInterval(tid); tid = null;
-    playSound(150, 'sawtooth', 0.5);
     loadRanking();
     document.getElementById('start-screen').style.display = 'flex';
 }
@@ -189,14 +186,14 @@ function createItem(f, type, isT, st, idx) {
         else if(st === "silver") { el.innerText = "🪙"; el.style.color = "#FFD700"; }
         else el.innerText = type;
     } else {
-        if(st === "silver") el.classList.add('target-silver');
-        if(st === "mirror") el.classList.add('mirror-font');
-        if(st === "torii") el.style.color = "red";
-        if(st === "ufo") el.style.opacity = "0.2";
-        if(st === "clown") el.classList.add('clown-size');
-        if(st === "eye") { el.innerText = "👁️"; el.style.filter = "sepia(100%) saturate(300%) hue-rotate(10deg)"; }
+        if(st === "silver") { el.innerText = "🥈"; el.style.fontSize = "22px"; }
+        else if(st === "mirror") { el.innerText = "あ"; el.style.transform = "scaleX(-1)"; }
+        else if(st === "ufo") { el.innerText = "🛸"; el.style.opacity = "0.2"; }
+        else if(st === "clown") { el.innerText = "🤡"; el.style.fontSize = "18px"; }
+        else if(st === "eye") { el.innerText = "👁️"; el.style.filter = "sepia(100%) saturate(300%) hue-rotate(10deg)"; }
         else if(type === "DIFF_5") el.innerText = ["🐶","🐱","🐭","🐹","🐰"][idx];
         else el.innerText = type;
+        if(type === "⛩") el.style.color = "red";
     }
     el.onclick = () => {
         if(!active) return;
@@ -255,18 +252,18 @@ function updateTimer() {
 
 function end() {
     active = false; clearInterval(tid);
-    updateRanking(pName, score); // ランキング保存
+    updateRanking(pName, score);
     document.getElementById('field').innerHTML = `
         <div style="padding:20px; overflow-y:auto; height:100%;">
             <h2 style="color:#d44d5c;">ALL STAGES CLEARED!<br><span class="lang-sub">完全制覇おめでとう！</span></h2>
-            <p style="font-size:24px; font-weight:bold;">Total Time Bonus: ${score.toFixed(2)}s</p>
-            <div class="premium-box" style="margin:20px auto; background:white; color:#333; text-align:left; font-size:14px;">
+            <p style="font-size:22px; font-weight:bold;">Final Score: ${score.toFixed(2)}s</p>
+            <div class="premium-box" style="margin:20px auto; background:white; color:#333; text-align:left; font-size:13px;">
                 <p>面白くない？めんどくさかった！楽しい？ドキドキした？<br>
-                もし少しでも感情が動いたら、その気持ちをぜひOFUSEの応援として寄付へ繋げてください！</p>
-                <p class="lang-sub">Was it fun? Annoying? Exciting? If you felt anything, please support us via OFUSE to help our donation goal!</p>
+                もし少しでも感情が動いたら、その気持ちをOFUSEの応援として寄付へよろしくおねがいします！</p>
+                <p class="lang-sub">Did it move your heart? If so, please support us via OFUSE to help our donation goal!</p>
                 <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn" style="text-decoration:none; display:inline-block; width:100%; box-sizing:border-box; text-align:center;">Support via OFUSE / 応援する</a>
             </div>
-            <button onclick="resetToTop()" class="btn" style="width:200px;">BACK TO TOP / 最初に戻る</button>
+            <button onclick="resetToTop()" class="btn" style="width:240px;">TOP (SAVE RECORD) / 最初に戻る</button>
         </div>`;
 }
 </script>
