@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-    <title>GIGA-HARD 2026 FIXED</title>
+    <title>GIGA-HARD 2026 STABLE</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
@@ -14,9 +14,11 @@
         .terms-box { font-size: 10px; color: #ccc; margin-top: 15px; text-align: left; width: 100%; max-width: 320px; line-height: 1.4; border-top: 1px solid #444; padding-top: 10px; }
         .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
         #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 28px; min-width: 100px; display: inline-block; }
-        .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-        .item { position: absolute; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; }
-        .target-item { z-index: 28000 !important; }
+        /* ゲームエリア：ここをタップするとミス（背景） */
+        .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; cursor: crosshair; }
+        .item { position: absolute; user-select: none; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+        /* 正解だけがクリックに反応する */
+        .target-item { z-index: 28000 !important; pointer-events: auto !important; cursor: pointer; }
         .gold-mini { width: 12px !important; height: 12px !important; background: #FFFF00 !important; border-radius: 50%; box-shadow: 0 0 5px #FFFF00; border: 1px solid #FFD700; }
         .silver-mini { width: 12px !important; height: 12px !important; background: #E0E0E0 !important; border-radius: 50%; box-shadow: 0 0 5px #FFF; border: 1px solid #AAA; }
         .btn { width:100%; padding:16px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:12px; font-size:18px; font-weight:bold; box-shadow: 0 4px 0 #8a2a35; cursor:pointer; }
@@ -40,7 +42,7 @@
         <div class="terms-box">
             【規約 / Terms】<br>
             ・本ゲームは無料です。 / This game is free to play.<br>
-            ・2026.12.31まで予告なく新ステージが追加されます。 / New stages added without notice until Dec 31, 2026.<br>
+            ・2026.12.31まで予告なく新ステージが追加されます。 / New stages added without notice.<br>
             ・不正行為や重複垢は失格となります。 / Cheating is prohibited.
         </div>
     </div>
@@ -50,7 +52,7 @@
     <div id="stg-desc" style="font-weight:bold; font-size:16px;">Ready...</div>
     <div><span style="font-size:12px;">TIME:</span> <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/25</div>
 </div>
-<div class="game-area" id="field"></div>
+<div class="game-area" id="field" onmousedown="gameOver()"></div>
 
 <script>
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, total_score = 0, pName, pPass;
@@ -86,14 +88,6 @@ const stages = [
     { t: "FINAL", g: "FINAL" }
 ];
 
-function playSound(f, t, d) {
-    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-    o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
-    g.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + d);
-    o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + d);
-}
-
 function loadRanking() {
     const recs = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
     document.getElementById('ranking-display').innerHTML = recs.length ? "🏆 TOP: " + recs.map((r,i)=>`${i+1}.${r.name}(${r.score.toFixed(2)}s)`).join(' ') : "No Records";
@@ -109,20 +103,16 @@ function startGame() {
 
 function init() {
     const f = document.getElementById('field'); f.innerHTML = ""; usedPos = [];
-    found = 0; active = true; 
-    ms = 3000; // ★各ステージ開始時に30秒にリセット
-    
+    found = 0; active = true; ms = 3000;
     const s = stages[cur];
     if(!s || s.g === "FINAL") return end();
     document.getElementById('stg-desc').innerText = s.t;
     document.getElementById('stg-n').innerText = cur + 1;
-
     if(s.g === "CHOICE") createChoiceStage(f);
     else if(s.g === "SPIRAL") createSpiralStage(f);
     else createNormalStage(f, s);
-
-    if(tid) clearInterval(tid); // 既存のタイマーをクリア
-    tid = setInterval(updateTimer, 10); // 新しくタイマー開始
+    if(tid) clearInterval(tid);
+    tid = setInterval(updateTimer, 10);
 }
 
 function createNormalStage(f, s) {
@@ -137,13 +127,12 @@ function createNormalStage(f, s) {
 }
 
 function createItem(f, char, isT, st, idx) {
-    const el = document.createElement('span'); el.className = isT ? 'item target-item' : 'item';
+    const el = document.createElement('span'); 
+    el.className = isT ? 'item target-item' : 'item';
     let x, y, overlap, attempts = 0;
     do {
         overlap = false; x = 2 + Math.random() * 92; y = 2 + Math.random() * 92;
-        if(isT) {
-            for(let p of usedPos) if(Math.abs(p.x - x) < 7 && Math.abs(p.y - y) < 7) overlap = true;
-        }
+        if(isT) for(let p of usedPos) if(Math.abs(p.x - x) < 8 && Math.abs(p.y - y) < 8) overlap = true;
         attempts++;
     } while (overlap && attempts < 50);
     if(isT) usedPos.push({x, y});
@@ -152,12 +141,10 @@ function createItem(f, char, isT, st, idx) {
     el.style.fontSize = "24px";
 
     if(!isT) {
-        el.style.zIndex = Math.floor(Math.random()*10000);
         if(st === "silver") el.classList.add("gold-mini");
         else if(st === "space") { el.innerText = "⭐"; el.style.color = "#FFD700"; }
         else if(st === "eye") { el.innerText = "👁️"; el.style.filter = "grayscale(100%)"; }
         else el.innerText = char;
-        el.onclick = (e) => { e.stopPropagation(); gameOver(); };
     } else {
         if(st === "silver") el.classList.add("silver-mini");
         else if(st === "clown") el.style.fontSize = "14px";
@@ -166,11 +153,12 @@ function createItem(f, char, isT, st, idx) {
         else if(st === "ufo") { el.innerText = "🛸"; el.style.opacity = "0.2"; }
         else if(st === "eye") { el.innerText = "👁️"; el.style.fontSize = "14px"; el.style.filter = "sepia(1) hue-rotate(320deg)"; }
         else el.innerText = char;
-        el.onclick = (e) => {
-            e.stopPropagation(); if(!active || el.style.opacity === "0.4") return;
-            found++; total_score += (ms/100); 
-            el.style.opacity = "0.4";
-            playSound(880, 'sine', 0.1); 
+        
+        // 正解タップ時の処理（親要素へのイベント伝播を止める！）
+        el.onmousedown = (e) => {
+            e.stopPropagation(); 
+            if(!active || el.style.opacity === "0.4") return;
+            found++; total_score += (ms/100); el.style.opacity = "0.4";
             if(found >= (stages[cur].goals || 1)) nextStage();
         };
     }
@@ -178,8 +166,9 @@ function createItem(f, char, isT, st, idx) {
 }
 
 function gameOver() {
+    if(!active) return;
     active = false; clearInterval(tid); tid = null;
-    alert("FAILED! / 失敗！"); 
+    alert("MISS! / 失敗！"); 
     document.getElementById('start-screen').style.display='flex';
 }
 
@@ -192,18 +181,17 @@ function updateTimer() {
 }
 
 function nextStage() {
-    active = false; 
-    clearInterval(tid); tid = null; // タイマー停止
+    active = false; clearInterval(tid); tid = null;
     confetti({particleCount:100});
     setTimeout(() => { cur++; init(); }, 600);
 }
 
 function createChoiceStage(f) {
     const isRed = Math.random() < 0.5;
-    const r = document.createElement('div'); r.style.cssText="position:absolute;width:100px;height:100px;border-radius:50%;background:#ff0000;left:20%;top:40%;z-index:30000;cursor:pointer;";
-    const b = document.createElement('div'); b.style.cssText="position:absolute;width:100px;height:100px;border-radius:50%;background:#0000ff;left:60%;top:40%;z-index:30000;cursor:pointer;";
-    r.onclick = () => isRed ? nextStage() : gameOver();
-    b.onclick = () => !isRed ? nextStage() : gameOver();
+    const r = document.createElement('div'); r.className="target-item"; r.style.cssText="position:absolute;width:100px;height:100px;border-radius:50%;background:#ff0000;left:20%;top:40%;";
+    const b = document.createElement('div'); b.className="target-item"; b.style.cssText="position:absolute;width:100px;height:100px;border-radius:50%;background:#0000ff;left:60%;top:40%;";
+    r.onmousedown = (e) => { e.stopPropagation(); isRed ? nextStage() : gameOver(); };
+    b.onmousedown = (e) => { e.stopPropagation(); !isRed ? nextStage() : gameOver(); };
     f.appendChild(r); f.appendChild(b);
 }
 
@@ -212,8 +200,8 @@ function createSpiralStage(f) {
     const ctx = canvas.getContext('2d'); const cx = canvas.width/2, cy = canvas.height/2;
     ctx.beginPath(); for(let i=0; i<360*400; i++){ let a=i*Math.PI/180, r=a*0.08; ctx.lineTo(cx+Math.cos(a)*r, cy+Math.sin(a)*r); } ctx.stroke();
     for(let j=0; j<5; j++){
-        let d = document.createElement('div'); d.style.cssText=`position:absolute;width:40px;height:40px;left:${Math.random()*85}%;top:${Math.random()*85}%;z-index:30000;cursor:pointer;`;
-        d.onclick=()=>{ d.style.background="rgba(212,77,92,0.5)"; found++; if(found>=5) nextStage(); }; f.appendChild(d);
+        let d = document.createElement('div'); d.className="target-item"; d.style.cssText=`position:absolute;width:45px;height:45px;left:${Math.random()*85}%;top:${Math.random()*85}%;`;
+        d.onmousedown=(e)=>{ e.stopPropagation(); d.style.background="rgba(212,77,92,0.5)"; found++; if(found>=5) nextStage(); }; f.appendChild(d);
     }
 }
 
@@ -222,7 +210,7 @@ function end() {
     let recs = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
     recs.push({name: pName, score: total_score}); recs.sort((a,b)=>b.score-a.score);
     localStorage.setItem('gigaHard_ranks', JSON.stringify(recs.slice(0,3)));
-    document.getElementById('field').innerHTML = `<div style="padding:20px;"><h2>ALL STAGES CLEAR!</h2><p>Total Score: ${total_score.toFixed(2)}s</p><button onclick="location.reload()" class="btn">TOPに戻る</button></div>`;
+    document.getElementById('field').innerHTML = `<div style="padding:20px;"><h2>CLEAR!</h2><p>Score: ${total_score.toFixed(2)}</p><button onmousedown="location.reload()" class="btn">TOP</button></div>`;
 }
 </script>
 </body>
