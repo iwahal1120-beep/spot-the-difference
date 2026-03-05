@@ -3,63 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-    <title>GIGA-HARD 2026 FIX</title>
+    <title>GIGA-HARD 2026 TRUE FINAL</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
-        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:#1a1a1a; z-index:40000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; }
-        .premium-box { border: 3px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255,215,0,0.1); margin: 10px 0; width: 100%; max-width: 380px; }
-        .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
+        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:#1a1a1a; z-index:99999; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; }
+        .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 50000; }
         #timer { color: #fff; background: #000; padding: 2px 10px; border-radius: 5px; font-family: monospace; font-size: 28px; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-        .item { position: absolute; user-select: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        /* 正解：判定を巨大化(60px)させ、絶対に最前面へ */
-        .target-item { z-index: 50000 !important; width: 60px; height: 60px; font-size: 32px; } 
-        /* ハズレ：判定を極小化(10px)させ、重なりを防止 */
-        .miss-item { z-index: 1000; width: 10px; height: 10px; font-size: 20px; pointer-events: auto; }
-        .btn { width:100%; padding:16px; background:#ff6b6b; color:white; border:none; border-radius:12px; font-size:18px; font-weight:bold; }
-        input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; }
+        
+        /* 正解：判定をさらに巨大化(80px)して、ハズレより手前に表示 */
+        .target-item { position: absolute; z-index: 80000; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; }
+        
+        /* ハズレ：クリック判定を一切持たない(pointer-events: none) */
+        .miss-item { position: absolute; z-index: 10; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 24px; pointer-events: none; }
+        
+        .btn { width:100%; padding:16px; background:#ff6b6b; color:white; border:none; border-radius:12px; font-size:18px; font-weight:bold; cursor:pointer; }
+        input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; border:none; }
     </style>
 </head>
 <body onload="loadRanking()">
 
 <div id="start-screen">
-    <h2 style="color:#ffd700;">GIGA-HARD 2026</h2>
-    <div class="premium-box">1位に10万円ギフト / 締切: 2026.12.31</div>
-    <div id="ranking-display" style="margin:10px; font-size:12px;"></div>
+    <h1 style="color:#ffd700;">GIGA-HARD 2026</h1>
+    <div style="border:2px solid #ffd700; padding:10px; border-radius:10px; background:rgba(255,215,0,0.1);">
+        1位に10万円ギフト / 締切: 2026.12.31
+    </div>
+    <div id="ranking-display" style="margin:20px; font-size:14px; color:#ccc;"></div>
     <input type="text" id="p-name" placeholder="Nickname">
     <input type="password" id="p-pass" placeholder="4-digit Pass">
-    <button onclick="startGame()" class="btn">START 🏆</button>
+    <button onclick="startGame()" class="btn">START / 挑戦する 🏆</button>
 </div>
 
 <div class="header">
-    <div id="stg-desc" style="font-weight:bold;">Ready...</div>
-    <div>TIME: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/25</div>
+    <div id="stg-desc" style="font-weight:bold; font-size:18px;">Ready...</div>
+    <div style="margin-top:5px;">TIME: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/9</div>
 </div>
 <div class="game-area" id="field"></div>
 
 <script>
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, total_score = 0, pName, pPass;
+
+// ステージ構成（慎重に再定義）
 const stages = [
-    { t: "1. Human! / 人間", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 600 },
-    { t: "2. Cat! / 猫 (900匹!)", c: ["🧔","👵","👦","👧"], g: "🐱", n: 800 },
-    { t: "3. Bicycle! / 自転車", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 700 },
-    { t: "4. Cookie! / クッキー", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 600 },
-    { t: "5. YELLOW vs SILVER", c: ["●"], g: "●", n: 500, goals: 5, type: "silver" },
-    { t: "9. 5 Pale Pink Hearts! / 桃色5個", c: ["⭐"], g: "🩷", n: 600, goals: 5, type: "pale" },
-    { t: "10. 5 Mirror 'あ'", c: ["あ"], g: "あ", n: 500, goals: 5, type: "mirror" },
-    { t: "23. Chicks! / 鶏+150", c: ["🐓"], g: "🐥", n: 700, goals: 5 },
+    { t: "1. Human! / 人間を探せ", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 400 },
+    { t: "2. Cat! / 猫 (800匹!)", c: ["🧔","👵","👦","👧"], g: "🐱", n: 800 },
+    { t: "3. Bicycle! / 自転車を探せ", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 600 },
+    { t: "4. Cookie! / クッキーを探せ", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 500 },
+    { t: "9. 5 Pale Pink Hearts! / 桃色5個", c: ["⭐"], g: "🩷", n: 700, goals: 5, type: "pale" },
+    { t: "12. Cherries! / さくらんぼ", c: ["🍎"], g: "🍒", n: 600 },
+    { t: "17. Octopus! / タコを探せ", c: ["🦑"], g: "🐙", n: 600 },
+    { t: "23. Chicks! / 鶏+150", c: ["🐓"], g: "🐥", n: 800, goals: 5 },
     { t: "FINAL", g: "FINAL" }
 ];
 
 function loadRanking() {
     const recs = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
-    document.getElementById('ranking-display').innerHTML = recs.map((r,i)=>`${i+1}.${r.name}(${r.score.toFixed(2)})`).join(' ');
+    document.getElementById('ranking-display').innerHTML = recs.length ? "TOP SCORE: " + recs[0].score.toFixed(2) : "Challenge Now!";
 }
 
 function startGame() {
-    pName = document.getElementById('p-name').value; pPass = document.getElementById('p-pass').value;
+    pName = document.getElementById('p-name').value; 
+    pPass = document.getElementById('p-pass').value;
     if(!pName || pPass.length<4) return alert("Nickname & 4-digit Pass!");
     document.getElementById('start-screen').style.display='none';
     cur = 0; total_score = 0; init();
@@ -71,61 +77,51 @@ function init() {
     const s = stages[cur];
     if(!s || s.g === "FINAL") return end();
     document.getElementById('stg-desc').innerText = s.t;
-    document.getElementById('stg-n').innerText = cur + 1;
+    document.getElementById('stg-n').innerText = (cur + 1);
 
-    // 1. ターゲット(正解)を先に作る
+    // 1. 正解アイテムを生成 (最前面)
     const goals = s.goals || 1;
-    for(let j=0; j<goals; j++) createItem(f, s.g, true, s.type);
+    for(let j=0; j<goals; j++) {
+        const el = document.createElement('span');
+        el.className = 'target-item';
+        el.style.left = (Math.random() * 85) + "%";
+        el.style.top = (Math.random() * 85) + "%";
+        
+        if(s.type === "pale") { el.innerText = "🩷"; el.style.opacity = "0.4"; }
+        else el.innerText = s.g;
 
-    // 2. ハズレを背景として作る
-    for(let i=0; i<s.n; i++) createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false, s.type);
-
-    if(tid) clearInterval(tid);
-    tid = setInterval(() => {
-        if(!active) return; ms--;
-        document.getElementById('timer').innerText = (ms/100).toFixed(2);
-        if(ms <= 0) gameOver();
-    }, 10);
-}
-
-function createItem(f, char, isT, st) {
-    const el = document.createElement('span');
-    el.className = isT ? 'item target-item' : 'item miss-item';
-    el.style.left = (2 + Math.random() * 90) + "%";
-    el.style.top = (2 + Math.random() * 90) + "%";
-
-    if(isT) {
-        // 正解の見た目
-        if(st === "silver") { el.style.background="#E0E0E0"; el.style.borderRadius="50%"; el.innerText=""; el.style.width="15px"; el.style.height="15px"; }
-        else if(st === "pale") { el.innerText = "🩷"; el.style.opacity = "0.5"; }
-        else if(st === "mirror") { el.innerText = "あ"; el.style.transform = "scaleX(-1)"; }
-        else el.innerText = char;
-
+        // 正解だけがクリックに反応する
         el.onmousedown = (e) => {
             e.stopPropagation();
             if(!active || el.style.visibility === "hidden") return;
             el.style.visibility = "hidden";
             found++; total_score += (ms/100);
-            if(found >= (stages[cur].goals || 1)) nextStage();
+            if(found >= goals) nextStage();
         };
-    } else {
-        // ハズレの見た目
-        if(st === "silver") { el.style.background="#FFD700"; el.style.borderRadius="50%"; el.innerText=""; el.style.width="15px"; el.style.height="15px"; }
-        else el.innerText = char;
-        
-        // 【重要】ハズレを触っても失敗にせず、時間を1秒減らすだけにする（1タップ即終了を回避）
-        el.onmousedown = (e) => {
-            e.stopPropagation();
-            ms -= 100; // 1秒マイナス
-            el.style.color = "red"; setTimeout(()=>el.style.color="", 200);
-        };
+        f.appendChild(el);
     }
-    f.appendChild(el);
+
+    // 2. 背景(ハズレ)を生成 (奥側)
+    for(let i=0; i<s.n; i++) {
+        const el = document.createElement('span');
+        el.className = 'miss-item';
+        el.style.left = (Math.random() * 95) + "%";
+        el.style.top = (Math.random() * 95) + "%";
+        el.innerText = s.c[Math.floor(Math.random()*s.c.length)];
+        f.appendChild(el);
+    }
+
+    if(tid) clearInterval(tid);
+    tid = setInterval(() => {
+        if(!active) return; ms--;
+        document.getElementById('timer').innerText = (ms/100).toFixed(2);
+        if(ms <= 0) timeUp();
+    }, 10);
 }
 
-function gameOver() {
+function timeUp() {
     active = false; clearInterval(tid);
-    alert("TIME UP! / 終了！");
+    alert("TIME UP! / 時間切れです");
     document.getElementById('start-screen').style.display='flex';
 }
 
@@ -138,9 +134,15 @@ function nextStage() {
 function end() {
     active = false; clearInterval(tid);
     let recs = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
-    recs.push({name: pName, score: total_score}); recs.sort((a,b)=>b.score-a.score);
+    recs.push({name: pName, score: total_score});
+    recs.sort((a,b)=>b.score-a.score);
     localStorage.setItem('gigaHard_ranks', JSON.stringify(recs.slice(0,3)));
-    document.getElementById('field').innerHTML = `<h2>CLEAR! SCORE: ${total_score.toFixed(2)}</h2><button onclick="location.reload()" class="btn">TOP</button>`;
+    document.getElementById('field').innerHTML = `
+        <div style="padding:50px;">
+            <h2>🏆 ALL STAGES CLEAR!</h2>
+            <p>Your Score: ${total_score.toFixed(2)}</p>
+            <button onclick="location.reload()" class="btn">TOPに戻る</button>
+        </div>`;
 }
 </script>
 </body>
