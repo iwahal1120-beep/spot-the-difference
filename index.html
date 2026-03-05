@@ -9,11 +9,11 @@
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; background: #000; margin: 0; overflow: hidden; }
         
-        /* トップ画面：漆黒の美学と信頼の規約を完全復元 */
+        /* トップ画面：漆黒の美学、信頼の規約を完全復元 */
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:99999; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; overflow-y: auto; }
         .premium-box { border: 3px solid #ffd700; padding: 20px; border-radius: 15px; background: rgba(255,215,0,0.1); margin: 15px 0; width: 100%; max-width: 400px; box-shadow: 0 0 30px rgba(255,215,0,0.3); }
-        .btn-ofuse-top { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 17px; font-weight: bold; display: block; margin-bottom: 15px; width: 100%; border: 2px solid #fff; transition: scale 0.2s; }
-        .btn-ofuse-top:active { scale: 0.98; }
+        .btn-ofuse-top { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 17px; font-weight: bold; display: block; margin-bottom: 15px; width: 100%; border: 2px solid #fff; transition: 0.2s; }
+        .btn-ofuse-top:active { transform: scale(0.97); }
         
         .terms-box { font-size: 11px; color: #ccc; margin-top: 25px; text-align: left; width: 100%; max-width: 340px; line-height: 1.8; border-top: 1px solid #444; padding-top: 20px; }
         .en-desc { font-size: 13px; color: #ffd700; margin-bottom: 15px; font-style: italic; font-weight: 300; }
@@ -23,8 +23,8 @@
         
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         
-        /* 判定の核心：ターゲットだけが実体を持ち、ハズレは「無」である */
-        .target-item { position: absolute; z-index: 80000 !important; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 46px; cursor: pointer; border-radius: 50%; }
+        /* ターゲットのみが実体を持ち、ハズレは判定を無視 */
+        .target-item { position: absolute; z-index: 80000 !important; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 46px; cursor: pointer; }
         .miss-item { position: absolute; z-index: 10; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 28px; pointer-events: none; user-select: none; }
 
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:14px; font-size:22px; font-weight:bold; box-shadow: 0 6px 0 #8a2a35; cursor:pointer; }
@@ -53,9 +53,9 @@
         <div class="terms-box">
             【規約 / Terms】<br>
             ・本ゲームは無料です。 / This game is free to play.<br>
-            ・2026.12.31まで順次ステージ追加。 / Stages updated until end of year.<br>
+            ・2026.12.31まで順次ステージが追加されます。 / Stages updated until end of year.<br>
             ・不正行為、重複アカウントは賞品対象外となります。 / Fraud is prohibited.<br>
-            ・1タップ失敗判定は削除されました。 / Mis-tap penalty is removed.
+            ・賞品を獲得するには「OFUSE」の共通パスワードが必要です。 / "OFUSE" common password is required to claim prizes.
         </div>
     </div>
 </div>
@@ -69,7 +69,6 @@
 <script>
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, total_score = 0, pName, pPass;
 
-// ★全26ステージを「知能がない」と言われないよう、魂を込めて全記述
 const stages = [
     { t: "1. Human! / 人間を探せ", c: ["🐶","🐱","🐭"], g: "🙋‍♂️", n: 400 },
     { t: "2. Cat! / 猫 (800匹!)", c: ["🧔","👵","👦"], g: "🐱", n: 800 },
@@ -122,7 +121,6 @@ function init() {
     document.getElementById('stg-desc').innerText = s.t;
     document.getElementById('stg-n').innerText = cur + 1;
 
-    // 正解(ターゲット)生成：この要素だけが実体を持つ
     const goals = s.goals || 1;
     for(let j=0; j<goals; j++) {
         const el = document.createElement('div');
@@ -147,7 +145,6 @@ function init() {
         f.appendChild(el);
     }
 
-    // 背景(ハズレ)生成：pointer-events:noneで「判定の壁」を消去
     for(let i=0; i<s.n; i++) {
         const el = document.createElement('span');
         el.className = 'miss-item';
@@ -163,14 +160,8 @@ function init() {
     tid = setInterval(() => {
         if(!active) return; ms--;
         document.getElementById('timer').innerText = (ms/100).toFixed(2);
-        if(ms <= 0) timeUp();
+        if(ms <= 0) { active=false; clearInterval(tid); alert("TIME UP!"); document.getElementById('start-screen').style.display='flex'; }
     }, 10);
-}
-
-function timeUp() {
-    active = false; clearInterval(tid);
-    alert("TIME UP! Challenge again.");
-    document.getElementById('start-screen').style.display='flex';
 }
 
 function nextStage() {
@@ -188,7 +179,6 @@ function end() {
         <div style="padding-top:100px; color:#000;">
             <h2 style="font-size:36px; margin-bottom:10px;">🏆 MISSION COMPLETE!</h2>
             <p style="font-size:26px; font-weight:bold;">FINAL SCORE: ${total_score.toFixed(2)}</p>
-            <p style="color:#666;">Ranking data has been saved.</p>
             <button onclick="location.reload()" class="btn" style="max-width:320px; margin-top:30px;">BACK TO TOP</button>
         </div>`;
 }
