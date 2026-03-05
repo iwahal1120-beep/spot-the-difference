@@ -9,16 +9,18 @@
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; background: #000; margin: 0; overflow: hidden; }
         
-        /* トップ画面：金色のプレミアム感 */
-        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:99999; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; overflow-y: auto; }
-        .premium-box { border: 3px solid #ffd700; padding: 20px; border-radius: 15px; background: rgba(255,215,0,0.1); margin: 15px 0; width: 100%; max-width: 400px; box-shadow: 0 0 20px #ffd70055; }
+        /* 10万円ギフト券表示（トップ） */
+        .prize-header { background: linear-gradient(90deg, #ffd700, #fff, #ffd700); color: #000; font-weight: bold; padding: 10px; font-size: 18px; border-bottom: 2px solid #000; }
+
+        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:99999; display:flex; flex-direction:column; align-items:center; color:white; padding: 0 20px 20px; overflow-y: auto; }
+        .premium-box { border: 3px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255,215,0,0.1); margin: 15px 0; width: 100%; max-width: 400px; box-shadow: 0 0 20px #ffd70055; }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 17px; font-weight: bold; display: block; margin-bottom: 15px; width: 100%; border: 2px solid #fff; }
         
-        /* 規約：日・英完全併記 */
-        .terms-box { font-size: 11px; color: #ccc; margin-top: 25px; text-align: left; width: 100%; max-width: 340px; line-height: 1.6; border-top: 1px solid #444; padding-top: 20px; }
-        .url-text { color: #ffd700; word-break: break-all; font-family: monospace; font-size: 12px; }
+        /* 規約：不正削除の強い警告 */
+        .terms-box { font-size: 11px; color: #ccc; margin-top: 20px; text-align: left; width: 100%; max-width: 340px; line-height: 1.5; border-top: 1px solid #444; padding-top: 15px; }
+        .warning-text { color: #ff4444; font-weight: bold; }
 
-        /* ヘッダーとタイマー */
+        /* ヘッダー：ドクドク演出用 */
         .header { background: #d44d5c; color: white; height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 50000; }
         #timer { color: #fff; background: #000; padding: 4px 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 32px; min-width: 120px; border: 2px solid #555; }
         .timer-danger { color: #ff0000 !important; border-color: #ff0000 !important; animation: heartbeat 0.5s infinite; }
@@ -28,45 +30,45 @@
         .target-item { position: absolute; z-index: 80000; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
         .miss-item { position: absolute; z-index: 10; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-size: 18px; pointer-events: none; }
         
-        /* 22番：動く四角 */
         @keyframes moveAround { 0% { transform: translate(0,0); } 100% { transform: translate(80px, 80px); } }
         .moving { animation: moveAround 1.2s infinite alternate ease-in-out; }
 
-        /* クリア画面：OFUSE導線 */
         .clear-container { padding: 40px 20px; color: #000; height: 100%; width: 100%; background: #fff; position: fixed; top:0; left:0; z-index: 100000; overflow-y: auto; text-align: center; }
         .ofuse-btn-final { background: #ed6c00; color: #fff; padding: 20px; border-radius: 15px; text-decoration: none; font-size: 20px; font-weight: bold; display: block; margin: 20px auto; border: 3px solid #000; }
-        .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:14px; font-size:22px; font-weight:bold; cursor:pointer; box-shadow: 0 4px 0 #8a2a35; }
-        input { padding:14px; font-size:16px; width:100%; margin-bottom:12px; border-radius:10px; border:1px solid #ccc; text-align:center; }
+        .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:14px; font-size:20px; font-weight:bold; cursor:pointer; }
+        input { padding:14px; font-size:16px; width:100%; margin-bottom:10px; border-radius:10px; border:1px solid #ccc; text-align:center; }
     </style>
 </head>
 <body onload="loadRanking()">
 
 <div id="start-screen">
-    <h1 style="color:#ffd700; font-size:24px; margin-bottom:0;">Search Challenge GIGA-HARD</h1>
-    <p style="font-size:12px; color:#ffd700; margin-bottom:15px;">Official Visual Test 2026</p>
+    <div class="prize-header">10万円ギフト券 贈呈 / 100,000 JPY Prize</div>
+    <h1 style="color:#ffd700; font-size:22px; margin: 15px 0 5px;">Search Challenge GIGA-HARD</h1>
     
     <div class="premium-box">
-        <div style="font-size:18px; font-weight:bold; color:#ffd700;">1位に10万円ギフトカード贈呈</div>
-        <div style="font-size:12px; margin-top:5px;">Win 100,000 JPY Amazon Gift Card</div>
+        <div style="font-size:14px; line-height:1.6;">
+            本気で探せ。全26ステージの極限視覚テスト。<br>
+            Ultimate Visual Test: 26 Stages of Hell.
+        </div>
     </div>
 
-    <div id="ranking-display" style="font-size:13px; margin:10px; color:#ffd700;"></div>
+    <div id="ranking-display" style="font-size:13px; margin:5px; color:#ffd700;"></div>
 
     <div style="width: 100%; max-width: 340px;">
-        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">応援して10万円に挑戦！🚀<br><span style="font-size:11px;">Support & Win Prize</span></a>
+        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">応援して挑戦権を確定！🚀<br><span style="font-size:11px;">Support via OFUSE to Enter</span></a>
         
         <input type="text" id="p-name" placeholder="Nickname / ニックネーム">
         <input type="password" id="p-pass" placeholder="4-digit Pass / 4桁パスワード">
         
-        <button onclick="startGame()" class="btn">START GAME / 26 STAGES</button>
+        <button onclick="startGame()" class="btn">START GAME / 全26ステージ</button>
 
         <div class="terms-box">
             【規約 / Terms】<br>
-            ・不正規約：重複アカウントや自動操作、ツール使用等の不正行為は即座に失格とし、賞品獲得権利を剥奪します。<br>
-            Fraudulent activity (multi-accounts, bots) will result in immediate disqualification.<br>
-            ・賞品獲得には「OFUSE」の登録と、登録後の共通パスワード入力が必須です。<br>
-            OFUSE registration is mandatory to claim your prize.<br>
-            ・OFUSE URL: <span class="url-text">https://ofuse.me/d33e72b9</span>
+            ・<span class="warning-text">不正（重複、ツール等）は即座にスコア削除・失格とします。</span><br>
+            Fraudulent acts will result in <span class="warning-text">immediate score deletion & disqualification.</span><br>
+            ・賞品受取にはOFUSE共通パスワードが必要です。<br>
+            OFUSE common password is required for prize claim.<br>
+            ・OFUSE: <span style="color:#ffd700;">https://ofuse.me/d33e72b9</span>
         </div>
     </div>
 </div>
@@ -85,9 +87,9 @@ const stages = [
     { t: "2. Cat", c: ["🧔","👵","👦"], g: "🐱", n: 800 },
     { t: "3. Bicycle", c: ["🚗","🚕","🚙"], g: "🚲", n: 700 },
     { t: "4. Cookie", c: ["🍬","🍭","🍫"], g: "🍪", n: 700 },
-    { t: "5. SILVER (5 goals)", c: ["●"], g: "●", n: 600, goals: 5, type: "silver" },
+    { t: "5. SILVER", c: ["●"], g: "●", n: 600, goals: 5, type: "silver" },
     { t: "6. Small Clown", c: ["💃","🕺"], g: "🤡", n: 700, type: "small" },
-    { t: "7. Flags / 5つの国旗を探せ", c: ["🌏","🌎"], g: ["🇯🇵","🇺🇸","🇫🇷","🇩🇪","🇰🇷"], n: 600, goals: 5 },
+    { t: "7. Flags", c: ["🌏","🌎"], g: ["🇯🇵","🇺🇸","🇫🇷","🇩🇪","🇰🇷"], n: 600, goals: 5 },
     { t: "8. Bone", c: ["🐟","🐠"], g: "🦴", n: 700 },
     { t: "9. 5 Hearts", c: ["⭐"], g: "🩷", n: 800, goals: 5, type: "pale" },
     { t: "10. Mirror 'あ'", c: ["あ"], g: "あ", n: 600, goals: 5, type: "mirror" },
@@ -100,23 +102,23 @@ const stages = [
     { t: "17. Octopus", c: ["🦑","🦀"], g: "🐙", n: 800 },
     { t: "18. UFO", c: ["✨","🌟"], g: "🛸", n: 800, type: "ufo" },
     { t: "19. Ice Creams", c: ["🍭","🍩"], g: "🍦", n: 700, goals: 5 },
-    { t: "20. The Eye (3 goals)", c: ["👁️"], g: "👀", n: 1200, goals: 3 },
+    { t: "20. The Eye", c: ["👁️"], g: "👀", n: 1200, goals: 3 },
     { t: "21. Lady", c: ["🧔","👴"], g: "💃", n: 700 },
-    { t: "22. Stillness / 300個の動から5つの静を", c: ["■"], g: "■", n: 300, goals: 5, type: "moving" },
-    { t: "23. Chick / 背景1200個増量地獄", c: ["🥚","🐓"], g: "🐥", n: 1200, goals: 5 },
-    { t: "24. FATE / 運命の選択 (ミス即Stage1)", type: "choice" },
-    { t: "25. Spiral / 100重極細渦の断裂探し", type: "spiral", goals: 5 },
+    { t: "22. Stillness / 300動の中から5つの静を", c: ["■"], g: "■", n: 300, goals: 5, type: "moving" },
+    { t: "23. Chick / 背景1200個増量", c: ["🥚","🐓"], g: "🐥", n: 1200, goals: 5 },
+    { t: "24. FATE / ミス即Stage 1へ戻る", type: "choice" },
+    { t: "25. Spiral / 全面極細線の断裂探し", type: "spiral", goals: 5 },
     { t: "26. FINAL / 最後は笑顔で", c: ["😭","😢","😡"], g: "😊", n: 1500 }
 ];
 
 function loadRanking() {
     const recs = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
-    document.getElementById('ranking-display').innerHTML = recs.length ? "TOP SCORE: " + recs[0].score.toFixed(2) : "Challenge Now!";
+    document.getElementById('ranking-display').innerHTML = recs.length ? "TOP SCORE: " + recs[0].score.toFixed(2) : "Are you ready?";
 }
 
 function startGame() {
     pName = document.getElementById('p-name').value.trim(); pPass = document.getElementById('p-pass').value.trim();
-    if(!pName || pPass.length<4) return alert("Nickname & 4-digit Pass required");
+    if(!pName || pPass.length<4) return alert("Nickname & 4-digit Pass");
     document.getElementById('start-screen').style.display='none';
     cur = 0; total_score = 0; init();
 }
@@ -127,10 +129,9 @@ function init() {
     document.getElementById('stg-desc').innerText = s.t;
     document.getElementById('stg-n').innerText = cur + 1;
 
-    // 24. FATE
     if(s.type === "choice") {
-        f.innerHTML = `<div style="padding-top:40px; font-weight:bold;">不規則に入れ替わる正解を撃て！<br>ミスればStage 1へ。/ Wrong = Stage 1.</div>`;
-        const bL = document.createElement('div'); bL.style = "position:absolute; left:10%; top:40%; width:130px; height:130px; border-radius:50%; background:red; cursor:pointer; z-index:999;";
+        f.innerHTML = `<div style="padding-top:50px; font-weight:bold;">入れ替わる色を狙え！<br>失敗はStage 1への退化。</div>`;
+        const bL = document.createElement('div'); bL.style = "position:absolute; left:10%; top:40%; width:130px; height:130px; border-radius:50%; background:red; cursor:pointer;";
         const bR = bL.cloneNode(); bR.style.left = "55%"; bR.style.background = "blue";
         let target = "red";
         bL.onclick = () => (target === "red") ? nextStage() : restart();
@@ -140,10 +141,9 @@ function init() {
         return;
     }
 
-    // 25. Spiral
     if(s.type === "spiral") {
         const w = window.innerWidth, h = window.innerHeight - 110;
-        f.innerHTML = `<div style="position:absolute; top:5px; width:100%; z-index:100; font-size:12px; color:red; font-weight:bold;">線の断裂(Gap)を5箇所探せ！ / Find 5 Gaps</div><svg width="${w}" height="${h}" style="position:absolute; top:0; left:0; pointer-events:none;"><g id="spiralC" fill="none" stroke="#000" stroke-width="0.5"></g></svg>`;
+        f.innerHTML = `<div style="position:absolute; top:5px; width:100%; z-index:100; font-size:12px; color:red; font-weight:bold;">線の切れ目を5箇所タップせよ</div><svg width="${w}" height="${h}" style="position:absolute; top:0; left:0; pointer-events:none;"><g id="spiralC" fill="none" stroke="#000" stroke-width="0.5"></g></svg>`;
         const container = document.getElementById('spiralC');
         const gaps = []; while(gaps.length < 5) { gaps.push(Math.floor(Math.random()*150000)+5000); }
         let path = "";
@@ -154,8 +154,8 @@ function init() {
             if(isGap) {
                 if(path!==""){ let p=document.createElementNS("http://www.w3.org/2000/svg","path"); p.setAttribute("d",path); container.appendChild(p); path=""; }
                 if(i === gaps.find(g => i >= g && i < g + 350)) {
-                    const hit = document.createElement('div'); hit.style = `position:absolute; left:${x}px; top:${y}px; width:40px; height:40px; margin:-20px; cursor:pointer; z-index:90000;`;
-                    hit.onclick = (e) => { e.target.style.background="red"; found++; if(found>=5) nextStage(); };
+                    const hit = document.createElement('div'); hit.style = `position:absolute; left:${x}px; top:${y}px; width:45px; height:45px; margin:-22px; cursor:pointer; z-index:90000;`;
+                    hit.onclick = (e) => { e.target.style.background="rgba(255,0,0,0.4)"; found++; if(found>=5) nextStage(); };
                     f.appendChild(hit);
                 }
             } else { if(path==="") path=`M${x},${y} `; else path+=`L${x},${y} `; }
@@ -163,7 +163,6 @@ function init() {
         return;
     }
 
-    // Default Generation
     for(let i=0; i<s.n; i++) {
         const m = document.createElement('span'); m.className = 'miss-item' + (s.type==="moving"?" moving":"");
         m.style.left=Math.random()*95+"%"; m.style.top=Math.random()*95+"%";
@@ -185,25 +184,21 @@ function init() {
     }
 }
 
-function restart() { active=false; clearInterval(tid); alert("FATE ERROR! / 運命の選択失敗：Stage 1へ戻ります。"); cur=0; init(); }
+function restart() { active=false; clearInterval(tid); alert("FATE ERROR! Stage 1に戻ります。"); cur=0; init(); }
 function nextStage() { active = false; confetti(); total_score += (ms/100); cur++; setTimeout(() => { if(cur < stages.length) init(); else end(); }, 600); }
 
 function end() {
     active = false; clearInterval(tid);
     document.body.innerHTML += `
         <div class="clear-container">
-            <h2 style="font-size:32px; margin-bottom:5px;">🏆 ALL CLEAR!</h2>
+            <h2>🏆 ALL CLEAR!</h2>
             <p style="font-size:24px; color:#d44d5c; font-weight:bold;">SCORE: ${total_score.toFixed(2)}</p>
-            <div style="background:#fff9f0; border:2px dashed #ed6c00; padding:15px; border-radius:10px; margin:20px 0;">
-                <p style="font-weight:bold; margin:0;">【重要 / IMPORTANT】</p>
-                <p style="font-size:13px; line-height:1.6;">
-                    賞品獲得にはOFUSE登録と共通パスワード入力が必須です。<br>
-                    You MUST register on OFUSE and enter the common password to claim your prize.
-                </p>
-                <a href="https://ofuse.me/d33e72b9" target="_blank" class="ofuse-btn-final">OFUSEに登録する / Register 🚀</a>
-                <p style="font-size:11px; color:#666;">URL: https://ofuse.me/d33e72b9</p>
+            <div style="background:#fff9f0; border:2px dashed #ed6c00; padding:15px; border-radius:10px;">
+                <p style="font-weight:bold;">【重要 / IMPORTANT】</p>
+                <p style="font-size:13px;">賞品受取にはOFUSE登録が必須です。<br>OFUSE registration is required.</p>
+                <a href="https://ofuse.me/d33e72b9" target="_blank" class="ofuse-btn-final">OFUSEで登録 🚀</a>
             </div>
-            <button onclick="location.reload()" class="btn" style="background:#444;">BACK TO TOP / 戻る</button>
+            <button onclick="location.reload()" class="btn" style="background:#444; margin-top:15px;">TOP</button>
         </div>`;
 }
 
@@ -215,7 +210,7 @@ tid = setInterval(() => {
     if(ms <= 1000) { tEl.classList.add('timer-danger'); } else { tEl.classList.remove('timer-danger'); }
     if(ms <= 0) {
         active = false; clearInterval(tid);
-        alert("TIME UP! / タイムアップ！"); location.reload();
+        alert("TIME UP!"); location.reload();
     }
 }, 10);
 </script>
