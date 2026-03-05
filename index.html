@@ -3,24 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-    <title>GIGA-HARD 2026 STABLE</title>
+    <title>GIGA-HARD 2026 FINAL</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
-        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:30000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; overflow-y: auto; }
+        
+        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:40000; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; overflow-y: auto; }
         .premium-box { border: 3px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255,215,0,0.1); margin: 10px 0; width: 100%; max-width: 380px; }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 14px; border-radius: 10px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin-bottom: 10px; width: 100%; border: 2px solid #fff; }
-        .terms-box { font-size: 10px; color: #ccc; margin-top: 15px; text-align: left; width: 100%; max-width: 320px; line-height: 1.4; border-top: 1px solid #444; padding-top: 10px; }
+        .terms-box { font-size: 11px; color: #ccc; margin-top: 15px; text-align: left; width: 100%; max-width: 320px; line-height: 1.5; border-top: 1px solid #444; padding-top: 10px; }
+
         .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 10001; }
-        #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 5px; font-family: monospace; font-size: 28px; min-width: 100px; display: inline-block; }
-        /* ゲームエリア：ここをタップするとミス（背景） */
-        .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; cursor: crosshair; }
-        .item { position: absolute; user-select: none; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-        /* 正解だけがクリックに反応する */
-        .target-item { z-index: 28000 !important; pointer-events: auto !important; cursor: pointer; }
+        #timer { color: #fff; background: #000; padding: 2px 10px; border-radius: 5px; font-family: monospace; font-size: 28px; min-width: 100px; display: inline-block; }
+        
+        .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
+        
+        .item { position: absolute; user-select: none; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+        /* 正解：判定をさらに大きくし、最前面へ */
+        .target-item { z-index: 35000 !important; width: 55px; height: 55px; } 
+        /* ハズレ：背景の白部分をタップしてもミスにならないよう、キャラ本体のみに判定 */
+        .miss-item { z-index: 10000; width: 42px; height: 42px; }
+
+        /* 特殊図形 */
         .gold-mini { width: 12px !important; height: 12px !important; background: #FFFF00 !important; border-radius: 50%; box-shadow: 0 0 5px #FFFF00; border: 1px solid #FFD700; }
         .silver-mini { width: 12px !important; height: 12px !important; background: #E0E0E0 !important; border-radius: 50%; box-shadow: 0 0 5px #FFF; border: 1px solid #AAA; }
+
         .btn { width:100%; padding:16px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:12px; font-size:18px; font-weight:bold; box-shadow: 0 4px 0 #8a2a35; cursor:pointer; }
         input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; border:none; }
     </style>
@@ -34,25 +42,27 @@
         <div style="font-size:11px;">Deadline: 2026.12.31 0:00(JST)</div>
     </div>
     <div id="ranking-display" style="font-size:12px; margin:10px; background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; width:100%; max-width:320px;"></div>
+    
     <div style="width: 100%; max-width: 320px;">
         <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">応援して10万円に挑戦！🚀</a>
         <input type="text" id="p-name" placeholder="Nickname">
         <input type="password" id="p-pass" placeholder="4-digit Pass">
         <button onclick="startGame()" class="btn">START / 挑戦する 🏆</button>
+        
         <div class="terms-box">
             【規約 / Terms】<br>
-            ・本ゲームは無料です。 / This game is free to play.<br>
-            ・2026.12.31まで予告なく新ステージが追加されます。 / New stages added without notice.<br>
-            ・不正行為や重複垢は失格となります。 / Cheating is prohibited.
+            ・本ゲームは無料です。 / This is a free game.<br>
+            ・2026.12.31まで順次、新ステージが追加されます。 / Stage updates until Dec 31, 2026.<br>
+            ・不正行為、複数アカウントでの応募は無効です。
         </div>
     </div>
 </div>
 
 <div class="header">
     <div id="stg-desc" style="font-weight:bold; font-size:16px;">Ready...</div>
-    <div><span style="font-size:12px;">TIME:</span> <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/25</div>
+    <div>TIME: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/25</div>
 </div>
-<div class="game-area" id="field" onmousedown="gameOver()"></div>
+<div class="game-area" id="field"></div>
 
 <script>
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, total_score = 0, pName, pPass;
@@ -66,9 +76,9 @@ const stages = [
     { t: "4. Cookie! / クッキー", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 700 },
     { t: "5. YELLOW vs SILVER / 1/3 Size", c: ["●"], g: "●", n: 620, goals: 5, type: "silver" },
     { t: "6. Small Clown! / ピエロ40%縮小", c: ["👩‍🦰","👱‍♀️","💃"], g: "🤡", n: 700, type: "clown" },
-    { t: "7. 5 Flags! / 国旗を5つ", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 700, goals: 5 },
+    { t: "7. 5 Flags! / 国旗5つ", c: ["🌍","🌎","🌏"], g: "FLAGS", n: 700, goals: 5 },
     { t: "8. Bone! / 骨を探せ", c: ["🐟","🐠"], g: "🦴", n: 760 },
-    { t: "9. Pink in Stars! / 桃色", c: ["⭐"], g: "🩷", n: 760, type: "space" },
+    { t: "9. 5 Pale Pink Hearts! / 淡い桃色5個", c: ["⭐"], g: "🩷", n: 760, goals: 5, type: "pale" },
     { t: "10. 5 Mirror 'あ' / 反転あ", c: ["あ"], g: "あ", n: 580, goals: 5, type: "mirror" },
     { t: "11. Torii! / 鳥居", c: ["🏢","🏣"], g: "⛩", n: 700 },
     { t: "12. Cherries! / さくらんぼ", c: ["🍎"], g: "🍒", n: 760 },
@@ -79,7 +89,7 @@ const stages = [
     { t: "17. Octopus! / タコ", c: ["🦑"], g: "🐙", n: 760 },
     { t: "18. Faint UFO! / 薄いUFO", c: ["✨","🌟"], g: "🛸", n: 820, type: "ufo" },
     { t: "19. 5 Ice Creams! / ソフト5", c: ["🍭"], g: "🍦", n: 580, goals: 5 },
-    { t: "20. Eyes! / 黒目50%増・茶目小", c: ["👁️"], g: "👁️", n: 870, goals: 5, type: "eye" },
+    { t: "20. Eyes! / 黒目増量・茶目小", c: ["👁️"], g: "👁️", n: 870, goals: 5, type: "eye" },
     { t: "21. 5 Ladies! / 女性5人", c: ["🧔"], g: "💃", n: 700, goals: 5 },
     { t: "22. 5 Still Boxes! / 静止箱5", c: ["■"], g: "■", n: 520, goals: 5, type: "shake" },
     { t: "23. Chicks! / 鶏+150", c: ["🐓"], g: "🐥", n: 730, goals: 5 },
@@ -103,14 +113,16 @@ function startGame() {
 
 function init() {
     const f = document.getElementById('field'); f.innerHTML = ""; usedPos = [];
-    found = 0; active = true; ms = 3000;
+    found = 0; ms = 3000; active = true; 
     const s = stages[cur];
     if(!s || s.g === "FINAL") return end();
     document.getElementById('stg-desc').innerText = s.t;
     document.getElementById('stg-n').innerText = cur + 1;
+
     if(s.g === "CHOICE") createChoiceStage(f);
     else if(s.g === "SPIRAL") createSpiralStage(f);
     else createNormalStage(f, s);
+
     if(tid) clearInterval(tid);
     tid = setInterval(updateTimer, 10);
 }
@@ -118,47 +130,48 @@ function init() {
 function createNormalStage(f, s) {
     const goals = s.goals || 1;
     for(let j=0; j<goals; j++) {
-        let type = s.g;
-        if(s.g === "FLAGS") type = ["🇯🇵", "🇺🇸", "🇨🇳", "🇷🇺", "🇰🇵"][j];
-        if(s.g === "DIFF_5") type = ["🐶","🐱","🐭","🐹","🐰"][j];
-        createItem(f, type, true, s.type, j);
+        let char = s.g;
+        if(s.g === "FLAGS") char = ["🇯🇵", "🇺🇸", "🇨🇳", "🇷🇺", "🇰🇵"][j];
+        if(s.g === "DIFF_5") char = ["🐶","🐱","🐭","🐹","🐰"][j];
+        createItem(f, char, true, s.type, j);
     }
     for(let i=0; i<s.n; i++) createItem(f, s.c[Math.floor(Math.random()*s.c.length)], false, s.type);
 }
 
 function createItem(f, char, isT, st, idx) {
     const el = document.createElement('span'); 
-    el.className = isT ? 'item target-item' : 'item';
+    el.className = isT ? 'item target-item' : 'item miss-item';
+    
     let x, y, overlap, attempts = 0;
     do {
         overlap = false; x = 2 + Math.random() * 92; y = 2 + Math.random() * 92;
-        if(isT) for(let p of usedPos) if(Math.abs(p.x - x) < 8 && Math.abs(p.y - y) < 8) overlap = true;
+        if(isT) for(let p of usedPos) if(Math.abs(p.x - x) < 10 && Math.abs(p.y - y) < 10) overlap = true;
         attempts++;
     } while (overlap && attempts < 50);
     if(isT) usedPos.push({x, y});
     
     el.style.left = x + "%"; el.style.top = y + "%";
-    el.style.fontSize = "24px";
 
     if(!isT) {
         if(st === "silver") el.classList.add("gold-mini");
-        else if(st === "space") { el.innerText = "⭐"; el.style.color = "#FFD700"; }
+        else if(st === "pale") { el.innerText = "⭐"; el.style.color = "#FFD700"; }
         else if(st === "eye") { el.innerText = "👁️"; el.style.filter = "grayscale(100%)"; }
         else el.innerText = char;
+        el.onmousedown = (e) => { e.stopPropagation(); if(active) gameOver(); };
     } else {
         if(st === "silver") el.classList.add("silver-mini");
-        else if(st === "clown") el.style.fontSize = "14px";
-        else if(st === "space") { el.innerText = "🩷"; el.style.fontSize = "20px"; }
+        else if(st === "clown") { el.innerText = "🤡"; el.style.fontSize = "14px"; }
+        else if(st === "pale") { el.innerText = "🩷"; el.style.opacity = "0.5"; el.style.fontSize = "22px"; } // 淡いピンクのハート
         else if(st === "mirror") { el.innerText = "あ"; el.style.transform = "scaleX(-1)"; }
         else if(st === "ufo") { el.innerText = "🛸"; el.style.opacity = "0.2"; }
         else if(st === "eye") { el.innerText = "👁️"; el.style.fontSize = "14px"; el.style.filter = "sepia(1) hue-rotate(320deg)"; }
         else el.innerText = char;
         
-        // 正解タップ時の処理（親要素へのイベント伝播を止める！）
         el.onmousedown = (e) => {
-            e.stopPropagation(); 
+            e.stopPropagation();
             if(!active || el.style.opacity === "0.4") return;
-            found++; total_score += (ms/100); el.style.opacity = "0.4";
+            found++; total_score += (ms/100); 
+            el.style.opacity = "0.4";
             if(found >= (stages[cur].goals || 1)) nextStage();
         };
     }
@@ -177,19 +190,18 @@ function updateTimer() {
     const t = document.getElementById('timer');
     if(ms <= 0) { gameOver(); return; }
     t.innerText = (ms/100).toFixed(2);
-    t.style.color = ms <= 1000 ? "red" : "white";
 }
 
 function nextStage() {
     active = false; clearInterval(tid); tid = null;
-    confetti({particleCount:100});
+    confetti({particleCount:100, spread: 70, origin: { y: 0.6 }});
     setTimeout(() => { cur++; init(); }, 600);
 }
 
 function createChoiceStage(f) {
     const isRed = Math.random() < 0.5;
-    const r = document.createElement('div'); r.className="target-item"; r.style.cssText="position:absolute;width:100px;height:100px;border-radius:50%;background:#ff0000;left:20%;top:40%;";
-    const b = document.createElement('div'); b.className="target-item"; b.style.cssText="position:absolute;width:100px;height:100px;border-radius:50%;background:#0000ff;left:60%;top:40%;";
+    const r = document.createElement('div'); r.className="item target-item"; r.style.cssText="width:120px;height:120px;border-radius:50%;background:#ff0000;left:15%;top:40%;";
+    const b = document.createElement('div'); b.className="item target-item"; b.style.cssText="width:120px;height:120px;border-radius:50%;background:#0000ff;left:55%;top:40%;";
     r.onmousedown = (e) => { e.stopPropagation(); isRed ? nextStage() : gameOver(); };
     b.onmousedown = (e) => { e.stopPropagation(); !isRed ? nextStage() : gameOver(); };
     f.appendChild(r); f.appendChild(b);
@@ -198,9 +210,10 @@ function createChoiceStage(f) {
 function createSpiralStage(f) {
     const canvas = document.createElement('canvas'); canvas.width = f.offsetWidth; canvas.height = f.offsetHeight; f.appendChild(canvas);
     const ctx = canvas.getContext('2d'); const cx = canvas.width/2, cy = canvas.height/2;
+    ctx.strokeStyle = "#333";
     ctx.beginPath(); for(let i=0; i<360*400; i++){ let a=i*Math.PI/180, r=a*0.08; ctx.lineTo(cx+Math.cos(a)*r, cy+Math.sin(a)*r); } ctx.stroke();
     for(let j=0; j<5; j++){
-        let d = document.createElement('div'); d.className="target-item"; d.style.cssText=`position:absolute;width:45px;height:45px;left:${Math.random()*85}%;top:${Math.random()*85}%;`;
+        let d = document.createElement('div'); d.className="item target-item"; d.style.cssText=`width:50px;height:50px;left:${Math.random()*80}%;top:${Math.random()*80}%;border:1px solid rgba(0,0,0,0.1);`;
         d.onmousedown=(e)=>{ e.stopPropagation(); d.style.background="rgba(212,77,92,0.5)"; found++; if(found>=5) nextStage(); }; f.appendChild(d);
     }
 }
@@ -210,7 +223,7 @@ function end() {
     let recs = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
     recs.push({name: pName, score: total_score}); recs.sort((a,b)=>b.score-a.score);
     localStorage.setItem('gigaHard_ranks', JSON.stringify(recs.slice(0,3)));
-    document.getElementById('field').innerHTML = `<div style="padding:20px;"><h2>CLEAR!</h2><p>Score: ${total_score.toFixed(2)}</p><button onmousedown="location.reload()" class="btn">TOP</button></div>`;
+    document.getElementById('field').innerHTML = `<div style="padding:20px;"><h2>ALL CLEAR!</h2><p>Score: ${total_score.toFixed(2)}</p><button onmousedown="location.reload()" class="btn">TOP</button></div>`;
 }
 </script>
 </body>
