@@ -9,15 +9,16 @@
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; background: #000; margin: 0; overflow: hidden; }
         
+        /* トップ画面 */
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:99999; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; overflow-y: auto; }
         .premium-box { border: 3px solid #ffd700; padding: 20px; border-radius: 15px; background: rgba(255,215,0,0.1); margin: 15px 0; width: 100%; max-width: 400px; box-shadow: 0 0 30px rgba(255,215,0,0.3); }
-        .btn-ofuse-top { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 17px; font-weight: bold; display: block; margin-bottom: 15px; width: 100%; border: 2px solid #fff; transition: 0.2s; }
+        .btn-ofuse-top { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 17px; font-weight: bold; display: block; margin-bottom: 15px; width: 100%; border: 2px solid #fff; }
         
         .terms-box { font-size: 11px; color: #ccc; margin-top: 25px; text-align: left; width: 100%; max-width: 340px; line-height: 1.8; border-top: 1px solid #444; padding-top: 20px; }
-        .en-desc { font-size: 13px; color: #ffd700; margin-bottom: 15px; font-style: italic; font-weight: 300; }
+        .en-desc { font-size: 13px; color: #ffd700; margin-bottom: 15px; font-style: italic; }
 
         .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 50000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        #timer { color: #fff; background: #000; padding: 4px 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 32px; min-width: 120px; display: inline-block; border: 2px solid #555; margin-top: 5px; }
+        #timer { color: #fff; background: #000; padding: 4px 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 32px; min-width: 120px; display: inline-block; border: 2px solid #555; }
         
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
         .target-item { position: absolute; z-index: 80000; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 46px; cursor: pointer; }
@@ -26,9 +27,9 @@
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:14px; font-size:22px; font-weight:bold; box-shadow: 0 6px 0 #8a2a35; cursor:pointer; }
         input { padding:14px; font-size:16px; width:100%; margin-bottom:12px; border-radius:10px; border:none; color:#000; text-align:center; font-weight:bold; }
         
-        /* クリア画面用スタイル */
-        .clear-container { padding: 40px 20px; color: #000; height: 100%; overflow-y: auto; background: #fff; }
-        .ofuse-link-clear { background: #ed6c00; color: #fff; padding: 20px; border-radius: 15px; text-decoration: none; font-size: 20px; font-weight: bold; display: inline-block; margin: 20px 0; border: 3px solid #000; box-shadow: 0 5px 15px rgba(237,108,0,0.4); }
+        /* クリア画面用：ここにOFUSEリンクの装飾 */
+        .clear-container { padding: 40px 20px; color: #000; height: 100%; width: 100%; overflow-y: auto; background: #fff; position: absolute; top:0; left:0; z-index: 90000; }
+        .ofuse-btn-final { background: #ed6c00; color: #fff; padding: 22px; border-radius: 15px; text-decoration: none; font-size: 22px; font-weight: bold; display: block; margin: 25px auto; width: 90%; max-width: 320px; border: 3px solid #000; box-shadow: 0 5px 15px rgba(237,108,0,0.4); text-align: center; }
     </style>
 </head>
 <body onload="loadRanking()">
@@ -43,8 +44,8 @@
     <div id="ranking-display" style="font-size:14px; margin:15px; background:rgba(255,255,255,0.08); border:1px solid #ffd700; padding:12px; border-radius:12px; width:100%; max-width:340px; color:#ffd700;"></div>
     <div style="width: 100%; max-width: 340px;">
         <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">応援して10万円に挑戦！🚀<br><span style="font-size:11px;">Support & Win 100,000 Yen Gift</span></a>
-        <input type="text" id="p-name" placeholder="Nickname / ニックネーム">
-        <input type="password" id="p-pass" placeholder="4-digit Pass / 4桁パスワード">
+        <input type="text" id="p-name" placeholder="Nickname">
+        <input type="password" id="p-pass" placeholder="4-digit Pass">
         <button onclick="startGame()" class="btn">START GAME / 26 STAGES</button>
         <div class="terms-box">
             【規約 / Terms】<br>
@@ -66,32 +67,32 @@
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, total_score = 0, pName, pPass;
 
 const stages = [
-    { t: "1. Human! / 人間を探せ", c: ["🐶","🐱","🐭"], g: "🙋‍♂️", n: 400 },
-    { t: "2. Cat! / 猫 (800匹!)", c: ["🧔","👵","👦"], g: "🐱", n: 800 },
-    { t: "3. Bicycle! / 自転車を探せ", c: ["🚗","🚕","🚙"], g: "🚲", n: 600 },
-    { t: "4. Cookie! / クッキーを探せ", c: ["🍬","🍭","🍫"], g: "🍪", n: 550 },
-    { t: "5. SILVER! / 銀の円を探せ", c: ["●"], g: "●", n: 500, goals: 5, type: "silver" },
-    { t: "6. Small Clown! / 小さいピエロ", c: ["💃","🕺"], g: "🤡", n: 600, type: "small" },
-    { t: "7. 5 Flags! / 国旗を5つ", c: ["🌏","🌎"], g: "🏁", n: 500, goals: 5 },
-    { t: "8. Bone! / 骨を探せ", c: ["🐟","🐠"], g: "🦴", n: 600 },
-    { t: "9. 5 Pale Pink Hearts! / 桃色5個", c: ["⭐"], g: "🩷", n: 700, goals: 5, type: "pale" },
-    { t: "10. Mirror 'あ' / 鏡文字", c: ["あ"], g: "あ", n: 500, goals: 5, type: "mirror" },
-    { t: "11. Torii! / 鳥居を探せ", c: ["🏢","🏨"], g: "⛩️", n: 600 },
-    { t: "12. Cherries! / さくらんぼ", c: ["🍎","🍅"], g: "🍒", n: 600 },
-    { t: "13. Bug! / 虫を探せ", c: ["🍃","🌱"], g: "🐛", n: 600 },
-    { t: "14. Trophy! / トロフィー", c: ["⚽","🏀"], g: "🏆", n: 600 },
-    { t: "15. Banana! / バナナ", c: ["🌙","🌛"], g: "🍌", n: 600 },
-    { t: "16. 5 Pandas! / パンダ5匹", c: ["🐨","🐻"], g: "🐼", n: 500, goals: 5 },
-    { t: "17. Octopus! / タコを探せ", c: ["🦑","🦀"], g: "🐙", n: 650 },
-    { t: "18. Faint UFO! / 薄いUFO", c: ["✨","🌟"], g: "🛸", n: 700, type: "ufo" },
-    { t: "19. Ice Creams! / アイス5つ", c: ["🍭","🍩"], g: "🍦", n: 550, goals: 5 },
-    { t: "20. Eyes! / 目を探せ", c: ["👁️"], g: "👀", n: 800, goals: 5 },
-    { t: "21. Lady! / 女性を探せ", c: ["🧔","👴"], g: "💃", n: 600 },
-    { t: "22. Gift Box! / プレゼント", c: ["📦"], g: "🎁", n: 500, goals: 3 },
-    { t: "23. Chick! / ひよこ", c: ["🐓","🥚"], g: "🐥", n: 750, goals: 5 },
-    { t: "24. Red! / 真実の赤を探せ", c: ["🔵","⚫"], g: "🔴", n: 400 },
-    { t: "25. Spiral / 渦の中の🍥", c: ["🌀"], g: "🍥", n: 200, goals: 5 },
-    { t: "26. FINAL / 最後は笑顔で", c: ["😭","😢","😡"], g: "😊", n: 1000 },
+    { t: "1. Human!", c: ["🐶","🐱","🐭"], g: "🙋‍♂️", n: 400 },
+    { t: "2. Cat! (800!)", c: ["🧔","👵","👦"], g: "🐱", n: 800 },
+    { t: "3. Bicycle!", c: ["🚗","🚕","🚙"], g: "🚲", n: 600 },
+    { t: "4. Cookie!", c: ["🍬","🍭","🍫"], g: "🍪", n: 550 },
+    { t: "5. SILVER!", c: ["●"], g: "●", n: 500, goals: 5, type: "silver" },
+    { t: "6. Small Clown!", c: ["💃","🕺"], g: "🤡", n: 600, type: "small" },
+    { t: "7. 5 Flags!", c: ["🌏","🌎"], g: "🏁", n: 500, goals: 5 },
+    { t: "8. Bone!", c: ["🐟","🐠"], g: "🦴", n: 600 },
+    { t: "9. 5 Hearts!", c: ["⭐"], g: "🩷", n: 700, goals: 5, type: "pale" },
+    { t: "10. Mirror 'あ'", c: ["あ"], g: "あ", n: 500, goals: 5, type: "mirror" },
+    { t: "11. Torii!", c: ["🏢","🏨"], g: "⛩️", n: 600 },
+    { t: "12. Cherries!", c: ["🍎","🍅"], g: "🍒", n: 600 },
+    { t: "13. Bug!", c: ["🍃","🌱"], g: "🐛", n: 600 },
+    { t: "14. Trophy!", c: ["⚽","🏀"], g: "🏆", n: 600 },
+    { t: "15. Banana!", c: ["🌙","🌛"], g: "🍌", n: 600 },
+    { t: "16. 5 Pandas!", c: ["🐨","🐻"], g: "🐼", n: 500, goals: 5 },
+    { t: "17. Octopus!", c: ["🦑","🦀"], g: "🐙", n: 650 },
+    { t: "18. Faint UFO!", c: ["✨","🌟"], g: "🛸", n: 700, type: "ufo" },
+    { t: "19. Ice Creams!", c: ["🍭","🍩"], g: "🍦", n: 550, goals: 5 },
+    { t: "20. Eyes!", c: ["👁️"], g: "👀", n: 800, goals: 5 },
+    { t: "21. Lady!", c: ["🧔","👴"], g: "💃", n: 600 },
+    { t: "22. Gift Box!", c: ["📦"], g: "🎁", n: 500, goals: 3 },
+    { t: "23. Chick!", c: ["🐓","🥚"], g: "🐥", n: 750, goals: 5 },
+    { t: "24. Red!", c: ["🔵","⚫"], g: "🔴", n: 400 },
+    { t: "25. Spiral", c: ["🌀"], g: "🍥", n: 200, goals: 5 },
+    { t: "26. FINAL", c: ["😭","😢","😡"], g: "😊", n: 1000 },
     { t: "END", g: "FINAL" }
 ];
 
@@ -120,29 +121,28 @@ function init() {
     for(let j=0; j<goals; j++) {
         const el = document.createElement('div');
         el.className = 'target-item';
-        el.style.left = (5 + Math.random() * 80) + "%"; el.style.top = (5 + Math.random() * 80) + "%";
-        if(s.type === "pale") { el.innerText = "🩷"; el.style.opacity = "0.45"; }
-        else if(s.type === "silver") { el.style.background="#C0C0C0"; el.style.borderRadius="50%"; el.innerText=""; el.style.width="22px"; el.style.height="22px"; }
-        else if(s.type === "small") { el.innerText = s.g; el.style.fontSize = "18px"; }
-        else if(s.type === "mirror") { el.innerText = s.g; el.style.transform = "scaleX(-1)"; }
-        else if(s.type === "ufo") { el.innerText = "🛸"; el.style.opacity = "0.15"; }
-        else el.innerText = s.g;
+        el.style.left = (5+Math.random()*80)+"%"; el.style.top = (5+Math.random()*80)+"%";
+        if(s.type==="pale"){el.innerText="🩷"; el.style.opacity="0.45";}
+        else if(s.type==="silver"){el.style.background="#C0C0C0"; el.style.borderRadius="50%"; el.innerText=""; el.style.width="22px"; el.style.height="22px";}
+        else if(s.type==="small"){el.innerText=s.g; el.style.fontSize="18px";}
+        else if(s.type==="mirror"){el.innerText=s.g; el.style.transform="scaleX(-1)";}
+        else if(s.type==="ufo"){el.innerText="🛸"; el.style.opacity="0.15";}
+        else el.innerText=s.g;
         el.onmousedown = (e) => {
             e.stopPropagation();
-            if(!active || el.style.visibility === "hidden") return;
-            el.style.visibility = "hidden";
-            found++; total_score += (ms/100);
-            if(found >= goals) nextStage();
+            if(!active || el.style.visibility==="hidden") return;
+            el.style.visibility="hidden"; found++; total_score+=(ms/100);
+            if(found>=goals) nextStage();
         };
         f.appendChild(el);
     }
     for(let i=0; i<s.n; i++) {
         const el = document.createElement('span');
-        el.className = 'miss-item';
-        el.style.left = (Math.random() * 95) + "%"; el.style.top = (Math.random() * 95) + "%";
-        if(s.type === "silver") { el.style.background="#FFD700"; el.style.borderRadius="50%"; el.innerText=""; el.style.width="22px"; el.style.height="22px"; }
-        else if(s.type === "pale") { el.innerText = "⭐"; el.style.color = "#FFD700"; }
-        else el.innerText = s.c[Math.floor(Math.random()*s.c.length)];
+        el.className='miss-item';
+        el.style.left=(Math.random()*95)+"%"; el.style.top=(Math.random()*95)+"%";
+        if(s.type==="silver"){el.style.background="#FFD700"; el.style.borderRadius="50%"; el.innerText=""; el.style.width="22px"; el.style.height="22px";}
+        else if(s.type==="pale"){el.innerText="⭐"; el.style.color="#FFD700";}
+        else el.innerText=s.c[Math.floor(Math.random()*s.c.length)];
         f.appendChild(el);
     }
     if(tid) clearInterval(tid);
@@ -165,22 +165,24 @@ function end() {
     recs.push({name: pName, score: total_score}); recs.sort((a,b)=>b.score-a.score);
     localStorage.setItem('gigaHard_ranks', JSON.stringify(recs.slice(0,5)));
     
-    document.getElementById('field').innerHTML = `
+    // ★ここが指示の核心：OFUSEリンクと英語指示の完全実装
+    document.body.innerHTML += `
         <div class="clear-container">
-            <h2 style="font-size:36px; margin:0;">🏆 ALL CLEAR!</h2>
-            <p style="font-size:24px; font-weight:bold; color:#d44d5c; margin:10px 0;">FINAL SCORE: ${total_score.toFixed(2)}</p>
-            <hr style="border:1px solid #eee; margin:20px 0;">
-            <p style="font-weight:bold;">【重要 / IMPORTANT】</p>
-            <p style="font-size:14px; line-height:1.6;">
-                賞品を獲得するには、以下のOFUSE登録が必須です。<br>
-                Please register on OFUSE below to be eligible for prizes.
-            </p>
-            <a href="https://ofuse.me/d33e72b9" target="_blank" class="ofuse-link-clear">
-                OFUSEに登録して権利確定 🚀<br>
-                <span style="font-size:14px;">Register for Prize Eligibility</span>
-            </a>
-            <p style="font-size:12px; color:#666;">※登録後、共通パスワードを必ず確認してください。</p>
-            <button onclick="location.reload()" class="btn" style="max-width:280px; margin-top:20px; background:#444; box-shadow:0 6px 0 #222;">TOPに戻る / BACK</button>
+            <h2 style="font-size:32px;">🏆 MISSION COMPLETE!</h2>
+            <p style="font-size:22px; font-weight:bold; color:#d44d5c;">FINAL SCORE: ${total_score.toFixed(2)}</p>
+            <div style="background:#f9f9f9; border:2px dashed #ed6c00; padding:15px; border-radius:10px; margin-top:20px;">
+                <p style="font-weight:bold; margin:0;">【重要 / IMPORTANT】</p>
+                <p style="font-size:14px; margin:10px 0;">
+                    賞品を獲得するには、ゲームクリア後に必ず以下のOFUSE登録を完了してください。<br>
+                    Please complete your OFUSE registration below after clearing the game to claim your prize.
+                </p>
+                <a href="https://ofuse.me/d33e72b9" target="_blank" class="ofuse-btn-final">
+                    OFUSEに登録する 🚀<br>
+                    <span style="font-size:14px;">Register on OFUSE</span>
+                </a>
+                <p style="font-size:11px; color:#666;">※登録後の共通パスワードが賞品受取に必要です。</p>
+            </div>
+            <button onclick="location.reload()" class="btn" style="max-width:280px; margin-top:30px; background:#444; box-shadow:0 6px 0 #222;">BACK TO TOP / 戻る</button>
         </div>`;
 }
 </script>
