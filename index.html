@@ -21,13 +21,19 @@
         .warning-red { border: 2px solid #ff4444; padding: 10px; border-radius: 8px; margin-bottom: 10px; background: rgba(255,68,68,0.1); }
         .warning-text { color: #ff4444; font-weight: bold; font-size: 12px; }
 
-        /* ヘッダーとタイマー（ドクドク演出） */
-        .header { background: #d44d5c; color: white; height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 50000; }
-        #timer { color: #fff; background: #000; padding: 4px 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 32px; min-width: 120px; border: 2px solid #555; transition: 0.2s; }
+        /* ★ヘッダーとタイマー：極限まで小さく修正 */
+        .header { background: #d44d5c; color: white; height: 50px; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; position: relative; z-index: 50000; border-bottom: 1px solid #000; }
+        #stg-desc { display: none; } /* ステージ名は表示しない（画面を広くするため） */
+        .stg-num-area { font-size: 14px; font-weight: bold; color: #fff; }
+        
+        #timer { color: #fff; background: #000; padding: 2px 8px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 24px; min-width: 80px; border: 2px solid #555; transition: 0.2s; }
         .timer-danger { color: #ff0000 !important; border-color: #ff0000 !important; animation: heartbeat 0.5s infinite; }
-        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-        .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
+        /* ★ゲーム画面を上部へ拡大 */
+        .game-area { width: 100vw; height: calc(100vh - 50px); position: relative; background: #fff; overflow: hidden; }
+        
+        /* アイテムサイズ調整 */
         .target-item { position: absolute; z-index: 80000; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
         .miss-item { position: absolute; z-index: 10; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-size: 18px; pointer-events: none; }
         
@@ -82,15 +88,15 @@
 </div>
 
 <div class="header">
-    <div id="stg-desc" style="font-weight:bold; font-size:14px;">Ready...</div>
-    <div>TIME: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/26</div>
-</div>
+    <div class="stg-num-area">Stage: <span id="stg-n">1</span>/26</div>
+    <div>TIME: <span id="timer">30.00</span></div>
+    <div id="stg-desc">Ready...</div> </div>
 <div class="game-area" id="field"></div>
 
 <script>
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, total_score = 0, pName, pPass;
 
-// 全26ステージを完全網羅
+// 全26ステージ定義
 const stages = [
     { t: "1. Human", c: ["🐶","🐱","🐭"], g: "🙋‍♂️", n: 600 },
     { t: "2. Cat", c: ["🧔","👵","👦"], g: "🐱", n: 800 },
@@ -135,12 +141,11 @@ function startGame() {
 function init() {
     const f = document.getElementById('field'); f.innerHTML = ""; active = true; ms = 3000; found = 0;
     const s = stages[cur]; if(!s) return end();
-    document.getElementById('stg-desc').innerText = s.t;
     document.getElementById('stg-n').innerText = cur + 1;
 
     if(s.type === "choice") {
-        f.innerHTML = `<div style="padding-top:50px; font-weight:bold;">入れ替わる色を撃て！<br>ミスればStage 1へ戻る。</div>`;
-        const bL = document.createElement('div'); bL.style = "position:absolute; left:10%; top:40%; width:130px; height:130px; border-radius:50%; background:red; cursor:pointer;";
+        f.innerHTML = `<div style="padding-top:20px; font-weight:bold; font-size:12px;">不規則に入れ替わる正解を撃て！ Wrong = Stage 1.</div>`;
+        const bL = document.createElement('div'); bL.style = "position:absolute; left:10%; top:30%; width:130px; height:130px; border-radius:50%; background:red; cursor:pointer;";
         const bR = bL.cloneNode(); bR.style.left = "55%"; bR.style.background = "blue";
         let target = "red";
         bL.onclick = () => (target === "red") ? nextStage() : restart();
@@ -151,8 +156,8 @@ function init() {
     }
 
     if(s.type === "spiral") {
-        const w = window.innerWidth, h = window.innerHeight - 110;
-        f.innerHTML = `<div style="position:absolute; top:5px; width:100%; z-index:100; font-size:12px; color:red; font-weight:bold;">線の切れ目(Gap)を5箇所探せ</div><svg width="${w}" height="${h}" style="position:absolute; top:0; left:0; pointer-events:none;"><g id="spiralC" fill="none" stroke="#000" stroke-width="0.5"></g></svg>`;
+        const w = window.innerWidth, h = window.innerHeight - 50;
+        f.innerHTML = `<div style="position:absolute; top:2px; width:100%; z-index:100; font-size:11px; color:red; font-weight:bold;">線の切れ目(Gap)を5箇所探せ / Find 5 Gaps</div><svg width="${w}" height="${h}" style="position:absolute; top:0; left:0; pointer-events:none;"><g id="spiralC" fill="none" stroke="#000" stroke-width="0.5"></g></svg>`;
         const container = document.getElementById('spiralC');
         const gaps = []; while(gaps.length < 5) { gaps.push(Math.floor(Math.random()*150000)+5000); }
         let path = "";
@@ -164,6 +169,7 @@ function init() {
                 if(path!==""){ let p=document.createElementNS("http://www.w3.org/2000/svg","path"); p.setAttribute("d",path); container.appendChild(p); path=""; }
                 if(i === gaps.find(g => i >= g && i < g + 350)) {
                     const hit = document.createElement('div'); hit.style = `position:absolute; left:${x}px; top:${y}px; width:45px; height:45px; margin:-22px; cursor:pointer; z-index:90000;`;
+                    hit.hitGap = true; // タップ判定
                     hit.onclick = (e) => { e.target.style.background="red"; found++; if(found>=5) nextStage(); };
                     f.appendChild(hit);
                 }
@@ -172,7 +178,7 @@ function init() {
         return;
     }
 
-    // アイテム生成
+    // アイテム生成ロジック
     for(let i=0; i<s.n; i++) {
         const m = document.createElement('span'); m.className = 'miss-item' + (s.type==="moving"?" moving":"");
         m.style.left=Math.random()*95+"%"; m.style.top=Math.random()*95+"%";
@@ -194,7 +200,7 @@ function init() {
     }
 }
 
-function restart() { active=false; clearInterval(tid); alert("FATE ERROR! / 運命の二択失敗。Stage 1へ戻ります。"); cur=0; init(); }
+function restart() { active=false; clearInterval(tid); alert("FATE ERROR! Stage 1に戻ります。"); cur=0; init(); }
 function nextStage() { active = false; confetti(); total_score += (ms/100); cur++; setTimeout(() => { if(cur < stages.length) init(); else end(); }, 600); }
 
 function end() {
@@ -220,7 +226,7 @@ tid = setInterval(() => {
     if(ms <= 1000) { tEl.classList.add('timer-danger'); } else { tEl.classList.remove('timer-danger'); }
     if(ms <= 0) {
         active = false; clearInterval(tid);
-        alert("TIME UP! / タイムアップ！"); location.reload();
+        alert("TIME UP!"); location.reload();
     }
 }, 10);
 </script>
