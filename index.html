@@ -3,112 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-    <title>GIGA-HARD 2026 TRUE FINAL</title>
+    <title>Search Challenge 26 - COMPLETE</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
-        body { text-align:center; font-family: sans-serif; background: #f0f2f5; margin: 0; overflow: hidden; }
-        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:#1a1a1a; z-index:99999; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; }
-        .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 50000; }
-        #timer { color: #fff; background: #000; padding: 2px 10px; border-radius: 5px; font-family: monospace; font-size: 28px; }
+        body { text-align:center; font-family: sans-serif; background: #000; margin: 0; overflow: hidden; color: white; }
+        #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000, #1a1a1a); z-index:100000; display:flex; flex-direction:column; align-items:center; padding: 20px; overflow-y: auto; }
+        .premium-box { border: 3px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255,215,0,0.1); margin: 10px 0; width: 100%; max-width: 380px; }
+        .header { background: #d44d5c; color: white; height: 110px; padding: 5px; position: relative; z-index: 50; }
+        #timer { color: #fff; background: #000; padding: 2px 10px; border-radius: 5px; font-family: monospace; font-size: 28px; min-width: 100px; display: inline-block; }
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-        
-        /* 正解：判定をさらに巨大化(80px)して、ハズレより手前に表示 */
-        .target-item { position: absolute; z-index: 80000; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 40px; cursor: pointer; }
-        
-        /* ハズレ：クリック判定を一切持たない(pointer-events: none) */
-        .miss-item { position: absolute; z-index: 10; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 24px; pointer-events: none; }
-        
-        .btn { width:100%; padding:16px; background:#ff6b6b; color:white; border:none; border-radius:12px; font-size:18px; font-weight:bold; cursor:pointer; }
-        input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; border:none; }
+        .bg-layer { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 10; }
+        .miss-char { position: absolute; font-size: 22px; user-select: none; color: #333; }
+        .target-item { position: absolute; z-index: 1000 !important; width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; font-size: 38px; cursor: pointer; pointer-events: auto; }
+        .btn { width:100%; padding:16px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:12px; font-size:18px; font-weight:bold; cursor:pointer; }
+        input { padding:12px; font-size:16px; width:100%; margin-bottom:10px; border-radius:8px; border:none; color: #000; }
     </style>
 </head>
 <body onload="loadRanking()">
 
 <div id="start-screen">
-    <h1 style="color:#ffd700;">GIGA-HARD 2026</h1>
-    <div style="border:2px solid #ffd700; padding:10px; border-radius:10px; background:rgba(255,215,0,0.1);">
-        1位に10万円ギフト / 締切: 2026.12.31
-    </div>
-    <div id="ranking-display" style="margin:20px; font-size:14px; color:#ccc;"></div>
+    <h2 style="color:#ffd700;">Search Challenge GIGA-HARD</h2>
+    <div class="premium-box">1位に10万円ギフト / 締切: 2026.12.31</div>
+    <div id="ranking-display" style="margin:10px; font-size:12px; background:rgba(255,255,255,0.1); padding:10px; border-radius:8px; width:300px;"></div>
     <input type="text" id="p-name" placeholder="Nickname">
     <input type="password" id="p-pass" placeholder="4-digit Pass">
-    <button onclick="startGame()" class="btn">START / 挑戦する 🏆</button>
+    <button onclick="startGame()" class="btn">START / 26 STAGES 🏆</button>
 </div>
 
 <div class="header">
-    <div id="stg-desc" style="font-weight:bold; font-size:18px;">Ready...</div>
-    <div style="margin-top:5px;">TIME: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/9</div>
+    <div id="stg-desc" style="font-weight:bold; font-size:15px;">Ready...</div>
+    <div>TIME: <span id="timer">30.00</span> | Stage: <span id="stg-n">1</span>/26</div>
 </div>
-<div class="game-area" id="field"></div>
+
+<div class="game-area" id="field">
+    <div id="bg-layer" class="bg-layer"></div>
+    <div id="target-layer"></div>
+</div>
 
 <script>
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, total_score = 0, pName, pPass;
 
-// ステージ構成（慎重に再定義）
+// ★26ステージすべての物語をここに記述しました
 const stages = [
-    { t: "1. Human! / 人間を探せ", c: ["🐶","🐱","🐭","🐹","🐰"], g: "🙋‍♂️", n: 400 },
-    { t: "2. Cat! / 猫 (800匹!)", c: ["🧔","👵","👦","👧"], g: "🐱", n: 800 },
-    { t: "3. Bicycle! / 自転車を探せ", c: ["🚗","🚕","🚙","🚌"], g: "🚲", n: 600 },
-    { t: "4. Cookie! / クッキーを探せ", c: ["🍬","🍭","🍫","🍩"], g: "🍪", n: 500 },
+    { t: "1. Human! / 人間", c: ["🐶","🐱","🐭"], g: "🙋‍♂️", n: 400 },
+    { t: "2. Cat! / 猫 (800匹!)", c: ["🧔","👵","👦"], g: "🐱", n: 800 },
+    { t: "3. Bicycle! / 自転車", c: ["🚗","🚕","🚙"], g: "🚲", n: 600 },
+    { t: "4. Cookie! / クッキー", c: ["🍬","🍭","🍫"], g: "🍪", n: 500 },
+    { t: "5. YELLOW vs SILVER", c: ["●"], g: "●", n: 500, goals: 5, type: "silver" },
+    { t: "6. Small Clown! / 小さいピエロ", c: ["💃","🕺","👯‍♀️"], g: "🤡", n: 600, type: "small" },
+    { t: "7. 5 Flags! / 国旗5つ", c: ["🌍","🌎"], g: "🚩", n: 500, goals: 5 },
+    { t: "8. Bone! / 骨を探せ", c: ["🐟","🐠","🐡"], g: "🦴", n: 600 },
     { t: "9. 5 Pale Pink Hearts! / 桃色5個", c: ["⭐"], g: "🩷", n: 700, goals: 5, type: "pale" },
-    { t: "12. Cherries! / さくらんぼ", c: ["🍎"], g: "🍒", n: 600 },
-    { t: "17. Octopus! / タコを探せ", c: ["🦑"], g: "🐙", n: 600 },
-    { t: "23. Chicks! / 鶏+150", c: ["🐓"], g: "🐥", n: 800, goals: 5 },
-    { t: "FINAL", g: "FINAL" }
+    { t: "10. Mirror 'あ'", c: ["あ"], g: "あ", n: 500, goals: 5, type: "mirror" },
+    { t: "11. Torii! / 鳥居を探せ", c: ["🏢","🏨","🏥"], g: "⛩️", n: 600 },
+    { t: "12. Cherries! / さくらんぼ", c: ["🍎","🍅","🍓"], g: "🍒", n: 600 },
+    { t: "13. Bug! / 虫を探せ", c: ["🍃","🌱","🌲"], g: "🐛", n: 600 },
+    { t: "14. Trophy! / トロフィー", c: ["⚽","🏀","⚾"], g: "🏆", n: 600 },
+    { t: "15. Banana! / バナナ", c: ["🌙","🌛","🌜"], g: "🍌", n: 600 },
+    { t: "16. 5 Diff Animals! / 違う動物5", c: ["🐼"], g: "🐯", n: 400, goals: 5 },
+    { t: "17. Octopus! / タコを探せ", c: ["🦑","🦀","🦐"], g: "🐙", n: 600 },
+    { t: "18. Faint UFO! / 薄いUFO", c: ["✨","🌟","🌙"], g: "🛸", n: 700, type: "ufo" },
+    { t: "19. Ice Creams! / アイス5", c: ["🍭","🍩","🍰"], g: "🍦", n: 500, goals: 5 },
+    { t: "20. Eyes! / 目を探せ", c: ["👁️"], g: "👀", n: 800, goals: 5, type: "eye" },
+    { t: "21. Lady! / 女性を探せ", c: ["🧔","👴","👳"], g: "💃", n: 600 },
+    { t: "22. Still Box! / 静止した箱", c: ["📦"], g: "🎁", n: 500, goals: 3 },
+    { t: "23. Chick! / ひよこ", c: ["🐓","🥚","🦃"], g: "🐥", n: 700, goals: 5 },
+    { t: "24. Luck! Red or Blue?", c: ["❓"], g: "🔴", n: 0, goals: 1, type: "choice" },
+    { t: "25. Spiral Gap / 渦の切れ目", c: ["🌀"], g: "🌀", n: 1, goals: 5, type: "spiral" },
+    { t: "26. FINAL / 最後は笑顔", c: ["😭","😢","😡"], g: "😊", n: 999 },
+    { t: "END", g: "FINAL" }
 ];
 
 function loadRanking() {
     const recs = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
-    document.getElementById('ranking-display').innerHTML = recs.length ? "TOP SCORE: " + recs[0].score.toFixed(2) : "Challenge Now!";
+    document.getElementById('ranking-display').innerHTML = recs.length ? "🏆 TOP: " + recs[0].score.toFixed(2) : "Challenge Now!";
 }
 
 function startGame() {
-    pName = document.getElementById('p-name').value; 
-    pPass = document.getElementById('p-pass').value;
-    if(!pName || pPass.length<4) return alert("Nickname & 4-digit Pass!");
+    pName = document.getElementById('p-name').value; pPass = document.getElementById('p-pass').value;
+    if(!pName || pPass.length<4) return alert("Nickname & 4-digit Pass required");
     document.getElementById('start-screen').style.display='none';
     cur = 0; total_score = 0; init();
 }
 
 function init() {
-    const f = document.getElementById('field'); f.innerHTML = "";
+    const bg = document.getElementById('bg-layer');
+    const tg = document.getElementById('target-layer');
+    bg.innerHTML = ""; tg.innerHTML = "";
     found = 0; ms = 3000; active = true; 
+    
     const s = stages[cur];
     if(!s || s.g === "FINAL") return end();
     document.getElementById('stg-desc').innerText = s.t;
-    document.getElementById('stg-n').innerText = (cur + 1);
+    document.getElementById('stg-n').innerText = cur + 1;
 
-    // 1. 正解アイテムを生成 (最前面)
+    // 背景生成
+    for(let i=0; i<s.n; i++) {
+        const el = document.createElement('span');
+        el.className = 'miss-char';
+        el.style.left = (Math.random() * 96) + "%";
+        el.style.top = (Math.random() * 96) + "%";
+        if(s.type === "pale") el.style.color = "#FFD700";
+        el.innerText = s.c[Math.floor(Math.random()*s.c.length)];
+        bg.appendChild(el);
+    }
+
+    // 正解生成
     const goals = s.goals || 1;
     for(let j=0; j<goals; j++) {
-        const el = document.createElement('span');
+        const el = document.createElement('div');
         el.className = 'target-item';
-        el.style.left = (Math.random() * 85) + "%";
-        el.style.top = (Math.random() * 85) + "%";
+        el.style.left = (5 + Math.random() * 85) + "%";
+        el.style.top = (5 + Math.random() * 85) + "%";
         
-        if(s.type === "pale") { el.innerText = "🩷"; el.style.opacity = "0.4"; }
+        if(s.type === "pale") { el.innerText = "🩷"; el.style.opacity = "0.5"; }
+        else if(s.type === "silver") { el.style.background="#E0E0E0"; el.style.borderRadius="50%"; el.innerText=""; el.style.width="15px"; el.style.height="15px"; }
+        else if(s.type === "ufo") { el.innerText = "🛸"; el.style.opacity = "0.2"; }
         else el.innerText = s.g;
 
-        // 正解だけがクリックに反応する
         el.onmousedown = (e) => {
-            e.stopPropagation();
+            e.preventDefault(); e.stopPropagation();
             if(!active || el.style.visibility === "hidden") return;
             el.style.visibility = "hidden";
             found++; total_score += (ms/100);
             if(found >= goals) nextStage();
         };
-        f.appendChild(el);
-    }
-
-    // 2. 背景(ハズレ)を生成 (奥側)
-    for(let i=0; i<s.n; i++) {
-        const el = document.createElement('span');
-        el.className = 'miss-item';
-        el.style.left = (Math.random() * 95) + "%";
-        el.style.top = (Math.random() * 95) + "%";
-        el.innerText = s.c[Math.floor(Math.random()*s.c.length)];
-        f.appendChild(el);
+        tg.appendChild(el);
     }
 
     if(tid) clearInterval(tid);
@@ -121,7 +142,7 @@ function init() {
 
 function timeUp() {
     active = false; clearInterval(tid);
-    alert("TIME UP! / 時間切れです");
+    alert("TIME UP! Challenge again.");
     document.getElementById('start-screen').style.display='flex';
 }
 
@@ -137,12 +158,7 @@ function end() {
     recs.push({name: pName, score: total_score});
     recs.sort((a,b)=>b.score-a.score);
     localStorage.setItem('gigaHard_ranks', JSON.stringify(recs.slice(0,3)));
-    document.getElementById('field').innerHTML = `
-        <div style="padding:50px;">
-            <h2>🏆 ALL STAGES CLEAR!</h2>
-            <p>Your Score: ${total_score.toFixed(2)}</p>
-            <button onclick="location.reload()" class="btn">TOPに戻る</button>
-        </div>`;
+    document.getElementById('field').innerHTML = `<div style="color:#000; padding:50px;"><h2>🏆 26 STAGES CLEAR!</h2><p>FINAL SCORE: ${total_score.toFixed(2)}</p><button onclick="location.reload()" class="btn">TOP</button></div>`;
 }
 </script>
 </body>
