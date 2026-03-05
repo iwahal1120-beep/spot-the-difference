@@ -9,11 +9,9 @@
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; background: #000; margin: 0; overflow: hidden; }
         
-        /* トップ画面：漆黒の美学、信頼の規約を完全復元 */
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:99999; display:flex; flex-direction:column; align-items:center; color:white; padding: 20px; overflow-y: auto; }
         .premium-box { border: 3px solid #ffd700; padding: 20px; border-radius: 15px; background: rgba(255,215,0,0.1); margin: 15px 0; width: 100%; max-width: 400px; box-shadow: 0 0 30px rgba(255,215,0,0.3); }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 17px; font-weight: bold; display: block; margin-bottom: 15px; width: 100%; border: 2px solid #fff; transition: 0.2s; }
-        .btn-ofuse-top:active { transform: scale(0.97); }
         
         .terms-box { font-size: 11px; color: #ccc; margin-top: 25px; text-align: left; width: 100%; max-width: 340px; line-height: 1.8; border-top: 1px solid #444; padding-top: 20px; }
         .en-desc { font-size: 13px; color: #ffd700; margin-bottom: 15px; font-style: italic; font-weight: 300; }
@@ -22,8 +20,6 @@
         #timer { color: #fff; background: #000; padding: 4px 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 32px; min-width: 120px; display: inline-block; border: 2px solid #555; margin-top: 5px; }
         
         .game-area { width: 100vw; height: calc(100vh - 110px); position: relative; background: #fff; overflow: hidden; }
-        
-        /* ターゲットのみが実体を持ち、ハズレは判定を無視 */
         .target-item { position: absolute; z-index: 80000 !important; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 46px; cursor: pointer; }
         .miss-item { position: absolute; z-index: 10; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 28px; pointer-events: none; user-select: none; }
 
@@ -34,7 +30,7 @@
 <body onload="loadRanking()">
 
 <div id="start-screen">
-    <h1 style="color:#ffd700; margin-bottom:5px; font-size:28px; letter-spacing:1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Search Challenge GIGA-HARD</h1>
+    <h1 style="color:#ffd700; margin-bottom:5px; font-size:28px; letter-spacing:1.5px;">Search Challenge GIGA-HARD</h1>
     <div class="en-desc">The ultimate visual precision test for the year 2026.</div>
     
     <div class="premium-box">
@@ -102,7 +98,7 @@ const stages = [
 function loadRanking() {
     const recs = JSON.parse(localStorage.getItem('gigaHard_ranks') || '[]');
     document.getElementById('ranking-display').innerHTML = recs.length ? 
-        "🏆 CURRENT TOP: " + recs[0].score.toFixed(2) + "pts (" + recs[0].name + ")" : "Challenge the 100,000 JPY Prize!";
+        "🏆 TOP: " + recs[0].score.toFixed(2) + " (" + recs[0].name + ")" : "Challenge the 100,000 JPY Prize!";
 }
 
 function startGame() {
@@ -127,7 +123,6 @@ function init() {
         el.className = 'target-item';
         el.style.left = (5 + Math.random() * 80) + "%";
         el.style.top = (5 + Math.random() * 80) + "%";
-        
         if(s.type === "pale") { el.innerText = "🩷"; el.style.opacity = "0.45"; }
         else if(s.type === "silver") { el.style.background="#C0C0C0"; el.style.borderRadius="50%"; el.innerText=""; el.style.width="22px"; el.style.height="22px"; }
         else if(s.type === "small") { el.innerText = s.g; el.style.fontSize = "18px"; }
