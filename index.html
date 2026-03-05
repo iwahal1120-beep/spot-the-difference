@@ -9,40 +9,33 @@
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; background: #000; margin: 0; overflow: hidden; }
         
-        /* トップ画面の賞品表示 */
+        /* トップ画面 */
         .prize-header { background: linear-gradient(90deg, #ffd700, #fff, #ffd700); color: #000; font-weight: bold; padding: 12px; font-size: 16px; border-bottom: 2px solid #000; position: sticky; top: 0; z-index: 100001; }
-
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:99999; display:flex; flex-direction:column; align-items:center; color:white; padding: 0 0 20px 0; overflow-y: auto; }
-        .premium-box { border: 3px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255,215,0,0.1); margin: 15px 10px; width: 90%; max-width: 400px; box-shadow: 0 0 20px #ffd70055; }
+        .premium-box { border: 3px solid #ffd700; padding: 15px; border-radius: 15px; background: rgba(255,215,0,0.1); margin: 15px 10px; width: 90%; max-width: 400px; }
         .btn-ofuse-top { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 17px; font-weight: bold; display: block; margin-bottom: 15px; width: 100%; border: 2px solid #fff; }
         
-        /* 不正規約の警告 */
+        /* 不正削除の警告 */
         .terms-box { font-size: 11px; color: #ccc; margin-top: 20px; text-align: left; width: 90%; max-width: 360px; line-height: 1.5; border-top: 1px solid #444; padding: 15px 10px; }
-        .warning-red { border: 2px solid #ff4444; padding: 10px; border-radius: 8px; margin-bottom: 10px; background: rgba(255,68,68,0.1); }
+        .warning-red { border: 2px solid #ff4444; padding: 10px; border-radius: 8px; background: rgba(255,68,68,0.1); }
         .warning-text { color: #ff4444; font-weight: bold; }
 
-        /* ★ゲーム中の極小ヘッダー（タイマーをさらに薄く） */
-        .header { background: #d44d5c; color: white; height: 40px; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: relative; z-index: 50000; border-bottom: 1px solid #000; }
-        .stg-num-area { font-size: 13px; font-weight: bold; }
+        /* ★改良ヘッダー：指示（Guide）を追加 */
+        .header { background: #d44d5c; color: white; height: 55px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; position: relative; z-index: 50000; border-bottom: 1px solid #000; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        /* 指示テキストエリア */
+        #stg-guide { font-size: 12px; font-weight: bold; background: rgba(0,0,0,0.3); padding: 2px 0; margin-top: 2px; border-radius: 4px; color: #ffff00; }
         
-        /* タイマー枠をさらに小さく・フォントも調整 */
-        #timer-box { display: flex; align-items: center; gap: 5px; }
-        #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 20px; min-width: 70px; border: 1.5px solid #666; transition: 0.1s; }
+        #timer { color: #fff; background: #000; padding: 1px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 20px; min-width: 70px; border: 1.5px solid #666; }
         .timer-danger { color: #ff0000 !important; border-color: #ff0000 !important; animation: heartbeat 0.4s infinite; }
         @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 
-        /* ★ゲーム画面をさらに広く */
-        .game-area { width: 100vw; height: calc(100vh - 40px); position: relative; background: #fff; overflow: hidden; }
-        
-        /* アイテム生成 */
+        .game-area { width: 100vw; height: calc(100vh - 55px); position: relative; background: #fff; overflow: hidden; }
         .target-item { position: absolute; z-index: 80000; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
         .miss-item { position: absolute; z-index: 10; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; font-size: 18px; pointer-events: none; }
         @keyframes moveAround { 0% { transform: translate(0,0); } 100% { transform: translate(80px, 80px); } }
         .moving { animation: moveAround 1.2s infinite alternate ease-in-out; }
 
-        /* クリア画面 */
-        .clear-container { padding: 40px 20px; color: #000; height: 100%; width: 100%; background: #fff; position: fixed; top:0; left:0; z-index: 100000; overflow-y: auto; text-align: center; }
-        .ofuse-btn-final { background: #ed6c00; color: #fff; padding: 20px; border-radius: 15px; text-decoration: none; font-size: 20px; font-weight: bold; display: block; margin: 20px auto; border: 3px solid #000; }
         .btn { width:100%; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:14px; font-size:18px; font-weight:bold; cursor:pointer; }
         input { padding:14px; font-size:16px; width:100%; margin-bottom:10px; border-radius:10px; border:1px solid #ccc; text-align:center; }
     </style>
@@ -50,53 +43,33 @@
 <body onload="loadRanking()">
 
 <div id="start-screen">
-    <div class="prize-header">🏆 1位：10万円ギフト券 / 1st Prize: 100,000 JPY</div>
-    
-    <h1 style="color:#ffd700; font-size:24px; margin: 20px 0 5px; padding: 0 10px;">
-        間違い探し：ギガハード 2026<br>
-        <span style="font-size:16px; letter-spacing: 1px;">SEARCH CHALLENGE: GIGA-HARD</span>
-    </h1>
-    
-    <div style="font-size:13px; color:#fff; font-weight:bold; margin-bottom:10px;">
-        究極の視覚テスト 全26ステージ<br>
-        Ultimate 26-Stage Visual Challenge
-    </div>
-    
+    <div class="prize-header">🏆 10万円ギフト券 / 100,000 JPY Prize</div>
+    <h1 style="color:#ffd700; font-size:22px; margin: 15px 0 5px;">間違い探し：ギガハード 2026<br><span style="font-size:14px;">SEARCH CHALLENGE: GIGA-HARD</span></h1>
+    <div style="font-size:12px; margin-bottom:10px;">ターゲットを見つけてタップせよ！<br>Find and tap the target!</div>
     <div class="premium-box">
-        <div style="font-size:12px; line-height:1.6; color:#ffd700;">
-            動く標的、錯視、運命の二択を突破せよ。<br>
-            Defeat moving targets and illusions to win.
-        </div>
+        <div style="font-size:11px; line-height:1.5; color:#ffd700;">動く物体、錯視、螺旋を最速で突破せよ。<br>Break through moving targets & illusions.</div>
     </div>
-
     <div style="width: 100%; max-width: 340px;">
-        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">応援して挑戦権を確定！🚀<br><span style="font-size:11px;">Support & Start (OFUSE)</span></a>
+        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse-top">応援して挑戦権を確定！🚀</a>
         <input type="text" id="p-name" placeholder="Nickname / ニックネーム">
         <input type="password" id="p-pass" placeholder="4-digit Pass / パスワード">
-        <button onclick="startGame()" class="btn">GAME START / 26 STAGES</button>
-
+        <button onclick="startGame()" class="btn">GAME START</button>
         <div class="terms-box">
             <div class="warning-red">
                 <span class="warning-text">【警告 / WARNING】</span><br>
-                <span style="font-size:11px; color:#ff4444; font-weight:bold;">
-                    不正（重複・自動化）は即座にデータを削除します。<br>
-                    Cheating = IMMEDIATE DATA DELETION.
-                </span>
+                <span style="font-size:11px; color:#ff4444; font-weight:bold;">不正は即座にデータを削除します。 / Fraud = DATA DELETION.</span>
             </div>
-            【規約 / Terms】<br>
-            ・賞品受取にはOFUSE共通パスワードが必要です。<br>
-            OFUSE common password is required for prize claim.<br>
-            ・URL: <span style="color:#ffd700;">https://ofuse.me/d33e72b9</span>
+            ・賞品受取にはOFUSEパスワード必須。<br>・URL: https://ofuse.me/d33e72b9
         </div>
     </div>
 </div>
 
 <div class="header">
-    <div class="stg-num-area">Stage <span id="stg-n">1</span>/26</div>
-    <div id="timer-box">
-        <span style="font-size:11px;">TIME:</span>
-        <span id="timer">30.00</span>
+    <div class="header-top">
+        <div style="font-size:12px; font-weight:bold;">Stage <span id="stg-n">1</span>/26</div>
+        <div><span style="font-size:10px;">TIME:</span> <span id="timer">30.00</span></div>
     </div>
+    <div id="stg-guide">...</div>
 </div>
 
 <div class="game-area" id="field"></div>
@@ -104,41 +77,40 @@
 <script>
 let cur = 0, ms = 3000, tid = null, active = false, found = 0, total_score = 0, pName, pPass;
 
-// ステージデータ（22番は300動・5静）
 const stages = [
-    { t: "1. Human", c: ["🐶","🐱","🐭"], g: "🙋‍♂️", n: 600 },
-    { t: "2. Cat", c: ["🧔","👵","👦"], g: "🐱", n: 800 },
-    { t: "3. Bicycle", c: ["🚗","🚕","🚙"], g: "🚲", n: 700 },
-    { t: "4. Cookie", c: ["🍬","🍭","🍫"], g: "🍪", n: 700 },
-    { t: "5. SILVER", c: ["●"], g: "●", n: 600, goals: 5, type: "silver" },
-    { t: "6. Small Clown", c: ["💃","🕺"], g: "🤡", n: 700, type: "small" },
-    { t: "7. Flags", c: ["🌏","🌎"], g: ["🇯🇵","🇺🇸","🇫🇷","🇩🇪","🇰🇷"], n: 600, goals: 5 },
-    { t: "8. Bone", c: ["🐟","🐠"], g: "🦴", n: 700 },
-    { t: "9. 5 Hearts", c: ["⭐"], g: "🩷", n: 800, goals: 5, type: "pale" },
-    { t: "10. Mirror 'あ'", c: ["あ"], g: "あ", n: 600, goals: 5, type: "mirror" },
-    { t: "11. Torii", c: ["🏢","🏨"], g: "⛩️", n: 700 },
-    { t: "12. Cherries", c: ["🍎","🍅"], g: "🍒", n: 700 },
-    { t: "13. Bug", c: ["🍃","🌱"], g: "🐛", n: 700 },
-    { t: "14. Trophy", c: ["⚽","🏀"], g: "🏆", n: 700 },
-    { t: "15. Banana", c: ["🌙","🌛"], g: "🍌", n: 700 },
-    { t: "16. 5 Pandas", c: ["🐨","🐻"], g: "🐼", n: 600, goals: 5 },
-    { t: "17. Octopus", c: ["🦑","🦀"], g: "🐙", n: 800 },
-    { t: "18. UFO", c: ["✨","🌟"], g: "🛸", n: 800, type: "ufo" },
-    { t: "19. Ice Creams", c: ["🍭","🍩"], g: "🍦", n: 700, goals: 5 },
-    { t: "20. The Eye", c: ["👁️"], g: "👀", n: 1200, goals: 3 },
-    { t: "21. Lady", c: ["🧔","👴"], g: "💃", n: 700 },
-    { t: "22. Stillness / 300動・5静", c: ["■"], g: "■", n: 300, goals: 5, type: "moving" },
-    { t: "23. Chick / 背景1200増量", c: ["🥚","🐓"], g: "🐥", n: 1200, goals: 5 },
-    { t: "24. FATE / Wrong=Stage1", type: "choice" },
-    { t: "25. Spiral / Gap Search", type: "spiral", goals: 5 },
-    { t: "26. FINAL", c: ["😭","😢","😡"], g: "😊", n: 1500 }
+    { t: "人を探せ / Find the Human", c: ["🐶","🐱","🐭"], g: "🙋‍♂️", n: 600 },
+    { t: "ネコを探せ / Find the Cat", c: ["🧔","👵","👦"], g: "🐱", n: 800 },
+    { t: "自転車を探せ / Find the Bicycle", c: ["🚗","🚕","🚙"], g: "🚲", n: 700 },
+    { t: "クッキーを探せ / Find the Cookie", c: ["🍬","🍭","🍫"], g: "🍪", n: 700 },
+    { t: "銀の丸を5つ！ / 5 Silver Circles", c: ["●"], g: "●", n: 600, goals: 5, type: "silver" },
+    { t: "小さいピエロ / Small Clown", c: ["💃","🕺"], g: "🤡", n: 700, type: "small" },
+    { t: "国旗を5つ探せ / Find 5 Flags", c: ["🌏","🌎"], g: ["🇯🇵","🇺🇸","🇫🇷","🇩🇪","🇰🇷"], n: 600, goals: 5 },
+    { t: "骨を探せ / Find the Bone", c: ["🐟","🐠"], g: "🦴", n: 700 },
+    { t: "ハートを5つ / Find 5 Hearts", c: ["⭐"], g: "🩷", n: 800, goals: 5, type: "pale" },
+    { t: "逆さまの「あ」 / Mirror 'あ'", c: ["あ"], g: "あ", n: 600, goals: 5, type: "mirror" },
+    { t: "鳥居を探せ / Find the Torii", c: ["🏢","🏨"], g: "⛩️", n: 700 },
+    { t: "さくらんぼ / Find Cherries", c: ["🍎","🍅"], g: "🍒", n: 700 },
+    { t: "虫を探せ / Find the Bug", c: ["🍃","🌱"], g: "🐛", n: 700 },
+    { t: "トロフィー / Find Trophy", c: ["⚽","🏀"], g: "🏆", n: 700 },
+    { t: "バナナを探せ / Find Banana", c: ["🌙","🌛"], g: "🍌", n: 700 },
+    { t: "パンダを5つ / 5 Pandas", c: ["🐨","🐻"], g: "🐼", n: 600, goals: 5 },
+    { t: "タコを探せ / Find Octopus", c: ["🦑","🦀"], g: "🐙", n: 800 },
+    { t: "UFOを探せ / Find UFO", c: ["✨","🌟"], g: "🛸", n: 800, type: "ufo" },
+    { t: "アイスを5つ / 5 Ice Creams", c: ["🍭","🍩"], g: "🍦", n: 700, goals: 5 },
+    { t: "目を探せ！3つ！ / Find 3 Eyes", c: ["👁️"], g: "👀", n: 1200, goals: 3 },
+    { t: "レディを探せ / Find Lady", c: ["🧔","👴"], g: "💃", n: 700 },
+    { t: "止まっている■を5つ！ / 5 Still Squares", c: ["■"], g: "■", n: 300, goals: 5, type: "moving" },
+    { t: "ヒヨコを5つ / 5 Chicks", c: ["🥚","🐓"], g: "🐥", n: 1200, goals: 5 },
+    { t: "正解の色を撃て！ / Hit Correct Color", type: "choice" },
+    { t: "螺旋の切れ目5箇所！ / Find 5 Gaps", type: "spiral", goals: 5 },
+    { t: "最後は笑顔で！ / Final: Smile", c: ["😭","😢","😡"], g: "😊", n: 1500 }
 ];
 
-function loadRanking() { console.log("Ranking ready"); }
+function loadRanking() { console.log("Ready"); }
 
 function startGame() {
     pName = document.getElementById('p-name').value.trim(); pPass = document.getElementById('p-pass').value.trim();
-    if(!pName || pPass.length<4) return alert("Nickname & 4-digit Pass required");
+    if(!pName || pPass.length<4) return alert("Required: Name & 4-digit Pass");
     document.getElementById('start-screen').style.display='none';
     cur = 0; total_score = 0; init();
 }
@@ -147,23 +119,22 @@ function init() {
     const f = document.getElementById('field'); f.innerHTML = ""; active = true; ms = 3000; found = 0;
     const s = stages[cur]; if(!s) return end();
     document.getElementById('stg-n').innerText = cur + 1;
+    document.getElementById('stg-guide').innerText = s.t; // ★ガイドを表示
 
-    // FATE, Spiral 等の特殊ロジック（前述通り）
     if(s.type === "choice") {
-        f.innerHTML = `<div style="padding-top:20px; font-weight:bold; font-size:12px;">Wrong = BACK TO Stage 1.</div>`;
-        const bL = document.createElement('div'); bL.style = "position:absolute; left:10%; top:30%; width:130px; height:130px; border-radius:50%; background:red; cursor:pointer;";
+        const bL = document.createElement('div'); bL.style = "position:absolute; left:10%; top:30%; width:130px; height:130px; border-radius:50%; background:red; cursor:pointer; z-index:90;";
         const bR = bL.cloneNode(); bR.style.left = "55%"; bR.style.background = "blue";
         let target = "red";
         bL.onclick = () => (target === "red") ? nextStage() : restart();
         bR.onclick = () => (target === "blue") ? nextStage() : restart();
         f.appendChild(bL); f.appendChild(bR);
-        setInterval(() => { target = Math.random() > 0.5 ? "red" : "blue"; }, 700);
+        const loop = setInterval(() => { if(!active) clearInterval(loop); target = Math.random() > 0.5 ? "red" : "blue"; bL.style.opacity = target==="red"?"1":"0.3"; bR.style.opacity = target==="blue"?"1":"0.3"; }, 700);
         return;
     }
 
     if(s.type === "spiral") {
-        const w = window.innerWidth, h = window.innerHeight - 40;
-        f.innerHTML = `<div style="position:absolute; top:2px; width:100%; z-index:100; font-size:11px; color:red; font-weight:bold;">Find 5 Gaps</div><svg width="${w}" height="${h}" style="position:absolute; top:0; left:0; pointer-events:none;"><g id="spiralC" fill="none" stroke="#000" stroke-width="0.5"></g></svg>`;
+        const w = window.innerWidth, h = window.innerHeight - 55;
+        f.innerHTML = `<svg width="${w}" height="${h}" style="pointer-events:none;"><g id="spiralC" fill="none" stroke="#000" stroke-width="0.5"></g></svg>`;
         const container = document.getElementById('spiralC');
         const gaps = []; while(gaps.length < 5) { gaps.push(Math.floor(Math.random()*150000)+5000); }
         let path = "";
@@ -183,7 +154,6 @@ function init() {
         return;
     }
 
-    // アイテム生成
     for(let i=0; i<s.n; i++) {
         const m = document.createElement('span'); m.className = 'miss-item' + (s.type==="moving"?" moving":"");
         m.style.left=Math.random()*95+"%"; m.style.top=Math.random()*95+"%";
@@ -205,12 +175,12 @@ function init() {
     }
 }
 
-function restart() { active=false; clearInterval(tid); alert("FAILED! Back to Stage 1."); cur=0; init(); }
+function restart() { active=false; clearInterval(tid); alert("BACK TO STAGE 1!"); cur=0; init(); }
 function nextStage() { active = false; confetti(); total_score += (ms/100); cur++; setTimeout(() => { if(cur < stages.length) init(); else end(); }, 600); }
 
 function end() {
     active = false; clearInterval(tid);
-    document.body.innerHTML += `<div class="clear-container"><h2>🏆 ALL CLEAR!</h2><p style="font-size:24px; color:#d44d5c; font-weight:bold;">SCORE: ${total_score.toFixed(2)}</p><a href="https://ofuse.me/d33e72b9" target="_blank" class="ofuse-btn-final">OFUSE Registration 🚀</a><button onclick="location.reload()" class="btn" style="background:#444;">BACK</button></div>`;
+    document.body.innerHTML += `<div style="position:fixed; top:0; left:0; width:100%; height:100%; background:#fff; z-index:100000; padding-top:50px;"><h2>🏆 ALL CLEAR!</h2><p>SCORE: ${total_score.toFixed(2)}</p><a href="https://ofuse.me/d33e72b9" target="_blank" style="color:#ed6c00; font-weight:bold;">Register for Prize</a><br><br><button onclick="location.reload()" class="btn" style="width:200px;">BACK</button></div>`;
 }
 
 tid = setInterval(() => {
@@ -218,7 +188,7 @@ tid = setInterval(() => {
     ms--;
     const tEl = document.getElementById('timer');
     tEl.innerText = (ms/100).toFixed(2);
-    if(ms <= 1000) { tEl.classList.add('timer-danger'); } else { tEl.classList.remove('timer-danger'); }
+    if(ms <= 1000) tEl.classList.add('timer-danger'); else tEl.classList.remove('timer-danger');
     if(ms <= 0) { active = false; clearInterval(tid); alert("TIME UP!"); location.reload(); }
 }, 10);
 </script>
