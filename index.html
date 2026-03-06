@@ -9,30 +9,40 @@
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; background: #000; margin: 0; overflow: hidden; color: #fff; }
         
+        /* トップ画面 */
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:99999; display:flex; flex-direction:column; align-items:center; overflow-y: auto; padding-bottom: 50px; }
         .prize-header { background: linear-gradient(90deg, #ffd700, #fff, #ffd700); color: #000; font-weight: bold; padding: 12px; font-size: 16px; width: 100%; border-bottom: 2px solid #000; }
         .btn-ofuse { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin: 15px auto; width: 90%; max-width: 340px; border: 2px solid #fff; line-height: 1.2; }
         
+        /* 規約エリア */
         .terms-box { font-size: 11px; color: #ccc; text-align: left; width: 90%; max-width: 360px; line-height: 1.6; border-top: 1px solid #444; padding: 15px 10px; }
         .eng-text { font-size: 9px; color: #888; display: block; line-height: 1.2; margin-top: 2px; }
         
         .ranking-area { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid #ffd700; margin: 15px 0; width: 100%; }
-        .rank-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 4px 0; font-family: monospace; font-size: 12px; }
+        .rank-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 3px 0; font-family: monospace; font-size: 12px; }
 
+        /* ゲームヘッダー */
         .header { background: #d44d5c; color: white; height: 60px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; position: relative; z-index: 50000; }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         #timer { color: #fff; background: #000; padding: 4px 10px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 24px; min-width: 100px; border: 2px solid #666; }
         
+        /* 10秒以下の赤字・点滅 */
         #timer.timer-danger { color: #ff0000 !important; border-color: #ff0000 !important; box-shadow: 0 0 15px #ff0000; animation: flash 0.5s infinite; }
         @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
+        /* ゲームエリア */
         .game-area { width: 100vw; height: calc(100vh - 60px); position: relative; background: #fff; overflow: hidden; }
         
+        /* 特殊アイテムスタイル */
         .coin-yellow { position: absolute; background: #ffff00; border-radius: 50%; width: 18px; height: 18px; border: 1px solid #ccaa00; z-index: 5; }
         .coin-gray { position: absolute; background: #888888; border-radius: 50%; width: 22px; height: 22px; border: 2px solid #333; z-index: 100; cursor: pointer; }
+        
+        /* 2番背景：イエロー化 */
+        .bg-yellow-animal { color: #ffff00 !important; } 
 
-        .target-item { position: absolute; z-index: 80000; cursor: pointer; font-size: 20px; color: #000; display: flex; align-items: center; justify-content: center; }
-        .miss-item { position: absolute; z-index: 10; pointer-events: none; font-size: 18px; color: #000; display: flex; align-items: center; justify-content: center; }
+        .target-item { position: absolute; z-index: 80000; cursor: pointer; font-size: 20px; color: #000; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; }
+        .miss-item { position: absolute; z-index: 10; pointer-events: none; font-size: 18px; color: #000; display: flex; align-items: center; justify-content: center; width: 25px; height: 25px; }
+        
         .moving { animation: moveAround 1.2s infinite alternate ease-in-out; }
         @keyframes moveAround { 0% { transform: translate(0,0); } 100% { transform: translate(70px, 70px); } }
 
@@ -97,17 +107,18 @@ function playBeep(f, d) {
     o.start(); o.stop(audioCtx.currentTime + d);
 }
 
+// 全26ステージデータ（修正反映）
 const stages = [
-    {t:"1. 人 / Human", c:["🐶","🐱","🐭"], g:"🙋‍♂️", n:400},
-    {t:"2. ネコ / Cat", c:["🐶","🐭","🐹"], g:"🐱", n:500},
-    {t:"3. 自転車 / Bicycle", c:["🚗","🚕","🚙"], g:"🚲", n:500},
-    {t:"4. クッキー / Cookie", c:["🍬","🍭","🍫"], g:"🍪", n:500},
+    {t:"1. 人 / Human", c:["🐶","🐱","🐭"], g:"🙋‍♂️", n:600}, // 背景+200
+    {t:"2. ネコ(罠:背景黄色) / Find Cat", c:["🐶","🐭","🐹"], g:"🐱", n:700, type:"bg_yellow"}, // 背景+200 & イエロー化
+    {t:"3. 自転車 / Bicycle", c:["🚗","🚕","🚙"], g:"🚲", n:700}, // 背景+200
+    {t:"4. クッキー / Cookie", c:["🍬","🍭","🍫"], g:"🍪", n:700}, // 背景+200
     {t:"5. グレー丸5(イエロー400) / 5 Gray", type:"silver_hard", n:400, goals:5},
-    {t:"6. ピエロ / Clown", c:["💃","🕺"], g:"🤡", n:600},
+    {t:"6. ピエロ(極小) / Tiny Clown", c:["💃","🕺"], g:"🤡", n:600, type:"tiny"}, // ピエロ縮小
     {t:"7. 国旗5 / 5 Flags", c:["🌏","🌎"], g:["🇯🇵","🇺🇸","🇫🇷","🇩🇪","🇰🇷"], n:500, goals:5},
     {t:"8. 骨 / Bone", c:["🐟","🐠"], g:"🦴", n:600},
     {t:"9. ハート5 / 5 Hearts", c:["⭐"], g:"🩷", n:700, goals:5},
-    {t:"10. 逆「あ」x5 / Mirror 'あ' x5", c:["あ"], g:"あ", n:800, goals:5, type:"mirror"},
+    {t:"10. 逆「あ」x5(重なり防止) / Mirror 'あ' x5", c:["あ"], g:"あ", n:800, goals:5, type:"mirror_distinct"}, // 重なり防止
     {t:"11. 鳥居 / Torii", c:["🏢","🏨"], g:"⛩️", n:600},
     {t:"12. さくらんぼ / Cherry", c:["🍎","🍅"], g:"🍒", n:600},
     {t:"13. 虫 / Bug", c:["🍃","🌱"], g:"🐛", n:600},
@@ -136,6 +147,16 @@ function startGame() {
     if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     document.getElementById('start-screen').style.display='none';
     cur = 0; init();
+}
+
+// 重なり判定関数
+function isOverlapping(x, y, existingGoals, minDist) {
+    for (let goal of existingGoals) {
+        let dx = x - goal.x;
+        let dy = y - goal.y;
+        if (Math.sqrt(dx * dx + dy * dy) < minDist) return true;
+    }
+    return false;
 }
 
 function init() {
@@ -178,17 +199,37 @@ function init() {
             }
         }
     } else {
+        // 通常アイテム生成
         for(let i=0; i<s.n; i++){
-            const m = document.createElement('span'); m.className = 'miss-item' + (s.type==="moving"?" moving":"");
+            const m = document.createElement('span'); 
+            m.className = 'miss-item' + (s.type==="moving"?" moving":"");
+            if(s.type === "bg_yellow") m.classList.add('bg-yellow-animal'); // 2番背景イエロー化
             m.style.left=Math.random()*95+"%"; m.style.top=Math.random()*95+"%";
             m.innerText = s.c[Math.floor(Math.random()*s.c.length)];
             f.appendChild(m);
         }
         const gls = s.goals || 1;
+        let placedGoals = [];
         for(let j=0; j<gls; j++){
             const g = document.createElement('div'); g.className = 'target-item';
-            g.style.left=Math.random()*90+"%"; g.style.top=Math.random()*90+"%";
-            if(s.type==="mirror") g.style.transform="scaleX(-1)";
+            
+            let gx, gy, attempts = 0;
+            // 10番：重なり防止ロジック
+            if (s.type === "mirror_distinct") {
+                do {
+                    gx = Math.random() * 85 + 5; // 画面端を避ける
+                    gy = Math.random() * 85 + 5;
+                    attempts++;
+                } while (isOverlapping(gx, gy, placedGoals, 10) && attempts < 50); // 最低10%の距離を離す
+                placedGoals.push({x: gx, y: gy});
+            } else {
+                gx = Math.random() * 90;
+                gy = Math.random() * 90;
+            }
+
+            g.style.left = gx + "%"; g.style.top = gy + "%";
+            if(s.type==="mirror" || s.type==="mirror_distinct") g.style.transform="scaleX(-1)";
+            if(s.type==="tiny") g.style.fontSize = "10px"; // 6番ピエロ縮小
             g.innerText = Array.isArray(s.g) ? s.g[j] : s.g;
             g.onclick = () => { if(!active)return; g.style.visibility="hidden"; found++; if(found>=gls) nextStage(); };
             f.appendChild(g);
