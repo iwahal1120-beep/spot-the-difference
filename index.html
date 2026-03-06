@@ -17,7 +17,7 @@
         .eng-text { font-size: 9px; color: #888; display: block; line-height: 1.2; margin-top: 2px; }
         
         .ranking-area { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid #ffd700; margin: 15px 0; width: 100%; }
-        .rank-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 3px 0; font-family: monospace; font-size: 12px; }
+        .rank-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 4px 0; font-family: monospace; font-size: 12px; }
 
         .header { background: #d44d5c; color: white; height: 60px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; position: relative; z-index: 50000; }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
@@ -70,8 +70,6 @@
                 <strong style="color:#ffd700;">【現在の1位〜10位 / Top 10 Ranking】</strong>
                 <div id="rank-list"></div>
             </div>
-            
-            <p style="text-align:center; font-weight:bold; color:#ffd700; margin-top:15px;">ここからは、ゲームについて / About the Game</p>
         </div>
     </div>
 </div>
@@ -99,7 +97,6 @@ function playBeep(f, d) {
     o.start(); o.stop(audioCtx.currentTime + d);
 }
 
-// 1〜26ステージ すべて完全に記述
 const stages = [
     {t:"1. 人 / Human", c:["🐶","🐱","🐭"], g:"🙋‍♂️", n:400},
     {t:"2. ネコ / Cat", c:["🐶","🐭","🐹"], g:"🐱", n:500},
