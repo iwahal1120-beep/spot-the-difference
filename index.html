@@ -16,21 +16,27 @@
         .terms-box { font-size: 11px; color: #ccc; text-align: left; width: 90%; max-width: 360px; line-height: 1.6; border-top: 1px solid #444; padding: 15px 10px; }
         .eng-text { font-size: 9px; color: #888; display: block; line-height: 1.2; margin-top: 2px; }
         
-        /* ゲームエリア */
+        .ranking-area { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid #ffd700; margin: 15px 0; width: 100%; }
+        .rank-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 3px 0; font-family: monospace; font-size: 12px; }
+
+        /* ゲームヘッダー */
         .header { background: #d44d5c; color: white; height: 60px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; position: relative; z-index: 50000; }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         #timer { color: #fff; background: #000; padding: 4px 10px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 24px; min-width: 100px; border: 2px solid #666; }
-        #timer.timer-danger { color: #ff0000 !important; animation: flash 0.5s infinite; }
+        
+        /* タイマー赤点滅スタイル */
+        #timer.timer-danger { color: #ff0000 !important; border-color: #ff0000; animation: flash 0.5s infinite; }
         @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .game-area { width: 100vw; height: calc(100vh - 60px); position: relative; background: #fff; overflow: hidden; }
 
+        .game-area { width: 100vw; height: calc(100vh - 60px); position: relative; background: #fff; overflow: hidden; }
+        
         /* 特殊スタイル */
-        .cat-trap-bg { color: #ffff00 !important; } 
+        .all-yellow-bg { color: #ffff00 !important; text-shadow: none !important; }
         .ufo-faint { opacity: 0.25 !important; }
         .coin-yellow { position: absolute; background: #ffff00; border-radius: 50%; width: 18px; height: 18px; border: 1px solid #ccaa00; z-index: 5; }
         .coin-gray-small { position: absolute; background: rgba(136, 136, 136, 0.3); border-radius: 50%; width: 14px; height: 14px; border: 1px solid rgba(51, 51, 51, 0.3); z-index: 100; cursor: pointer; }
-        
-        /* 9番：イエロー塗りつぶし五角形 */
+
+        /* 9番：塗りつぶし黄色五角形 */
         .pentagon-filled {
             position: absolute; width: 24px; height: 24px; background: #ffff00;
             clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
@@ -39,13 +45,13 @@
 
         .target-item { position: absolute; z-index: 80000; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #000; width: 44px; height: 44px; }
         .miss-item { position: absolute; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #000; width: 25px; height: 25px; }
-
-        @keyframes moveBg { 0% { transform: translate(0,0); } 25% { transform: translate(80px,40px); } 50% { transform: translate(40px,80px); } 100% { transform: translate(0,0); } }
-        .moving-bg { animation: moveBg 4s infinite linear; }
+        
+        /* 22番：動く背景 */
+        @keyframes moveBg { 0% { transform: translate(0,0); } 25% { transform: translate(100px, 50px); } 50% { transform: translate(50px, 100px); } 75% { transform: translate(-50px, 50px); } 100% { transform: translate(0,0); } }
+        .moving-bg { animation: moveBg 5s infinite linear; }
 
         .btn-start { width:90%; max-width:340px; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:14px; font-size:20px; font-weight:bold; cursor:pointer; }
         input { padding:14px; font-size:16px; width:90%; max-width:340px; margin-bottom:10px; border-radius:10px; border:1px solid #ccc; color:#000; }
-        .rank-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 4px 0; font-family: monospace; font-size: 12px; }
     </style>
 </head>
 <body onload="renderRank()">
@@ -58,10 +64,11 @@
         <input type="text" id="p-name" placeholder="Nickname / ニックネーム">
         <input type="password" id="p-pass" placeholder="4-digit Pass / パスワード">
         <button onclick="startGame()" class="btn-start">GAME START / 26 STAGES</button>
+        
         <div class="terms-box">
             <p><strong>・このゲームは無料です。 / This game is free to play.</strong></p>
             <p>・2026.12.31まで不定期で追加され、その合計タイムで競います。<br><span class="eng-text">*Rank by total clear time until Dec 31, 2026.</span></p>
-            <p>・挑戦時はOFUSEに同じパスワードでログインしてください。<br><span class="eng-text">*Use the same password on OFUSE to verify identity.</span></p>
+            <p>・挑戦時はOFUSEに同じパスワードでログインしてください。<br><span class="eng-text">*Use same password on OFUSE to verify identity.</span></p>
             <p>・海外1位の場合はJCB相当を当時のレートで換算します。<br><span class="eng-text">*International winners: Prize converted at exchange rate.</span></p>
             <div id="rank-list" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:8px; border-radius:8px;"></div>
         </div>
@@ -69,7 +76,10 @@
 </div>
 
 <div class="header">
-    <div class="header-top"><div>Stage <span id="stg-n">1</span>/26</div><div id="timer">30.00</div></div>
+    <div class="header-top">
+        <div style="font-size:14px; font-weight:bold;">Stage <span id="stg-n">1</span>/26</div>
+        <div id="timer">30.00</div>
+    </div>
     <div id="stg-guide" style="font-size:12px; color:#ffff00; font-weight:bold;"></div>
 </div>
 <div class="game-area" id="field"></div>
@@ -96,23 +106,23 @@ const stages = [
     {t:"1. 人 / Human", c:["🐶","🐱","🐭"], g:"🙋‍♂️", n:600},
     {t:"2. ネコ(地獄) / Find Cat", c:["🐶","🐭","🐹"], g:"🐱", n:700, type:"cat_trap"},
     {t:"3. 自転車 / Bicycle", c:["🚗","🚕","🚙"], g:"🚲", n:700},
-    {t:"4. クッキー / Cookie", c:["🍬","🍭","🍫"], g:"🍪", n:700},
+    {t:"4. クッキー / Cookie", c:["🍬","🍭","🍫"], g:"🍪", n:700, type:"tiny_cookie"},
     {t:"5. グレー丸5 / 5 Gray", type:"silver_hard", n:700, goals:5},
-    {t:"6. ピエロ(極小) / Tiny Clown", c:["💃","🕺"], g:"🤡", n:600, type:"tiny"},
+    {t:"6. ピエロ(極小) / Tiny Clown", c:["💃","🕺"], g:"🤡", n:600, type:"tiny_clown"},
     {t:"7. 国旗5 / 5 Flags", c:["🌏","🌎"], g:["🇯🇵","🇺🇸","🇫🇷","🇩🇪","🇰🇷"], n:500, goals:5},
-    {t:"8. 骨 / Bone", c:["🐟","🐠"], g:"🦴", n:600},
-    {t:"9. 黄色五角形x5 / 5 Filled Pentagons", c:["⭐"], n:900, goals:5, type:"penta_task"},
+    {t:"8. 骨を探せ！ / Find Bone", c:["🐟","🐠"], g:"🦴", n:780},
+    {t:"9. 五角形5個(塗りつぶし) / 5 Pentagons", c:["⭐"], n:900, goals:5, type:"penta_task"},
     {t:"10. 逆「あ」x5 / Mirror 'あ'", c:["あ"], g:"あ", n:800, goals:5, type:"mirror_distinct"},
     {t:"11. 鳥居 / Torii", c:["🏢","🏨"], g:"⛩️", n:800},
-    {t:"12. さくらんぼ / Cherry", c:["🍎","🍅"], g:"🍒", n:600},
+    {t:"12. Cherry", c:["🍎","🍅"], g:"🍒", n:600},
     {t:"13. 虫 / Bug", c:["🍃","🌱"], g:"🐛", n:600},
-    {t:"14. 🏆 / Trophy", c:["⚽","🏀"], g:"🏆", n:600},
+    {t:"14. Trophy", c:["⚽","🏀"], g:"🏆", n:600},
     {t:"15. 🍌 / Banana", c:["🌙","🌛"], g:"🍌", n:700},
     {t:"16. 🐼x5 / 5 Pandas", c:["🐨","🐻"], g:"🐼", n:500, goals:5},
-    {t:"17. 🐙 / Octopus", c:["🦑","🦀"], g:"🐙", n:700},
+    {t:"17. Octopus", c:["🦑","🦀"], g:"🐙", n:700},
     {t:"18. UFO(透過) / Faint UFO", c:["✨","🌟"], g:"🛸", n:800, type:"ufo_trap"},
-    {t:"19. 🍦x5 / 5 Ice", c:["🍭","🍩"], g:"🍦", n:600, goals:5},
-    {t:"20. 👀x3 / 3 Eyes", c:["👁️"], g:"👀", n:1000, goals:3},
+    {t:"19. 🍦x5 / Ice", c:["🍭","🍩"], g:"🍦", n:600, goals:5},
+    {t:"20. 👀x3 / Eyes", c:["👁️"], g:"👀", n:1000, goals:3},
     {t:"21. 💃 / Lady", c:["🧔","👴"], g:"💃", n:600},
     {t:"22. 静止■x5 / 5 Still Square", c:["■"], g:"■", n:500, goals:5, type:"moving_bg"},
     {t:"23. ヒヨコ5羽 / 5 Chicks", c:["🥚","🐓"], g:"🐥", n:1200, goals:5},
@@ -129,7 +139,9 @@ function startGame() {
 
 function init() {
     const f = document.getElementById('field'); f.innerHTML = ""; active = true; ms = 3000; found = 0;
+    document.getElementById('timer').classList.remove('timer-danger'); // タイマー色リセット
     if(choiceInterval) { clearInterval(choiceInterval); choiceInterval = null; }
+
     const s = stages[cur];
     document.getElementById('stg-n').innerText = cur + 1;
     document.getElementById('stg-guide').innerText = s.t;
@@ -146,7 +158,7 @@ function init() {
             f.appendChild(g);
         }
     } else if(s.type === "choice") {
-        const bL = document.createElement('div'); bL.style = "position:absolute; left:10%; top:30%; width:130px; height:130px; border-radius:50%; background:red; cursor:pointer; z-index:999; border:4px solid white;";
+        const bL = document.createElement('div'); bL.style = "position:absolute; left:10%; top:30%; width:130px; height:130px; border-radius:50%; background:red; cursor:pointer; z-index:90000; border:4px solid white;";
         const bR = bL.cloneNode(); bR.style.left = "55%"; bR.style.background = "blue";
         let target = "red";
         bL.onclick = () => (target === "red") ? nextStage() : location.reload();
@@ -160,7 +172,7 @@ function init() {
         const g = document.createElementNS("http://www.w3.org/2000/svg","g");
         g.setAttribute("fill","none"); g.setAttribute("stroke","#000"); g.setAttribute("stroke-width","1.2");
         svg.appendChild(g); f.appendChild(svg);
-        const gList = []; while(gList.length<5) gList.push(Math.floor(Math.random()*150000)+10000);
+        const gList = []; while(gList.length<5) gList.push(Math.floor(Math.random()*160000)+10000);
         for(let i=0; i<180000; i+=10){
             let a = 0.05*i, r = 0.003*i;
             let x = (w/2)+r*Math.cos(a*Math.PI/180), y = (h/2)+r*Math.sin(a*Math.PI/180);
@@ -172,30 +184,28 @@ function init() {
             }
         }
     } else {
-        // 背景
         for(let i=0; i<s.n; i++){
             const m = document.createElement('span'); m.className = 'miss-item' + (s.type==="moving_bg"?" moving-bg":"");
-            if(s.type === "cat_trap") m.classList.add('cat-trap-bg');
+            if(s.type === "cat_trap") m.classList.add('all-yellow-bg');
             m.style.left=Math.random()*95+"%"; m.style.top=Math.random()*95+"%";
             m.innerText = (cur === 8) ? "⭐" : s.c[Math.floor(Math.random()*s.c.length)];
             f.appendChild(m);
         }
-        // 正解
         for(let j=0; j<(s.goals||1); j++){
             const target = document.createElement('div');
-            if(s.type === "penta_task") {
-                target.className = "pentagon-filled";
-            } else {
+            if(s.type === "penta_task") { target.className = "pentagon-filled"; }
+            else {
                 target.className = 'target-item';
                 if(s.type === "ufo_trap") target.classList.add('ufo-faint');
+                if(s.type === "tiny_cookie") target.style.fontSize = "16px";
+                if(s.type === "tiny_clown") target.style.fontSize = "10px";
                 target.innerText = Array.isArray(s.g)?s.g[j]:s.g;
             }
             let gx = (s.type==="mirror_distinct")?(j*18+5):(Math.random()*85+5);
             let gy = Math.random()*80+10;
             target.style.left=gx+"%"; target.style.top=gy+"%";
-            if(s.type==="tiny") target.style.fontSize="10px";
             if(s.type==="mirror_distinct") target.style.transform="scaleX(-1)";
-            target.onmousedown = target.ontouchstart = (e) => { e.preventDefault(); if(!active)return; target.style.visibility="hidden"; found++; if(found>=(s.goals||1)) nextStage(); };
+            target.onmousedown = target.ontouchstart = (e) => { e.preventDefault(); e.stopPropagation(); if(!active)return; target.style.visibility="hidden"; found++; if(found>=(s.goals||1)) nextStage(); };
             f.appendChild(target);
         }
     }
@@ -206,8 +216,13 @@ function nextStage() { active=false; if(choiceInterval)clearInterval(choiceInter
 setInterval(() => {
     if(!active) return;
     ms--; const t = document.getElementById('timer'); t.innerText = (ms/100).toFixed(2);
-    if(ms<=1000) { t.classList.add('timer-danger'); if(ms%100===0)playBeep(880,0.05); }
-    if(ms<=0) { active=false; playBeep(220,0.5); alert("TIME UP!"); location.reload(); }
+    if(ms <= 1000) { 
+        t.classList.add('timer-danger'); 
+        if(ms % 100 === 0) playBeep(880, 0.05); 
+    } else { 
+        t.classList.remove('timer-danger'); 
+    }
+    if(ms <= 0) { active=false; playBeep(220, 0.5); alert("TIME UP!"); location.reload(); }
 }, 10);
 </script>
 </body>
