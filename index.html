@@ -30,8 +30,8 @@
             z-index: 80000; cursor: pointer;
         }
 
-        .target-item { position: absolute; z-index: 80000; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; width: 44px; height: 44px; }
-        .miss-item { position: absolute; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 18px; width: 25px; height: 25px; }
+        .target-item { position: absolute; z-index: 80000; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; width: 44px; height: 44px; color: #000; }
+        .miss-item { position: absolute; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 18px; width: 25px; height: 25px; color: #000; }
         
         @keyframes moveBg { 0% { transform: translate(0,0); } 25% { transform: translate(100px, 50px); } 50% { transform: translate(50px, 100px); } 75% { transform: translate(-50px, 50px); } 100% { transform: translate(0,0); } }
         .moving-bg { animation: moveBg 5s infinite linear; }
@@ -51,22 +51,18 @@
         <input type="text" id="p-name" placeholder="Nickname / ニックネーム">
         <input type="password" id="p-pass" placeholder="4-digit Pass / パスワード">
         <button onclick="startGame()" class="btn-start">GAME START / 26 STAGES</button>
-        
         <div class="terms-box">
             <p><strong>・このゲームは無料です。 / This game is free to play.</strong></p>
             <p>・2026.12.31まで不定期で追加され、その合計タイムで競います。<br><span class="eng-text">*Rank by total clear time until Dec 31, 2026.</span></p>
-            <p>・挑戦時はOFUSEに同じパスワードでログインしてください。本人確認のためです。<br><span class="eng-text">*Login to OFUSE with the same password to verify identity.</span></p>
-            <p>・海外1位の場合はJCB相当を当時のレートで換算します。<br><span class="eng-text">*International winners: Prize converted at exchange rate.</span></p>
+            <p>・挑戦時はOFUSEに同じパスワードでログインしてください。<br><span class="eng-text">*Login to OFUSE with the same password.</span></p>
+            <p>・海外1位の場合はJCB相当を当時のレートで換算します。<br><span class="eng-text">*Prize converted at exchange rate.</span></p>
             <div id="rank-list" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:8px; border-radius:8px;"></div>
         </div>
     </div>
 </div>
 
 <div class="header">
-    <div class="header-top">
-        <div style="font-size:14px; font-weight:bold;">Stage <span id="stg-n">1</span>/26</div>
-        <div id="timer">30.00</div>
-    </div>
+    <div class="header-top"><div>Stage <span id="stg-n">1</span>/26</div><div id="timer">30.00</div></div>
     <div id="stg-guide" style="font-size:12px; color:#ffff00; font-weight:bold;"></div>
 </div>
 <div class="game-area" id="field"></div>
