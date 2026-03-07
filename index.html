@@ -12,7 +12,11 @@
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:99999; display:flex; flex-direction:column; align-items:center; overflow-y: auto; padding-bottom: 50px; }
         .prize-header { background: linear-gradient(90deg, #ffd700, #fff, #ffd700); color: #000; font-weight: bold; padding: 12px; font-size: 16px; width: 100%; border-bottom: 2px solid #000; }
         .btn-ofuse { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin: 15px auto; width: 90%; max-width: 340px; border: 2px solid #fff; line-height: 1.2; }
+        
+        /* 規約ボックス：指示された全文章を網羅 */
         .terms-box { font-size: 11px; color: #ccc; text-align: left; width: 90%; max-width: 360px; line-height: 1.6; border-top: 1px solid #444; padding: 15px 10px; }
+        .eng-text { font-size: 9px; color: #888; display: block; line-height: 1.2; margin-top: 2px; }
+        
         .ranking-area { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid #ffd700; margin: 15px 0; width: 100%; }
         .rank-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 4px 0; font-family: monospace; font-size: 12px; }
 
@@ -43,9 +47,13 @@
         <input type="text" id="p-name" placeholder="Nickname / ニックネーム">
         <input type="password" id="p-pass" placeholder="4-digit Pass / パスワード">
         <button onclick="startGame()" class="btn-start">GAME START</button>
+        
         <div class="terms-box">
             <p><strong>・このゲームは無料です。 / This game is free to play.</strong></p>
-            <p>・2026.12.31までにクリアした全ゲームの合計タイムで競います。<br><span style="font-size:9px; color:#888;">*Rank by total clear time until Dec 31, 2026.</span></p>
+            <p>・2026.12.31までに不定期で追加され、そのゲーム全てをクリアした合計タイムで競います。<br><span class="eng-text">*Rank by total clear time of all games added until Dec 31, 2026.</span></p>
+            <p>・タイムチャレンジ挑戦時はOFUSEに同じパスワードでログインしてください。本人確認のためです。<br><span class="eng-text">*Use the same password on OFUSE to verify winner identity.</span></p>
+            <p>・海外の方が1位になった場合はJCB相当を当時のレートで換算します。<br><span class="eng-text">*International winners: Prize converted at exchange rate on Dec 31, 2026.</span></p>
+            
             <div class="ranking-area">
                 <strong style="color:#ffd700;">【現在の1位〜10位 / Top Ranking】</strong>
                 <div id="rank-list"></div>
@@ -104,7 +112,7 @@ const stages = [
     {t:"20. 👀x3 / 3 Eyes", c:["👁️"], g:"👀", n:1000, goals:3},
     {t:"21. 💃 / Lady", c:["🧔","👴"], g:"💃", n:600},
     {t:"22. 静止■x5 / 5 Still Square", c:["■"], g:"■", n:500, goals:5},
-    {t:"23. ヒヨコ5羽 / 5 Chicks", c:["🥚","🐓"], g:"🐥", n:1200, goals:5},
+    {t:"23. ヒヨコ5羽 / 5 Chicks", c:["🥚","順"], g:"🐥", n:1200, goals:5},
     {t:"24. 運命の選択 / Fate", type:"choice"},
     {t:"25. 螺旋切れ目5 / 5 Micro Gaps", type:"spiral", goals:5},
     {t:"26. FINAL / Smile!", c:["😭","😢","😡"], g:"😊", n:1500}
@@ -133,7 +141,7 @@ function init() {
         }
         for(let j=0; j<s.goals; j++){
             const g = document.createElement('div'); g.className = "coin-gray-small";
-            g.style.left = Math.random()*92+"%"; g.style.top = Math.random()*92+ "%";
+            g.style.left = Math.random()*92+"%"; g.style.top = Math.random()*92+"%";
             g.onclick = () => { if(!active)return; g.style.visibility="hidden"; found++; if(found>=s.goals) nextStage(); };
             f.appendChild(g);
         }
@@ -153,11 +161,12 @@ function init() {
         }, 600);
     } else if(s.type === "spiral") {
         const w = window.innerWidth, h = window.innerHeight - 60;
-        const svgContainer = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svgContainer.setAttribute("width", w); svgContainer.setAttribute("height", h);
-        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        group.setAttribute("fill", "none"); group.setAttribute("stroke", "#000"); group.setAttribute("stroke-width", "1");
-        svgContainer.appendChild(group); f.appendChild(svgContainer);
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("width", w); svg.setAttribute("height", h);
+        const g = document.createElementNS(svgNS, "g");
+        g.setAttribute("fill", "none"); g.setAttribute("stroke", "#000"); g.setAttribute("stroke-width", "1");
+        svg.appendChild(g); f.appendChild(svg);
 
         const gList = []; while(gList.length<5) gList.push(Math.floor(Math.random()*150000)+10000);
         for(let i=0; i<180000; i+=10){
@@ -166,7 +175,7 @@ function init() {
             if(gList.some(gap => i >= gap && i < gap + 120)) {
                 const hit = document.createElement('div'); 
                 hit.style = `position:absolute; left:${x}px; top:${y}px; width:44px; height:44px; margin:-22px; z-index:99999; cursor:pointer;`;
-                hit.onclick = (e) => { e.target.style.background="rgba(255,0,0,0.6)"; found++; if(found>=5) nextStage(); };
+                hit.onclick = () => { hit.style.background="rgba(255,0,0,0.6)"; found++; if(found>=5) nextStage(); };
                 f.appendChild(hit);
             }
         }
@@ -179,19 +188,19 @@ function init() {
         }
         const gls = s.goals || 1;
         for(let j=0; j<gls; j++){
-            const g = document.createElement('div'); g.className = 'target-item';
+            const gItem = document.createElement('div'); gItem.className = 'target-item';
             let gx = (s.type === "mirror_distinct") ? (j * 18 + 5) : (Math.random()*85+5);
             let gy = Math.random()*80+10;
-            g.style.left=gx+"%"; g.style.top=gy+"%";
-            if(s.type && s.type.includes("mirror")) g.style.transform="scaleX(-1)";
-            if(s.type === "tiny") g.style.fontSize = "10px";
-            g.innerText = Array.isArray(s.g) ? s.g[j] : s.g;
-            g.onmousedown = g.ontouchstart = (e) => {
+            gItem.style.left=gx+"%"; gItem.style.top=gy+"%";
+            if(s.type && s.type.includes("mirror")) gItem.style.transform="scaleX(-1)";
+            if(s.type === "tiny") gItem.style.fontSize = "10px";
+            gItem.innerText = Array.isArray(s.g) ? s.g[j] : s.g;
+            gItem.onmousedown = gItem.ontouchstart = (e) => {
                 e.preventDefault(); e.stopPropagation();
-                if(!active)return; g.style.visibility="hidden"; found++;
+                if(!active)return; gItem.style.visibility="hidden"; found++;
                 if(found>=gls) nextStage();
             };
-            f.appendChild(g);
+            f.appendChild(gItem);
         }
     }
 }
@@ -203,7 +212,7 @@ function nextStage() {
     cur++; 
     setTimeout(() => { 
         if(cur < stages.length) init(); 
-        else { alert("ALL CLEAR! TOTAL TIME RANKING UPDATED!"); location.reload(); } 
+        else { alert("ALL CLEAR!"); location.reload(); } 
     }, 600); 
 }
 
