@@ -13,6 +13,7 @@
         .prize-header { background: linear-gradient(90deg, #ffd700, #fff, #ffd700); color: #000; font-weight: bold; padding: 12px; font-size: 16px; width: 100%; border-bottom: 2px solid #000; }
         .btn-ofuse { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin: 15px auto; width: 90%; max-width: 340px; border: 2px solid #fff; line-height: 1.2; }
         .terms-box { font-size: 11px; color: #ccc; text-align: left; width: 90%; max-width: 360px; line-height: 1.6; border-top: 1px solid #444; padding: 15px 10px; }
+        .eng-text { font-size: 9px; color: #888; display: block; line-height: 1.2; margin-top: 2px; }
 
         .header { background: #d44d5c; color: white; height: 60px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; position: relative; z-index: 50000; }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
@@ -21,19 +22,11 @@
         @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
         .game-area { width: 100vw; height: calc(100vh - 60px); position: relative; background: #fff; overflow: hidden; }
-        
-        .pentagon-filled-tiny {
-            position: absolute; width: 14px; height: 14px; background: #ffff00;
-            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-            z-index: 80000; cursor: pointer;
-        }
-
+        .pentagon-filled-tiny { position: absolute; width: 14px; height: 14px; background: #ffff00; clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); z-index: 80000; cursor: pointer; }
         .target-item { position: absolute; z-index: 80000; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; width: 44px; height: 44px; color: #000; }
         .miss-item { position: absolute; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 18px; width: 25px; height: 25px; color: #000; }
-        
         @keyframes moveBg { 0% { transform: translate(0,0); } 25% { transform: translate(100px, 50px); } 50% { transform: translate(50px, 100px); } 75% { transform: translate(-50px, 50px); } 100% { transform: translate(0,0); } }
         .moving-bg { animation: moveBg 5s infinite linear; }
-
         .btn-start { width:90%; max-width:340px; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:14px; font-size:20px; font-weight:bold; cursor:pointer; }
         input { padding:14px; font-size:16px; width:90%; max-width:340px; margin-bottom:10px; border-radius:10px; border:1px solid #ccc; color:#000; }
         .rank-row { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 4px 0; font-family: monospace; font-size: 12px; }
@@ -45,12 +38,15 @@
     <div class="prize-header">🏆 1位：10万円ギフト券 / 1st Prize: 100,000 JPY</div>
     <h1 style="color:#ffd700; font-size:24px; margin: 20px 0 10px;">GIGA-HARD 2026</h1>
     <div style="width: 100%; max-width: 340px;">
-        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse">応援して挑戦権を確定！🚀</a>
-        <input type="text" id="p-name" placeholder="Nickname">
-        <input type="password" id="p-pass" placeholder="4-digit Pass">
+        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse">応援して挑戦権を確定！🚀<br><span style="font-size:12px;">Support & Confirm Entry!</span></a>
+        <input type="text" id="p-name" placeholder="Nickname / ニックネーム">
+        <input type="password" id="p-pass" placeholder="4-digit Pass / パスワード">
         <button onclick="startGame()" class="btn-start">GAME START / 26 STAGES</button>
         <div class="terms-box">
-            <p>・2026.12.31まで合計タイムで競います。</p>
+            <p><strong>・このゲームは無料です。 / This game is free to play.</strong></p>
+            <p>・2026.12.31まで不定期で追加され、その合計タイムで競います。<br><span class="eng-text">*Rank by total clear time until Dec 31, 2026.</span></p>
+            <p>・挑戦時はOFUSEに同じパスワードでログインしてください。本人確認のためです。<br><span class="eng-text">*Login to OFUSE with the same password to verify identity.</span></p>
+            <p>・海外1位の場合はJCB相当を当時のレートで換算します。<br><span class="eng-text">*International winners: Prize converted at exchange rate.</span></p>
             <div id="rank-list" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:8px; border-radius:8px;"></div>
         </div>
     </div>
@@ -66,7 +62,7 @@
 let cur = 0, ms = 3000, active = false, found = 0, audioCtx = null, choiceInterval = null;
 
 function renderRank() {
-    const data = [["KING",10.05],["ACE",11.20],["SORA",12.45],["NANA",13.00],["BIRD",14.10],["FAST",14.88],["K",15.20]];
+    const data = [["KING",10.05],["ACE",11.20],["SORA",12.45],["NANA",13.00],["BIRD",14.10],["FAST",14.88],["K",15.20],["L",16.00],["M",16.50],["Z",17.00]];
     document.getElementById('rank-list').innerHTML = data.map((r,i)=>`<div class="rank-row"><span>${i+1}. ${r[0]}</span><span>${r[1]}s</span></div>`).join('');
 }
 
@@ -80,33 +76,34 @@ function playBeep(f, d) {
     o.start(); o.stop(audioCtx.currentTime + d);
 }
 
+// 全背景数(n)を元の1.3倍(30%増)に調整済み
 const stages = [
-    {t:"1. 人 / Human", c:["🐶","🐱","🐭"], g:"🙋‍♂️", n:600},
-    {t:"2. 猫(イエロー同化) / Find Cat", c:["🐶","🐥","🐹","🦊"], g:"🐱", n:750},
-    {t:"3. 自転車 / Bicycle", c:["🚗","🚕","🚙"], g:"🚲", n:700},
-    {t:"4. クッキー / Cookie", c:["🍬","🍭","🍫"], g:"🍪", n:700, type:"tiny_cookie"},
-    {t:"5. グレー丸5 / 5 Gray", type:"silver_hard", n:700, goals:5},
-    {t:"6. ピエロ / Tiny Clown", c:["💃","🕺"], g:"🤡", n:600, type:"tiny_clown"},
-    {t:"7. 国旗5 / 5 Flags", c:["🌏","🌎"], g:["🇯🇵","🇺🇸","🇫🇷","🇩🇪","🇰🇷"], n:500, goals:5},
-    {t:"8. 骨 / Find Bone", c:["🐟","🐠"], g:"🦴", n:780},
-    {t:"9. 五角形5個(14px) / 5 Pentagons", c:["⭐"], n:900, goals:5, type:"penta_task"},
-    {t:"10. 逆「あ」x5 / Mirror 'あ'", c:["あ"], g:"あ", n:800, goals:5, type:"mirror_distinct"},
-    {t:"11. ⛩️ / Torii", c:["🏢","🏨"], g:"⛩️", n:800},
-    {t:"12. 🍒 / Cherry", c:["🍎","🍅"], g:"🍒", n:600},
-    {t:"13. 虫(14px) / Tiny Bug", c:["🍃","🌱"], g:"🐛", n:600, type:"tiny_bug"},
-    {t:"14. 🏆 / Trophy", c:["⚽","🏀"], g:"🏆", n:600},
-    {t:"15. 🍌 / Banana", c:["🌙","🌛"], g:"🍌", n:700},
-    {t:"16. 🐼x5 / 5 Pandas", c:["🐨","🐻"], g:"🐼", n:500, goals:5},
-    {t:"17. 🐙 / Octopus", c:["🦑","🦀"], g:"🐙", n:700},
-    {t:"18. 🛸(透過) / Faint UFO", c:["✨","🌟"], g:"🛸", n:800, type:"ufo_trap"},
-    {t:"19. 🍦x5 / Ice", c:["🍭","🍩"], g:"🍦", n:600, goals:5},
-    {t:"20. 👀x3 / Eyes", c:["👁️"], g:"👀", n:1000, goals:3},
-    {t:"21. 💃 / Lady", c:["🧔","👴"], g:"💃", n:600},
-    {t:"22. 静止■x5 / 5 Still Square", c:["■"], g:"■", n:500, goals:5, type:"moving_bg"},
-    {t:"23. 🐥x5 / 5 Chicks", c:["🥚","🐓"], g:"🐥", n:1200, goals:5},
+    {t:"1. 人 / Human", c:["🐶","🐱","🐭"], g:"🙋‍♂️", n:780},
+    {t:"2. 猫(イエロー同化) / Find Cat", c:["🐶","🐥","🐹","🦊"], g:"🐱", n:975},
+    {t:"3. 自転車 / Bicycle", c:["🚗","🚕","🚙"], g:"🚲", n:910},
+    {t:"4. クッキー / Cookie", c:["🍬","🍭","🍫"], g:"🍪", n:910, type:"tiny_cookie"},
+    {t:"5. グレー丸5 / 5 Gray", type:"silver_hard", n:910, goals:5},
+    {t:"6. ピエロ / Tiny Clown", c:["💃","🕺"], g:"🤡", n:780, type:"tiny_clown"},
+    {t:"7. 国旗5 / 5 Flags", c:["🌏","🌎"], g:["🇯🇵","🇺🇸","🇫🇷","🇩🇪","🇰🇷"], n:650, goals:5},
+    {t:"8. 骨 / Find Bone", c:["🐟","🐠"], g:"🦴", n:1014},
+    {t:"9. 五角形5個(14px) / 5 Pentagons", c:["⭐"], n:1170, goals:5, type:"penta_task"},
+    {t:"10. 逆「あ」x5 / Mirror 'あ'", c:["あ"], g:"あ", n:1040, goals:5, type:"mirror_distinct"},
+    {t:"11. ⛩️ / Torii", c:["🏢","🏨"], g:"⛩️", n:1040},
+    {t:"12. 🍒 / Cherry", c:["🍎","🍅"], g:"🍒", n:780},
+    {t:"13. 虫(14px) / Tiny Bug", c:["🍃","🌱"], g:"🐛", n:780, type:"tiny_bug"},
+    {t:"14. 🏆 / Trophy", c:["⚽","🏀"], g:"🏆", n:780},
+    {t:"15. 🍌 / Banana", c:["🌙","🌛"], g:"🍌", n:910},
+    {t:"16. 🐼x5 / 5 Pandas", c:["🐨","🐻"], g:"🐼", n:650, goals:5},
+    {t:"17. 🐙 / Octopus", c:["🦑","🦀"], g:"🐙", n:910},
+    {t:"18. 🛸(透過) / Faint UFO", c:["✨","🌟"], g:"🛸", n:1040, type:"ufo_trap"},
+    {t:"19. 🍦x5 / Ice", c:["🍭","🍩"], g:"🍦", n:780, goals:5},
+    {t:"20. 👀x3 / Eyes", c:["👁️"], g:"👀", n:1300, goals:3},
+    {t:"21. 💃 / Lady", c:["🧔","👴"], g:"💃", n:780},
+    {t:"22. 静止■x5 / 5 Still Square", c:["■"], g:"■", n:650, goals:5, type:"moving_bg"},
+    {t:"23. 🐥x5 / 5 Chicks", c:["🥚","🐓"], g:"🐥", n:1560, goals:5},
     {t:"24. 運命の選択 / Fate", type:"choice"},
     {t:"25. 螺旋切れ目x5 / 5 Micro Gaps", type:"spiral", goals:5},
-    {t:"26. FINAL / Smile", c:["😭","😢","😡"], g:"😊", n:1500}
+    {t:"26. FINAL", c:["😭","😢","😡"], g:"😊", n:1950}
 ];
 
 function startGame() {
@@ -127,34 +124,31 @@ function init() {
         const w = window.innerWidth, h = window.innerHeight-60;
         const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
         svg.setAttribute("width",w); svg.setAttribute("height",h);
-        const gList = []; while(gList.length<5) gList.push(Math.floor(Math.random()*20000)+1000);
+        const gList = []; while(gList.length<5) gList.push(Math.floor(Math.random()*22000)+1000);
         let pathD = "";
-        for(let i=0; i<25000; i+=5){
-            let a = 0.1*i, r = 0.015*i;
+        for(let i=0; i<28000; i+=5){
+            let a = 0.08*i, r = 0.013*i;
             let x = (w/2)+r*Math.cos(a*Math.PI/180), y = (h/2)+r*Math.sin(a*Math.PI/180);
-            let isGap = gList.some(gap => i >= gap && i < gap+60);
-            if(!isGap) {
-                pathD += (pathD===""?"M":"L") + x + "," + y + " ";
-            } else {
-                pathD += "M " + x + "," + y + " "; // 切れ目作成
+            let isGap = gList.some(gap => i >= gap && i < gap+50);
+            if(!isGap) { pathD += (pathD===""?"M":"L") + x + "," + y + " "; }
+            else {
+                pathD += "M " + x + "," + y + " ";
                 const hC = document.createElement('div');
-                hC.style = `position:absolute; left:${x}px; top:${y}px; width:40px; height:40px; margin:-20px; z-index:999; cursor:pointer;`;
+                hC.style = `position:absolute; left:${x}px; top:${y}px; width:44px; height:44px; margin:-22px; z-index:999; cursor:pointer;`;
                 hC.onclick = () => { hC.style.background="rgba(255,0,0,0.5)"; found++; if(found>=5) nextStage(); };
                 f.appendChild(hC);
             }
         }
         const path = document.createElementNS("http://www.w3.org/2000/svg","path");
-        path.setAttribute("d", pathD); path.setAttribute("fill","none");
-        path.setAttribute("stroke","#000"); path.setAttribute("stroke-width","2");
+        path.setAttribute("d", pathD); path.setAttribute("fill","none"); path.setAttribute("stroke","#000"); path.setAttribute("stroke-width","2");
         svg.appendChild(path); f.appendChild(svg);
     } else if(s.type === "silver_hard") {
         for(let i=0; i<s.n; i++){
-            const y = document.createElement('div'); y.style="position:absolute;background:#ffff00;border-radius:50%;width:18px;height:18px;border:1px solid #ccaa00;";
-            y.style.left = Math.random()*96+"%"; y.style.top = Math.random()*96+"%"; f.appendChild(y);
+            const y = document.createElement('div'); y.style=`position:absolute;background:#ffff00;border-radius:50%;width:18px;height:18px;border:1px solid #ccaa00;left:${Math.random()*96}%;top:${Math.random()*96}%`;
+            f.appendChild(y);
         }
         for(let j=0; j<5; j++){
-            const g = document.createElement('div'); g.style="position:absolute;background:rgba(136,136,136,0.3);border-radius:50%;width:14px;height:14px;border:1px solid rgba(51,51,51,0.3);cursor:pointer;z-index:100;";
-            g.style.left = Math.random()*92+"%"; g.style.top = Math.random()*92+"%";
+            const g = document.createElement('div'); g.style=`position:absolute;background:rgba(136,136,136,0.3);border-radius:50%;width:14px;height:14px;border:1px solid rgba(51,51,51,0.3);cursor:pointer;z-index:100;left:${Math.random()*92}%;top:${Math.random()*92}%`;
             g.onclick = () => { if(!active)return; g.style.visibility="hidden"; found++; if(found>=5) nextStage(); };
             f.appendChild(g);
         }
