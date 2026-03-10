@@ -31,14 +31,16 @@
     <div class="prize-header">🏆 1位：10万円ギフト券 / 1st Prize: 100,000 JPY</div>
     <h1 style="color:#ffd700; font-size:24px; margin: 20px 0 10px;">GIGA-HARD 2026</h1>
     <div style="width: 100%; max-width: 340px;">
-        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse">応援して挑戦権を確定！🚀</a>
+        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse">応援して挑戦権を確定！🚀<br><span style="font-size:12px;">Support & Confirm Entry!</span></a>
         <input type="text" id="p-name" placeholder="Nickname">
         <input type="password" id="p-pass" placeholder="4-digit Pass">
         <button onclick="startGame()" class="btn-start">GAME START / 26+ STAGES</button>
         <div class="terms-box">
             <p><strong>・このゲームは無料です。</strong></p>
-            <p>・2026.12.31まで不規則にステージが追加され、その合計タイムで競います。</p>
-            <p>・挑戦時はOFUSEに同じパスワードでログインしてください。</p>
+            <p>・2026.12.31まで不規則にステージが追加され、その合計クリアタイムで競います。</p>
+            <p>・皆様の応援（OFUSE）による収益の一部は、<strong>ユニセフ、国境なき医師団、日本赤十字社等へ寄付</strong>されます。皆様の「想い」で社会貢献を目指すプロジェクトです。</p>
+            <p>・挑戦時はOFUSEに設定したのと同じパスワードを入力してください（本人確認用）。</p>
+            <p>・海外勢が1位の場合は、JCBギフト券相当額を当時のレートで換算し送付します。</p>
             <div id="rank-list" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:8px; border-radius:8px;"></div>
         </div>
     </div>
@@ -162,7 +164,6 @@ function init() {
             t.className = 'target-item' + (s.type==="moving_bg" && s.t.includes("Smile") ?" moving-bg":"");
             if(s.type === "penta_task") { t.className = "pentagon-filled-tiny"; }
             else if(s.type === "ufo_trap") { t.style.opacity = "0.2"; }
-            
             t.style.fontSize = (s.type==="tiny_cookie")?"16px":(s.type==="tiny_clown")?"10px":(s.type==="tiny_bug")?"14px":"24px";
             t.innerText = Array.isArray(s.g)?s.g[j]:s.g;
             t.style.left=(Math.random()*85+5)+"%"; t.style.top=(Math.random()*80+10)+"%";
