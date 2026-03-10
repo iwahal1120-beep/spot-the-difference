@@ -13,7 +13,6 @@
         .prize-header { background: linear-gradient(90deg, #ffd700, #fff, #ffd700); color: #000; font-weight: bold; padding: 12px; font-size: 16px; width: 100%; border-bottom: 2px solid #000; }
         .btn-ofuse { background: #ed6c00; color: white; padding: 16px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin: 15px auto; width: 90%; max-width: 340px; border: 2px solid #fff; line-height: 1.2; }
         .terms-box { font-size: 11px; color: #ccc; text-align: left; width: 90%; max-width: 360px; line-height: 1.6; border-top: 1px solid #444; padding: 15px 10px; }
-        .eng-text { font-size: 9px; color: #888; display: block; line-height: 1.2; margin-top: 2px; }
 
         .header { background: #d44d5c; color: white; height: 60px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; position: relative; z-index: 50000; }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
@@ -23,7 +22,6 @@
 
         .game-area { width: 100vw; height: calc(100vh - 60px); position: relative; background: #fff; overflow: hidden; }
         
-        /* 9番：五角形 14px */
         .pentagon-filled-tiny {
             position: absolute; width: 14px; height: 14px; background: #ffff00;
             clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
@@ -47,15 +45,12 @@
     <div class="prize-header">🏆 1位：10万円ギフト券 / 1st Prize: 100,000 JPY</div>
     <h1 style="color:#ffd700; font-size:24px; margin: 20px 0 10px;">GIGA-HARD 2026</h1>
     <div style="width: 100%; max-width: 340px;">
-        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse">応援して挑戦権を確定！🚀<br><span style="font-size:12px;">Support & Confirm Entry!</span></a>
-        <input type="text" id="p-name" placeholder="Nickname / ニックネーム">
-        <input type="password" id="p-pass" placeholder="4-digit Pass / パスワード">
+        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse">応援して挑戦権を確定！🚀</a>
+        <input type="text" id="p-name" placeholder="Nickname">
+        <input type="password" id="p-pass" placeholder="4-digit Pass">
         <button onclick="startGame()" class="btn-start">GAME START / 26 STAGES</button>
         <div class="terms-box">
-            <p><strong>・このゲームは無料です。 / This game is free to play.</strong></p>
-            <p>・2026.12.31まで不定期で追加され、その合計タイムで競います。<br><span class="eng-text">*Rank by total clear time until Dec 31, 2026.</span></p>
-            <p>・挑戦時はOFUSEに同じパスワードでログインしてください。<br><span class="eng-text">*Login to OFUSE with the same password.</span></p>
-            <p>・海外1位の場合はJCB相当を当時のレートで換算します。<br><span class="eng-text">*Prize converted at exchange rate.</span></p>
+            <p>・2026.12.31まで合計タイムで競います。</p>
             <div id="rank-list" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:8px; border-radius:8px;"></div>
         </div>
     </div>
@@ -71,7 +66,7 @@
 let cur = 0, ms = 3000, active = false, found = 0, audioCtx = null, choiceInterval = null;
 
 function renderRank() {
-    const data = [["KING",10.05],["ACE",11.20],["SORA",12.45],["NANA",13.00],["BIRD",14.10],["FAST",14.88],["K",15.20],["L",16.00],["M",16.50],["Z",17.00]];
+    const data = [["KING",10.05],["ACE",11.20],["SORA",12.45],["NANA",13.00],["BIRD",14.10],["FAST",14.88],["K",15.20]];
     document.getElementById('rank-list').innerHTML = data.map((r,i)=>`<div class="rank-row"><span>${i+1}. ${r[0]}</span><span>${r[1]}s</span></div>`).join('');
 }
 
@@ -90,15 +85,15 @@ const stages = [
     {t:"2. 猫(イエロー同化) / Find Cat", c:["🐶","🐥","🐹","🦊"], g:"🐱", n:750},
     {t:"3. 自転車 / Bicycle", c:["🚗","🚕","🚙"], g:"🚲", n:700},
     {t:"4. クッキー / Cookie", c:["🍬","🍭","🍫"], g:"🍪", n:700, type:"tiny_cookie"},
-    {t:"5. グレー丸5(イエロー700) / 5 Gray", type:"silver_hard", n:700, goals:5},
+    {t:"5. グレー丸5 / 5 Gray", type:"silver_hard", n:700, goals:5},
     {t:"6. ピエロ / Tiny Clown", c:["💃","🕺"], g:"🤡", n:600, type:"tiny_clown"},
     {t:"7. 国旗5 / 5 Flags", c:["🌏","🌎"], g:["🇯🇵","🇺🇸","🇫🇷","🇩🇪","🇰🇷"], n:500, goals:5},
     {t:"8. 骨 / Find Bone", c:["🐟","🐠"], g:"🦴", n:780},
-    {t:"9. 五角形5個(40%小) / 5 Pentagons", c:["⭐"], n:900, goals:5, type:"penta_task"},
+    {t:"9. 五角形5個(14px) / 5 Pentagons", c:["⭐"], n:900, goals:5, type:"penta_task"},
     {t:"10. 逆「あ」x5 / Mirror 'あ'", c:["あ"], g:"あ", n:800, goals:5, type:"mirror_distinct"},
     {t:"11. ⛩️ / Torii", c:["🏢","🏨"], g:"⛩️", n:800},
     {t:"12. 🍒 / Cherry", c:["🍎","🍅"], g:"🍒", n:600},
-    {t:"13. 虫(40%小) / Tiny Bug", c:["🍃","🌱"], g:"🐛", n:600, type:"tiny_bug"},
+    {t:"13. 虫(14px) / Tiny Bug", c:["🍃","🌱"], g:"🐛", n:600, type:"tiny_bug"},
     {t:"14. 🏆 / Trophy", c:["⚽","🏀"], g:"🏆", n:600},
     {t:"15. 🍌 / Banana", c:["🌙","🌛"], g:"🍌", n:700},
     {t:"16. 🐼x5 / 5 Pandas", c:["🐨","🐻"], g:"🐼", n:500, goals:5},
@@ -110,8 +105,8 @@ const stages = [
     {t:"22. 静止■x5 / 5 Still Square", c:["■"], g:"■", n:500, goals:5, type:"moving_bg"},
     {t:"23. 🐥x5 / 5 Chicks", c:["🥚","🐓"], g:"🐥", n:1200, goals:5},
     {t:"24. 運命の選択 / Fate", type:"choice"},
-    {t:"25. 螺旋切れ目 / 5 Micro Gaps", type:"spiral", goals:5},
-    {t:"26. FINAL", c:["😭","😢","😡"], g:"😊", n:1500}
+    {t:"25. 螺旋切れ目x5 / 5 Micro Gaps", type:"spiral", goals:5},
+    {t:"26. FINAL / Smile", c:["😭","😢","😡"], g:"😊", n:1500}
 ];
 
 function startGame() {
@@ -128,7 +123,31 @@ function init() {
     document.getElementById('stg-n').innerText = cur + 1;
     document.getElementById('stg-guide').innerText = s.t;
 
-    if(s.type === "silver_hard") {
+    if(s.type === "spiral") {
+        const w = window.innerWidth, h = window.innerHeight-60;
+        const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+        svg.setAttribute("width",w); svg.setAttribute("height",h);
+        const gList = []; while(gList.length<5) gList.push(Math.floor(Math.random()*20000)+1000);
+        let pathD = "";
+        for(let i=0; i<25000; i+=5){
+            let a = 0.1*i, r = 0.015*i;
+            let x = (w/2)+r*Math.cos(a*Math.PI/180), y = (h/2)+r*Math.sin(a*Math.PI/180);
+            let isGap = gList.some(gap => i >= gap && i < gap+60);
+            if(!isGap) {
+                pathD += (pathD===""?"M":"L") + x + "," + y + " ";
+            } else {
+                pathD += "M " + x + "," + y + " "; // 切れ目作成
+                const hC = document.createElement('div');
+                hC.style = `position:absolute; left:${x}px; top:${y}px; width:40px; height:40px; margin:-20px; z-index:999; cursor:pointer;`;
+                hC.onclick = () => { hC.style.background="rgba(255,0,0,0.5)"; found++; if(found>=5) nextStage(); };
+                f.appendChild(hC);
+            }
+        }
+        const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+        path.setAttribute("d", pathD); path.setAttribute("fill","none");
+        path.setAttribute("stroke","#000"); path.setAttribute("stroke-width","2");
+        svg.appendChild(path); f.appendChild(svg);
+    } else if(s.type === "silver_hard") {
         for(let i=0; i<s.n; i++){
             const y = document.createElement('div'); y.style="position:absolute;background:#ffff00;border-radius:50%;width:18px;height:18px;border:1px solid #ccaa00;";
             y.style.left = Math.random()*96+"%"; y.style.top = Math.random()*96+"%"; f.appendChild(y);
@@ -147,24 +166,6 @@ function init() {
         bR.onclick = () => target === "blue" ? nextStage() : location.reload();
         f.appendChild(bL); f.appendChild(bR);
         choiceInterval = setInterval(() => { target = Math.random()>0.5?"red":"blue"; bL.style.opacity=target==="red"?"1":"0.1"; bR.style.opacity=target==="blue"?"1":"0.1"; }, 600);
-    } else if(s.type === "spiral") {
-        const w = window.innerWidth, h = window.innerHeight-60;
-        const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-        svg.setAttribute("width",w); svg.setAttribute("height",h);
-        const g = document.createElementNS("http://www.w3.org/2000/svg","g");
-        g.setAttribute("fill","none"); g.setAttribute("stroke","#000"); g.setAttribute("stroke-width","1.2");
-        svg.appendChild(g); f.appendChild(svg);
-        const gList = []; while(gList.length<5) gList.push(Math.floor(Math.random()*160000)+10000);
-        for(let i=0; i<180000; i+=10){
-            let a = 0.05*i, r = 0.003*i;
-            let x = (w/2)+r*Math.cos(a*Math.PI/180), y = (h/2)+r*Math.sin(a*Math.PI/180);
-            if(gList.some(gap => i >= gap && i < gap+130)){
-                const hCircle = document.createElement('div');
-                hCircle.style = `position:absolute; left:${x}px; top:${y}px; width:44px; height:44px; margin:-22px; cursor:pointer;`;
-                hCircle.onclick = () => { hCircle.style.background="rgba(255,0,0,0.6)"; found++; if(found>=5) nextStage(); };
-                f.appendChild(hCircle);
-            }
-        }
     } else {
         for(let i=0; i<s.n; i++){
             const m = document.createElement('span'); m.className = 'miss-item' + (s.type==="moving_bg"?" moving-bg":"");
@@ -198,7 +199,6 @@ setInterval(() => {
     if(!active) return;
     ms--; const t = document.getElementById('timer'); t.innerText = (ms/100).toFixed(2);
     if(ms <= 1000) { t.classList.add('timer-danger'); if(ms % 100 === 0) playBeep(880, 0.05); }
-    else { t.classList.remove('timer-danger'); }
     if(ms <= 0) { active = false; playBeep(220, 0.5); alert("TIME UP!"); location.reload(); }
 }, 10);
 </script>
