@@ -17,7 +17,10 @@
         #timer { color: #fff; background: #000; padding: 4px 10px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 24px; min-width: 100px; border: 2px solid #666; }
         #timer.timer-danger { color: #ff0000 !important; border-color: #ff0000; animation: flash 0.5s infinite; }
         .game-area { width: 100vw; height: calc(100vh - 60px); position: relative; background: #fff; overflow: hidden; }
+        
+        /* 9番：五角形 */
         .pentagon-filled-tiny { position: absolute; width: 14px; height: 14px; background: #ffff00; clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); z-index: 80000; cursor: pointer; border: 1px solid #ccaa00; }
+        
         .target-item { position: absolute; z-index: 80000; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; width: 44px; height: 44px; color: #000; }
         .miss-item { position: absolute; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 18px; width: 25px; height: 25px; color: #000; }
         @keyframes moveBg { 0% { transform: translate(0,0); } 25% { transform: translate(70px, 35px); } 50% { transform: translate(-35px, 70px); } 75% { transform: translate(-70px, -35px); } 100% { transform: translate(0,0); } }
@@ -39,9 +42,9 @@
         <div class="terms-box">
             <p><strong>・このゲームは無料です。</strong></p>
             <p>・2026.12.31まで不規則にステージが追加され、その合計タイムで競います。</p>
-            <p>・皆様の応援（<a href="https://ofuse.me/d33e72b9" target="_blank" style="color:#ffd700;">OFUSE</a>）による収益の一部は、<strong>ユニセフ、国境なき医師団、日本赤十字社等へ寄付</strong>されます。皆様の想いで寄付を目指すプロジェクトです。</p>
-            <p>・挑戦時はOFUSEに設定したのと同じパスワードを入力してください。</p>
-            <p>・海外勢が1位の場合は、JCBギフト券相当額をレート換算し送付します。</p>
+            <p>・皆様の応援（<a href="https://ofuse.me/d33e72b9" target="_blank" style="color:#ffd700;">OFUSE</a>）による収益の一部は、<strong>ユニセフ、国境なき医師団、日本赤十字社等へ寄付</strong>されます。皆様の想いで社会貢献を目指すプロジェクトです。</p>
+            <p>・挑戦時はOFUSEと同じパスワードを入力してください。</p>
+            <p>・海外勢1位にはJCBギフト券相当額をレート換算し送付します。</p>
             <div id="rank-list" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:8px; border-radius:8px;"></div>
         </div>
     </div>
@@ -116,28 +119,28 @@ function init() {
         const w = window.innerWidth, h = window.innerHeight-60;
         const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
         svg.setAttribute("width",w); svg.setAttribute("height",h);
-        // 100周螺旋のための膨大な描画カウント
-        const gList = []; while(gList.length<5) gList.push(Math.floor(Math.random()*110000)+5000);
+        const gList = []; while(gList.length<5) gList.push(Math.floor(Math.random()*380000)+10000);
         let pathD = "";
-        for(let i=0; i<120000; i+=2.5){
-            let a = 0.03*i, r = 0.0031*i;
+        for(let i=0; i<400000; i+=3){
+            let a = 0.09 * i; let r = 0.0012 * i; 
             let x = (w/2)+r*Math.cos(a*Math.PI/180), y = (h/2)+r*Math.sin(a*Math.PI/180);
-            let isGap = gList.some(gap => i >= gap && i < gap+30);
+            let isGap = gList.some(gap => i >= gap && i < gap+45);
             if(!isGap) { pathD += (pathD===""?"M":"L") + x + "," + y + " "; }
             else {
-                pathD += "M " + x + "," + y + " "; // 物理的な断線
+                pathD += "M " + x + "," + y + " "; // 物理断線
                 const hC = document.createElement('div');
-                hC.style = `position:absolute; left:${x}px; top:${y}px; width:44px; height:44px; margin:-22px; z-index:9999; cursor:pointer; display:flex; align-items:center; justify-content:center;`;
-                const dot = document.createElement('div');
-                dot.style = "width:1px; height:1px; background:rgba(255,0,0,0.7); pointer-events:none;"; 
-                hC.appendChild(dot);
-                hC.onclick = () => { if(dot.style.background==="blue") return; dot.style.background="blue"; dot.style.width="10px"; dot.style.height="10px"; found++; if(found>=5) nextStage(); };
+                hC.style = `position:absolute; left:${x}px; top:${y}px; width:34px; height:34px; margin:-17px; z-index:9999; cursor:crosshair;`;
+                hC.onclick = () => { 
+                    if(hC.dataset.hit === "true") return;
+                    hC.dataset.hit = "true"; hC.style.background = "rgba(0,0,255,0.2)";
+                    found++; if(found>=5) nextStage(); 
+                };
                 f.appendChild(hC);
             }
         }
-        const path = document.createElementNS("http://www.w3.org/2000/svg","path");
-        path.setAttribute("d", pathD); path.setAttribute("fill","none"); path.setAttribute("stroke","#000"); path.setAttribute("stroke-width","1");
-        svg.appendChild(path); f.appendChild(svg);
+        const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+        p.setAttribute("d", pathD); p.setAttribute("fill","none"); p.setAttribute("stroke","#000"); p.setAttribute("stroke-width","1.1");
+        svg.appendChild(p); f.appendChild(svg);
     } else if(s.type === "choice") {
         const bL = document.createElement('div'); bL.style = "position:absolute; left:10%; top:30%; width:130px; height:130px; border-radius:50%; background:red; border:4px solid white;";
         const bR = bL.cloneNode(); bR.style.left = "55%"; bR.style.background = "blue";
@@ -181,7 +184,7 @@ function init() {
     }
 }
 
-function nextStage() { active=false; if(choiceInterval)clearInterval(choiceInterval); confetti(); cur++; setTimeout(()=>{ if(cur<stages.length)init(); else {alert("YOU ARE THE MASTER! ALL 26+ STAGES CLEAR!"); location.reload();} }, 600); }
+function nextStage() { active=false; if(choiceInterval)clearInterval(choiceInterval); confetti(); cur++; setTimeout(()=>{ if(cur<stages.length)init(); else {alert("MASTER CLEAR!"); location.reload();} }, 600); }
 
 setInterval(() => {
     if(!active) return;
