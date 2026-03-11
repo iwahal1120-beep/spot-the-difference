@@ -6,30 +6,22 @@
     <title>Search Challenge GIGA-HARD 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        /* 全体設定：サプライズを邪魔しないミニマルデザイン */
         * { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
         body { text-align:center; font-family: 'Helvetica Neue', Arial, sans-serif; background: #000; margin: 0; overflow: hidden; color: #fff; }
         #start-screen { position:fixed; top:0; left:0; width:100%; height:100%; background:linear-gradient(180deg, #000 0%, #1a1a1a 100%); z-index:99999; display:flex; flex-direction:column; align-items:center; overflow-y: auto; padding-bottom: 50px; }
         .prize-header { background: linear-gradient(90deg, #ffd700, #fff, #ffd700); color: #000; font-weight: bold; padding: 12px; font-size: 16px; width: 100%; border-bottom: 2px solid #000; }
-        
-        /* 復活したOFUSEボタン */
-        .btn-ofuse { background: #ed6c00; color: white; padding: 18px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin: 25px auto; width: 90%; max-width: 340px; border: 2px solid #fff; line-height: 1.3; box-shadow: 0 0 15px rgba(237,108,0,0.5); }
-        .btn-ofuse:active { transform: scale(0.98); }
-
+        .btn-ofuse { background: #ed6c00; color: white; padding: 18px; border-radius: 12px; text-decoration: none; font-size: 16px; font-weight: bold; display: block; margin: 25px auto; width: 90%; max-width: 340px; border: 2px solid #fff; line-height: 1.3; }
         .terms-box { font-size: 11px; color: #ccc; text-align: left; width: 90%; max-width: 360px; line-height: 1.6; border-top: 1px solid #444; padding: 15px 10px; }
         .header { background: #d44d5c; color: white; height: 60px; display: flex; flex-direction: column; justify-content: center; padding: 0 10px; position: relative; z-index: 50000; }
         .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         #timer { color: #fff; background: #000; padding: 4px 10px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 24px; min-width: 100px; border: 2px solid #666; }
         #timer.timer-danger { color: #ff0000 !important; border-color: #ff0000; animation: flash 0.5s infinite; }
         .game-area { width: 100vw; height: calc(100vh - 60px); position: relative; background: #fff; overflow: hidden; }
-        
-        /* ターゲット要素 */
         .pentagon-filled-tiny { position: absolute; width: 14px; height: 14px; background: #ffff00; clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); z-index: 80000; cursor: pointer; }
         .target-item { position: absolute; z-index: 80000; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; width: 44px; height: 44px; color: #000; }
         .miss-item { position: absolute; z-index: 10; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 18px; width: 25px; height: 25px; color: #000; }
         @keyframes moveBg { 0% { transform: translate(0,0); } 25% { transform: translate(70px, 35px); } 50% { transform: translate(-35px, 70px); } 75% { transform: translate(-70px, -35px); } 100% { transform: translate(0,0); } }
         .moving-bg { animation: moveBg 2.5s infinite linear; }
-        
         .btn-start { width:90%; max-width:340px; padding:18px; background:linear-gradient(#ff6b6b, #d44d5c); color:white; border:none; border-radius:14px; font-size:20px; font-weight:bold; cursor:pointer; }
         input { padding:14px; font-size:16px; width:90%; max-width:340px; margin-bottom:10px; border-radius:10px; border:1px solid #ccc; color:#000; }
     </style>
@@ -39,22 +31,15 @@
 <div id="start-screen">
     <div class="prize-header">🏆 1位：10万円ギフト券 / 1st Prize: 100k JPY</div>
     <h1 style="color:#ffd700; font-size:28px; margin: 30px 0 10px;">GIGA-HARD 2026</h1>
-    
     <div style="width: 100%; max-width: 340px;">
-        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse">
-            応援（OFUSE）して挑戦権を確定！🚀<br>
-            <span style="font-size:12px; font-weight:normal;">Support via OFUSE & Unlock Entry!</span>
-        </a>
-
+        <a href="https://ofuse.me/d33e72b9" target="_blank" class="btn-ofuse">応援（OFUSE）して挑戦権を確定！🚀<br><span style="font-size:12px;">Support & Unlock Entry!</span></a>
         <input type="text" id="p-name" placeholder="Nickname">
-        <input type="password" id="p-pass" placeholder="4-digit Pass (OFUSE連携用)">
+        <input type="password" id="p-pass" placeholder="4-digit Pass">
         <button onclick="startGame()" class="btn-start">GAME START / STAGE 1-26</button>
-
         <div class="terms-box">
             <p><strong>・差別化された「理不尽」への挑戦</strong></p>
             <p>・2026.12.31までの合計タイムで競います。</p>
-            <p>・OFUSE収益の一部は、<strong>ユニセフ、国境なき医師団、日本赤十字社等へ寄付</strong>されます。あなたのサプライズが社会貢献に。</p>
-            <p>・海外勢1位にはJCB相当額をレート換算し送付。</p>
+            <p>・OFUSE収益の一部は、<strong>寄付（日本赤十字社等）</strong>されます。あなたのサプライズが社会貢献に。</p>
             <div id="rank-list" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:8px; border-radius:8px;"></div>
         </div>
     </div>
@@ -130,19 +115,21 @@ function init() {
         const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
         svg.setAttribute("width",w); svg.setAttribute("height",h);
         const gList = [];
-        // 5箇所を確実にセパレートして生成
-        for(let k=0; k<5; k++) gList.push(Math.floor(Math.random()*65000) + (k*70000) + 30000);
+        // 正解の独立性を保証するロジック
+        for(let k=0; k<5; k++) gList.push(Math.floor(Math.random()*60000) + (k*75000) + 20000);
         let pathD = "";
         for(let i=0; i<400000; i+=3){
             let a = 0.092 * i; let r = 0.0011 * i; 
             let x = (w/2)+r*Math.cos(a*Math.PI/180), y = (h/2)+r*Math.sin(a*Math.PI/180);
-            let isGap = gList.some(gap => i >= gap && i < gap+65);
+            let isGap = gList.some(gap => i >= gap && i < gap+70);
             if(!isGap) { pathD += (pathD===""?"M":"L") + x + "," + y + " "; }
             else {
                 pathD += "M " + x + "," + y + " "; 
                 const hC = document.createElement('div');
-                hC.style = `position:absolute; left:${x}px; top:${y}px; width:46px; height:46px; margin:-23px; z-index:9999; cursor:crosshair;`;
-                hC.onclick = () => { 
+                // z-indexを最大にして線より上に配置
+                hC.style = `position:absolute; left:${x}px; top:${y}px; width:48px; height:48px; margin:-24px; z-index:99999; cursor:crosshair; background:transparent;`;
+                hC.onclick = (e) => { 
+                    e.stopPropagation();
                     if(hC.dataset.hit === "true") return;
                     hC.dataset.hit = "true"; hC.style.background = "rgba(0,0,255,0.4)";
                     found++; if(found>=5) nextStage(); 
@@ -151,7 +138,7 @@ function init() {
             }
         }
         const p = document.createElementNS("http://www.w3.org/2000/svg","path");
-        p.setAttribute("d", pathD); p.setAttribute("fill","none"); p.setAttribute("stroke","#000"); p.setAttribute("stroke-width","0.9");
+        p.setAttribute("d", pathD); p.setAttribute("fill","none"); p.setAttribute("stroke","#000"); p.setAttribute("stroke-width","1.0");
         svg.appendChild(p); f.appendChild(svg);
     } else if(s.type === "choice") {
         const bL = document.createElement('div'); bL.style = "position:absolute; left:10%; top:30%; width:130px; height:130px; border-radius:50%; background:red; border:4px solid white;";
@@ -196,7 +183,7 @@ function init() {
     }
 }
 
-function nextStage() { active=false; if(choiceInterval)clearInterval(choiceInterval); confetti(); cur++; setTimeout(()=>{ if(cur<stages.length)init(); else {alert("LEGEND CLEAR!"); location.reload();} }, 600); }
+function nextStage() { active=false; if(choiceInterval)clearInterval(choiceInterval); confetti(); cur++; setTimeout(()=>{ if(cur<stages.length)init(); else {alert("MASTER CLEAR!"); location.reload();} }, 600); }
 
 setInterval(() => {
     if(!active) return;
