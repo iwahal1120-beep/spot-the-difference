@@ -38,10 +38,10 @@
         <button onclick="startGame()" class="btn-start">GAME START / 26+ STAGES</button>
         <div class="terms-box">
             <p><strong>・このゲームは無料です。</strong></p>
-            <p>・2026.12.31まで不規則にステージが追加され、その合計クリアタイムで競います。</p>
-            <p>・皆様の応援（<a href="https://ofuse.me/d33e72b9" target="_blank" style="color:#ffd700;">OFUSE</a>）による収益の一部は、<strong>ユニセフ、国境なき医師団、日本赤十字社等へ寄付</strong>されます。皆様の「想い」で社会貢献を目指すプロジェクトです。</p>
-            <p>・挑戦時はOFUSEに設定したのと同じパスワードを入力してください（本人確認用）。</p>
-            <p>・海外勢が1位の場合は、JCBギフト券相当額を当時のレートで換算し送付します。</p>
+            <p>・2026.12.31まで不規則にステージが追加され、その合計タイムで競います。</p>
+            <p>・皆様の応援（<a href="https://ofuse.me/d33e72b9" target="_blank" style="color:#ffd700;">OFUSE</a>）による収益の一部は、<strong>ユニセフ、国境なき医師団、日本赤十字社等へ寄付</strong>されます。皆様の想いで寄付を目指すプロジェクトです。</p>
+            <p>・挑戦時はOFUSEに設定したのと同じパスワードを入力してください。</p>
+            <p>・海外勢が1位の場合は、JCBギフト券相当額をレート換算し送付します。</p>
             <div id="rank-list" style="margin-top:10px; background:rgba(255,255,255,0.05); padding:8px; border-radius:8px;"></div>
         </div>
     </div>
@@ -96,7 +96,7 @@ const stages = [
     {t:"22. 静止■x5 / 5 Still Square", c:["■"], g:"■", n:910, goals:5, type:"moving_bg"},
     {t:"23. 🐥x5 / 5 Chicks", c:["🥚","🐓"], g:"🐥", n:1560, goals:5},
     {t:"24. 運命の選択 / Fate", type:"choice"},
-    {t:"25. 狂気の百巻螺旋(断線5) / Insane Spiral 100", type:"spiral", goals:5},
+    {t:"25. 狂気の100巻螺旋(断線5) / Spiral 100", type:"spiral", goals:5},
     {t:"26. FINAL: Find the Smile! / 笑顔を探せ", c:["😭","😢","😡"], g:"😊", n:1950, type:"moving_bg"}
 ];
 
@@ -116,23 +116,22 @@ function init() {
         const w = window.innerWidth, h = window.innerHeight-60;
         const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
         svg.setAttribute("width",w); svg.setAttribute("height",h);
-        // 100周(巻)の螺旋を生成 (stepを小さくして密度MAX)
+        // 100周螺旋のための膨大な描画カウント
         const gList = []; while(gList.length<5) gList.push(Math.floor(Math.random()*110000)+5000);
         let pathD = "";
-        for(let i=0; i<120000; i+=2){
-            let a = 0.03*i, r = 0.003*i;
+        for(let i=0; i<120000; i+=2.5){
+            let a = 0.03*i, r = 0.0031*i;
             let x = (w/2)+r*Math.cos(a*Math.PI/180), y = (h/2)+r*Math.sin(a*Math.PI/180);
-            let isGap = gList.some(gap => i >= gap && i < gap+20);
+            let isGap = gList.some(gap => i >= gap && i < gap+30);
             if(!isGap) { pathD += (pathD===""?"M":"L") + x + "," + y + " "; }
             else {
-                pathD += "M " + x + "," + y + " ";
+                pathD += "M " + x + "," + y + " "; // 物理的な断線
                 const hC = document.createElement('div');
-                // 正解の赤色は極小、当たり判定は適度
-                hC.style = `position:absolute; left:${x}px; top:${y}px; width:30px; height:30px; margin:-15px; z-index:9999; cursor:pointer; display:flex; align-items:center; justify-content:center;`;
+                hC.style = `position:absolute; left:${x}px; top:${y}px; width:44px; height:44px; margin:-22px; z-index:9999; cursor:pointer; display:flex; align-items:center; justify-content:center;`;
                 const dot = document.createElement('div');
-                dot.style = "width:2px; height:2px; background:rgba(255,0,0,0.5);"; // 極小の赤い点
+                dot.style = "width:1px; height:1px; background:rgba(255,0,0,0.7); pointer-events:none;"; 
                 hC.appendChild(dot);
-                hC.onclick = () => { dot.style.background="red"; dot.style.width="6px"; dot.style.height="6px"; found++; if(found>=5) nextStage(); };
+                hC.onclick = () => { if(dot.style.background==="blue") return; dot.style.background="blue"; dot.style.width="10px"; dot.style.height="10px"; found++; if(found>=5) nextStage(); };
                 f.appendChild(hC);
             }
         }
